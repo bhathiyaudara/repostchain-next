@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'repostchain.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'growmusicians.com',
+      },
     ],
   },
   async rewrites() {
