@@ -1,0 +1,1218 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// 1. USERS & AUTHENTICATION
+// ============================================================================
+
+model User {
+  id                        BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order                BigInt    @default(0) @db.UnsignedBigInt
+  email                     String?   @unique @db.VarChar(255)
+  stripe_customer_id        String?   @db.VarChar(255)
+  email_verified_at         DateTime? @db.Timestamp(0)
+  password                  String?   @db.VarChar(255)
+  soundcloud_id             BigInt    @unique @db.UnsignedBigInt
+  soundcloud_permalink_url  String?   @unique @db.VarChar(255)
+  name                      String    @db.VarChar(255)
+  nickname                  String?   @db.VarChar(255)
+  status                    Int       @default(1) @db.TinyInt
+  banned_at                 DateTime? @db.Timestamp(0)
+  bander_id                 BigInt?   @db.UnsignedBigInt
+  ban_reason                String?   @db.Text
+  avatar                    String?   @db.VarChar(255)
+  token                     String?   @db.Text
+  email_token               String?   @db.VarChar(255)
+  refresh_token             String?   @db.VarChar(255)
+  email_token_expires_at    DateTime? @db.Timestamp(0)
+  expires_in                BigInt?
+  urn                       String    @unique @db.VarChar(255)
+  referral_code             String?   @unique @db.VarChar(12)
+  real_followers            BigInt    @default(0) @db.UnsignedBigInt
+  real_followers_percentage BigInt    @default(0) @db.UnsignedBigInt
+  last_synced_at            DateTime? @db.Timestamp(0)
+  last_seen_at              DateTime? @db.Timestamp(0)
+  remember_token            String?   @db.VarChar(100)
+  created_at                DateTime? @db.Timestamp(0)
+  updated_at                DateTime? @db.Timestamp(0)
+  deleted_at                DateTime? @db.Timestamp(0)
+  creater_id                BigInt?   @db.UnsignedBigInt
+  creater_type              String?   @db.VarChar(255)
+  updater_id                BigInt?   @db.UnsignedBigInt
+  updater_type              String?   @db.VarChar(255)
+  deleter_id                BigInt?   @db.UnsignedBigInt
+  deleter_type              String?   @db.VarChar(255)
+
+  // Relations via `urn`
+  userInfo                  UserInformation?
+  tracks                    Track[]
+  playlists                 Playlist[]
+  campaigns                 Campaign[]
+  outgoingRequests          RepostRequest[]        @relation("Requester")
+  incomingRequests          RepostRequest[]        @relation("TargetUser")
+  repostsMade               Repost[]               @relation("Reposter")
+  repostsReceived           Repost[]               @relation("TrackOwner")
+  receivedTransactions      CreditTransaction[]    @relation("ReceiverTransactions")
+  sentTransactions          CreditTransaction[]    @relation("SenderTransactions")
+  subscriptions             Subscription[]
+  userPlans                 UserPlan[]
+  payments                  Payment[]
+  genres                    UserGenre[]
+  settings                  UserSetting[]
+  socialInfo                UserSocialInformation[]
+  followers                 UserFollower[]
+  ownedAnalytics            UserAnalytics[]        @relation("OwnerUserAnalytics")
+  actedAnalytics            UserAnalytics[]        @relation("ActUserAnalytics")
+  starredUsers              StarredUser[]          @relation("FollowerStarred")
+  starredByUsers            StarredUser[]          @relation("StarredTarget")
+
+  @@index([name])
+  @@index([nickname])
+  @@index([status])
+  @@index([banned_at])
+  @@index([bander_id])
+  @@index([expires_in])
+  @@index([last_synced_at])
+  @@map("users")
+}
+
+model PasswordResetToken {
+  email      String    @id @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+
+  @@map("password_reset_tokens")
+}
+
+model Session {
+  id            String  @id @db.VarChar(255)
+  user_id       BigInt? @db.UnsignedBigInt
+  ip_address    String? @db.VarChar(45)
+  user_agent    String? @db.Text
+  payload       String  @db.LongText
+  last_activity Int
+
+  @@index([user_id])
+  @@index([last_activity])
+  @@map("sessions")
+}
+
+// ============================================================================
+// 2. ADMINS, ROLES & PERMISSIONS (Spatie Permission Compatible)
+// ============================================================================
+
+model Admin {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  role_id           BigInt?   @db.UnsignedBigInt
+  sort_order        BigInt    @default(0) @db.UnsignedBigInt
+  name              String    @db.VarChar(255)
+  email             String    @unique @db.VarChar(255)
+  status            Int       @default(1) @db.TinyInt
+  email_verified_at DateTime? @db.Timestamp(0)
+  password          String    @db.VarChar(255)
+  image             String?   @db.VarChar(255)
+  last_synced_at    DateTime? @db.Timestamp(0)
+  remember_token    String?   @db.VarChar(100)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+  deleted_at        DateTime? @db.Timestamp(0)
+  created_by        BigInt?   @db.UnsignedBigInt
+  updated_by        BigInt?   @db.UnsignedBigInt
+  deleted_by        BigInt?   @db.UnsignedBigInt
+
+  role              Role?     @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([role_id])
+  @@index([status])
+  @@index([last_synced_at])
+  @@map("admins")
+}
+
+model Permission {
+  id                  BigInt               @id @default(autoincrement()) @db.UnsignedBigInt
+  name                String               @db.VarChar(255)
+  guard_name          String               @db.VarChar(255)
+  prefix              String               @db.VarChar(255)
+  sort_order          BigInt               @default(0) @db.UnsignedBigInt
+  created_at          DateTime?            @db.Timestamp(0)
+  updated_at          DateTime?            @db.Timestamp(0)
+  deleted_at          DateTime?            @db.Timestamp(0)
+  created_by          BigInt?              @db.UnsignedBigInt
+  updated_by          BigInt?              @db.UnsignedBigInt
+  deleted_by          BigInt?              @db.UnsignedBigInt
+
+  modelHasPermissions ModelHasPermission[]
+  roleHasPermissions  RoleHasPermission[]
+
+  @@unique([name, guard_name])
+  @@index([prefix])
+  @@map("permissions")
+}
+
+model Role {
+  id                 BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  name               String              @db.VarChar(255)
+  guard_name         String              @db.VarChar(255)
+  sort_order         BigInt              @default(0) @db.UnsignedBigInt
+  created_at         DateTime?           @db.Timestamp(0)
+  updated_at         DateTime?           @db.Timestamp(0)
+  deleted_at         DateTime?           @db.Timestamp(0)
+  created_by         BigInt?             @db.UnsignedBigInt
+  updated_by         BigInt?             @db.UnsignedBigInt
+  deleted_by         BigInt?             @db.UnsignedBigInt
+
+  admins             Admin[]
+  modelHasRoles      ModelHasRole[]
+  roleHasPermissions RoleHasPermission[]
+
+  @@unique([name, guard_name])
+  @@map("roles")
+}
+
+model ModelHasPermission {
+  permission_id BigInt     @db.UnsignedBigInt
+  model_type    String     @db.VarChar(255)
+  model_id      BigInt     @db.UnsignedBigInt
+
+  permission    Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+
+  @@id([permission_id, model_id, model_type])
+  @@index([model_id, model_type], map: "model_has_permissions_model_id_model_type_index")
+  @@map("model_has_permissions")
+}
+
+model ModelHasRole {
+  role_id    BigInt @db.UnsignedBigInt
+  model_type String @db.VarChar(255)
+  model_id   BigInt @db.UnsignedBigInt
+
+  role       Role   @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+  @@id([role_id, model_id, model_type])
+  @@index([model_id, model_type], map: "model_has_roles_model_id_model_type_index")
+  @@map("model_has_roles")
+}
+
+model RoleHasPermission {
+  permission_id BigInt     @db.UnsignedBigInt
+  role_id       BigInt     @db.UnsignedBigInt
+
+  permission    Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+  role          Role       @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+  @@id([permission_id, role_id])
+  @@map("role_has_permissions")
+}
+
+// ============================================================================
+// 3. USER PROFILE, TRACKS, PLAYLISTS & SOUNDCLOUD DATA
+// ============================================================================
+
+model UserInformation {
+  id                        BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order                BigInt    @default(0) @db.UnsignedBigInt
+  user_urn                  String    @unique @db.VarChar(255)
+  first_name                String?   @db.VarChar(255)
+  last_name                 String?   @db.VarChar(255)
+  full_name                 String?   @db.VarChar(255)
+  username                  String?   @db.VarChar(255)
+  soundcloud_id             BigInt    @unique @db.UnsignedBigInt
+  soundcloud_urn            String    @unique @db.VarChar(255)
+  soundcloud_kind           String    @db.VarChar(255)
+  soundcloud_permalink_url  String    @unique @db.VarChar(255)
+  soundcloud_permalink      String    @unique @db.VarChar(255)
+  soundcloud_uri            String    @unique @db.VarChar(255)
+  soundcloud_created_at     DateTime  @db.Timestamp(0)
+  soundcloud_last_modified  DateTime? @db.Timestamp(0)
+  description               String?   @db.Text
+  country                   String?   @db.VarChar(255)
+  city                      String?   @db.VarChar(255)
+  track_count               BigInt    @default(0) @db.UnsignedBigInt
+  public_favorites_count    BigInt    @default(0) @db.UnsignedBigInt
+  reposts_count             BigInt    @default(0) @db.UnsignedBigInt
+  followers_count           BigInt    @default(0) @db.UnsignedBigInt
+  following_count           BigInt    @default(0) @db.UnsignedBigInt
+  plan                      String    @db.VarChar(255)
+  myspace_name              String?   @db.VarChar(255)
+  discogs_name              String?   @db.VarChar(255)
+  website_title             String?   @db.VarChar(255)
+  website                   String?   @db.VarChar(255)
+  online                    Boolean   @default(false)
+  comments_count            BigInt    @default(0) @db.UnsignedBigInt
+  like_count                BigInt    @default(0) @db.UnsignedBigInt
+  playlist_count            BigInt    @default(0) @db.UnsignedBigInt
+  private_playlist_count    BigInt    @default(0) @db.UnsignedBigInt
+  private_tracks_count      BigInt    @default(0) @db.UnsignedBigInt
+  primary_email_confirmed   Boolean   @default(false)
+  local                     String?   @db.VarChar(255)
+  upload_seconds_left       BigInt?
+  created_at                DateTime? @db.Timestamp(0)
+  updated_at                DateTime? @db.Timestamp(0)
+  deleted_at                DateTime? @db.Timestamp(0)
+  creater_id                BigInt?   @db.UnsignedBigInt
+  creater_type              String?   @db.VarChar(255)
+  updater_id                BigInt?   @db.UnsignedBigInt
+  updater_type              String?   @db.VarChar(255)
+  deleter_id                BigInt?   @db.UnsignedBigInt
+  deleter_type              String?   @db.VarChar(255)
+
+  user                      User      @relation(fields: [user_urn], references: [urn], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([soundcloud_id, country], map: "idx_soundcloud_country")
+  @@index([city, country], map: "idx_city_country")
+  @@map("user_informations")
+}
+
+model Track {
+  id                              BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order                      BigInt          @default(0) @db.UnsignedBigInt
+  user_urn                        String          @db.VarChar(255)
+  kind                            String?         @db.VarChar(255)
+  soundcloud_track_id             String          @unique @db.VarChar(255)
+  urn                             String?         @unique @db.VarChar(255)
+  duration                        BigInt          @default(0)
+  commentable                     Boolean         @default(false)
+  comment_count                   BigInt          @default(0)
+  sharing                         String?         @db.VarChar(255)
+  tag_list                        String?         @db.Text
+  streamable                      Boolean         @default(false)
+  embeddable_by                   String?         @db.VarChar(255)
+  purchase_url                    String?         @db.Text
+  purchase_title                  String?         @db.VarChar(255)
+  genre                           String?         @db.VarChar(255)
+  title                           String?         @db.VarChar(255)
+  description                     String?         @db.LongText
+  label_name                      String?         @db.VarChar(255)
+  release                         String?         @db.VarChar(255)
+  key_signature                   String?         @db.VarChar(255)
+  isrc                            String?         @db.VarChar(255)
+  bpm                             String?         @db.VarChar(255)
+  release_year                    String?         @db.VarChar(255)
+  release_month                   String?         @db.VarChar(255)
+  release_day                     String?         @db.VarChar(255)
+  license                         String?         @db.VarChar(255)
+  uri                             String?         @db.Text
+  permalink_url                   String?         @db.Text
+  artwork_url                     String?         @db.Text
+  stream_url                      String?         @db.Text
+  download_url                    String?         @db.Text
+  waveform_url                    String?         @db.Text
+  available_country_codes         String?         @db.VarChar(255)
+  secret_uri                      String?         @db.VarChar(255)
+  user_favorite                   Boolean         @default(false)
+  user_playback_count             BigInt          @default(0)
+  playback_count                  BigInt          @default(0)
+  download_count                  BigInt          @default(0)
+  favoritings_count               BigInt          @default(0)
+  reposts_count                   BigInt          @default(0)
+  downloadable                    Boolean         @default(false)
+  access                          String?         @db.VarChar(255)
+  policy                          String?         @db.VarChar(255)
+  monetization_model              String?         @db.VarChar(255)
+  metadata_artist                 String?         @db.VarChar(255)
+  created_at_soundcloud           DateTime?       @db.Timestamp(0)
+  type                            String?         @db.VarChar(255)
+  author_username                 String?         @db.VarChar(255)
+  author_soundcloud_id            BigInt
+  author_soundcloud_urn           String          @db.VarChar(255)
+  author_soundcloud_kind          String          @db.VarChar(255)
+  author_soundcloud_permalink_url String          @db.VarChar(255)
+  author_soundcloud_permalink     String          @db.VarChar(255)
+  author_soundcloud_uri           String          @db.VarChar(255)
+  last_sync_at                    DateTime?       @db.Timestamp(0)
+  created_at                      DateTime?       @db.Timestamp(0)
+  updated_at                      DateTime?       @db.Timestamp(0)
+  deleted_at                      DateTime?       @db.Timestamp(0)
+  creater_id                      BigInt?         @db.UnsignedBigInt
+  creater_type                    String?         @db.VarChar(255)
+  updater_id                      BigInt?         @db.UnsignedBigInt
+  updater_type                    String?         @db.VarChar(255)
+  deleter_id                      BigInt?         @db.UnsignedBigInt
+  deleter_type                    String?         @db.VarChar(255)
+
+  user                            User            @relation(fields: [user_urn], references: [urn], onDelete: Cascade, onUpdate: Cascade)
+  playlistTracks                  PlaylistTrack[]
+
+  @@index([user_urn])
+  @@index([genre])
+  @@index([title])
+  @@index([type])
+  @@map("tracks")
+}
+
+model Playlist {
+  id                    BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order            BigInt          @default(0) @db.UnsignedBigInt
+  user_urn              String          @db.VarChar(255)
+  duration              BigInt?         @db.UnsignedBigInt
+  label_id              BigInt?         @db.UnsignedBigInt
+  genre                 String?         @db.VarChar(255)
+  release_day           Int?
+  permalink             String?         @db.VarChar(255)
+  permalink_url         String?         @db.VarChar(255)
+  release_month         Int?
+  release_year          Int?
+  description           String?         @db.LongText
+  uri                   String?         @db.VarChar(255)
+  label_name            String?         @db.VarChar(255)
+  label                 String?         @db.VarChar(255)
+  tag_list              String?         @db.Text
+  track_count           Int?
+  last_modified         DateTime?       @db.Timestamp(0)
+  license               String?         @db.VarChar(255)
+  playlist_type         String?         @db.VarChar(255)
+  type                  String?         @db.VarChar(255)
+  soundcloud_id         BigInt          @db.UnsignedBigInt
+  soundcloud_urn        String          @unique @db.VarChar(255)
+  downloadable          Boolean?
+  likes_count           Int             @default(0)
+  sharing               String?         @db.VarChar(255)
+  soundcloud_created_at DateTime?       @db.Timestamp(0)
+  release               String?         @db.VarChar(255)
+  tags                  String?         @db.Text
+  soundcloud_kind       String?         @db.VarChar(255)
+  title                 String          @db.VarChar(255)
+  purchase_title        String?         @db.VarChar(255)
+  ean                   String?         @db.VarChar(255)
+  streamable            Boolean         @default(true)
+  embeddable_by         String?         @db.VarChar(255)
+  artwork_url           String?         @db.VarChar(255)
+  purchase_url          String?         @db.VarChar(255)
+  tracks_uri            String?         @db.VarChar(255)
+  secret_token          String?         @db.VarChar(255)
+  secret_uri            String?         @db.VarChar(255)
+  created_at            DateTime?       @db.Timestamp(0)
+  updated_at            DateTime?       @db.Timestamp(0)
+  deleted_at            DateTime?       @db.Timestamp(0)
+  creater_id            BigInt?         @db.UnsignedBigInt
+  creater_type          String?         @db.VarChar(255)
+  updater_id            BigInt?         @db.UnsignedBigInt
+  updater_type          String?         @db.VarChar(255)
+  deleter_id            BigInt?         @db.UnsignedBigInt
+  deleter_type          String?         @db.VarChar(255)
+
+  user                  User            @relation(fields: [user_urn], references: [urn], onDelete: Cascade, onUpdate: Cascade)
+  playlistTracks        PlaylistTrack[]
+
+  @@index([user_urn])
+  @@map("playlists")
+}
+
+model PlaylistTrack {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  playlist_urn String    @db.VarChar(255)
+  track_urn    String    @db.VarChar(255)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  deleted_at   DateTime? @db.Timestamp(0)
+  created_by   BigInt?   @db.UnsignedBigInt
+  updated_by   BigInt?   @db.UnsignedBigInt
+  deleted_by   BigInt?   @db.UnsignedBigInt
+
+  playlist     Playlist  @relation(fields: [playlist_urn], references: [soundcloud_urn], onDelete: Cascade, onUpdate: Cascade)
+  track        Track     @relation(fields: [track_urn], references: [urn], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([playlist_urn])
+  @@index([track_urn])
+  @@map("playlist_tracks")
+}
+
+model UserFollower {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order      BigInt    @default(0) @db.UnsignedBigInt
+  user_urn        String    @db.VarChar(255)
+  avatar_urn      BigInt    @unique @db.UnsignedBigInt
+  soundcloud_id   BigInt    @unique @db.UnsignedBigInt
+  soundcloud_urn  String    @unique @db.VarChar(255)
+  soundcloud_kind String    @db.VarChar(255)
+  permalink_url   String    @unique @db.VarChar(255)
+  uri             String    @unique @db.VarChar(255)
+  username        String    @db.VarChar(255)
+  first_name      String?   @db.VarChar(255)
+  last_name       String?   @db.VarChar(255)
+  full_name       String?   @db.VarChar(255)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+  deleted_at      DateTime? @db.Timestamp(0)
+  created_by      BigInt?   @db.UnsignedBigInt
+  updated_by      BigInt?   @db.UnsignedBigInt
+  deleted_by      BigInt?   @db.UnsignedBigInt
+
+  user            User      @relation(fields: [user_urn], references: [urn], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([user_urn, soundcloud_id])
+  @@index([user_urn])
+  @@map("user_followers")
+}
+
+// ============================================================================
+// 4. CAMPAIGNS, REPOST REQUESTS & REPOSTS
+// ============================================================================
+
+model Campaign {
+  id                   BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order           BigInt          @default(0) @db.UnsignedBigInt
+  user_urn             String          @db.VarChar(255)
+  music_id             BigInt          @db.UnsignedBigInt
+  music_type           String          @db.VarChar(255)
+  commentable          Boolean         @default(false)
+  likeable             Boolean         @default(false)
+  max_repost_last_24_h Int?
+  max_repost_per_day   Int?
+  target_genre         String?         @db.VarChar(255)
+  pro_feature          Boolean         @default(false)
+  like_count           Int             @default(0)
+  comment_count        Int             @default(0)
+  favorite_count       Int             @default(0)
+  followers_count      Int             @default(0)
+  title                String          @db.VarChar(255)
+  description          String?         @db.Text
+  completed_reposts    BigInt          @default(0) @db.UnsignedBigInt
+  momentum_price       Decimal         @default(0.00) @db.Decimal(15, 2)
+  budget_credits       Decimal         @db.Decimal(15, 2)
+  credits_spent        Decimal         @default(0.00) @db.Decimal(15, 2)
+  refund_credits       Decimal         @default(0.00) @db.Decimal(15, 2)
+  min_followers        BigInt          @default(0) @db.UnsignedBigInt
+  max_followers        BigInt?         @db.UnsignedBigInt
+  playback_count       BigInt          @default(0) @db.UnsignedBigInt
+  status               Int             @default(1) @db.TinyInt
+  start_date           DateTime?       @db.Timestamp(0)
+  end_date             DateTime?       @db.Timestamp(0)
+  is_featured          Boolean         @default(false)
+  featured_at          DateTime?       @db.Timestamp(0)
+  is_boost             Boolean         @default(false)
+  boosted_at           DateTime?       @db.Timestamp(0)
+  created_at           DateTime?       @db.Timestamp(0)
+  updated_at           DateTime?       @db.Timestamp(0)
+  deleted_at           DateTime?       @db.Timestamp(0)
+  creater_id           BigInt?         @db.UnsignedBigInt
+  creater_type         String?         @db.VarChar(255)
+  updater_id           BigInt?         @db.UnsignedBigInt
+  updater_type         String?         @db.VarChar(255)
+  deleter_id           BigInt?         @db.UnsignedBigInt
+  deleter_type         String?         @db.VarChar(255)
+
+  user                 User            @relation(fields: [user_urn], references: [urn], onDelete: Cascade, onUpdate: Cascade)
+  requests             RepostRequest[]
+  reposts              Repost[]
+
+  @@index([user_urn])
+  @@index([music_id, music_type])
+  @@index([status])
+  @@index([start_date])
+  @@index([end_date])
+  @@map("campaigns")
+}
+
+model RepostRequest {
+  id               BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order       BigInt    @default(0) @db.UnsignedBigInt
+  requester_urn    String    @db.VarChar(255)
+  target_user_urn  String    @db.VarChar(255)
+  campaign_id      BigInt?   @db.UnsignedBigInt
+  music_id         BigInt    @db.UnsignedBigInt
+  music_type       String    @db.VarChar(255)
+  credits_spent    Decimal   @default(0.00) @db.Decimal(10, 2)
+  status           Int       @default(0) @db.TinyInt
+  rejection_reason String?   @db.Text
+  requested_at     DateTime  @default(now()) @db.Timestamp(0)
+  expired_at       DateTime? @db.Timestamp(0)
+  responded_at     DateTime? @db.Timestamp(0)
+  completed_at     DateTime? @db.Timestamp(0)
+  description      String?   @db.VarChar(255)
+  following        Boolean   @default(false)
+  commentable      Boolean?
+  likeable         Boolean   @default(false)
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+  deleted_at       DateTime? @db.Timestamp(0)
+  creater_id       BigInt?   @db.UnsignedBigInt
+  creater_type     String?   @db.VarChar(255)
+  updater_id       BigInt?   @db.UnsignedBigInt
+  updater_type     String?   @db.VarChar(255)
+  deleter_id       BigInt?   @db.UnsignedBigInt
+  deleter_type     String?   @db.VarChar(255)
+
+  requester        User      @relation("Requester", fields: [requester_urn], references: [urn], onDelete: Cascade, onUpdate: Cascade)
+  targetUser       User      @relation("TargetUser", fields: [target_user_urn], references: [urn], onDelete: Cascade, onUpdate: Cascade)
+  campaign         Campaign? @relation(fields: [campaign_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  reposts          Repost[]
+
+  @@index([requester_urn])
+  @@index([target_user_urn])
+  @@index([campaign_id])
+  @@index([status])
+  @@index([expired_at])
+  @@map("repost_requests")
+}
+
+model Repost {
+  id                   BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order           BigInt         @default(0) @db.UnsignedBigInt
+  repost_request_id    BigInt?        @db.UnsignedBigInt
+  reposter_urn         String         @db.VarChar(255)
+  track_owner_urn      String         @db.VarChar(255)
+  campaign_id          BigInt?        @db.UnsignedBigInt
+  soundcloud_repost_id String?        @db.VarChar(255)
+  credits_earned       Decimal        @default(0.00) @db.Decimal(10, 2)
+  reposted_at          DateTime       @db.Timestamp(0)
+  created_at           DateTime?      @db.Timestamp(0)
+  updated_at           DateTime?      @db.Timestamp(0)
+  deleted_at           DateTime?      @db.Timestamp(0)
+  creater_id           BigInt?        @db.UnsignedBigInt
+  creater_type         String?        @db.VarChar(255)
+  updater_id           BigInt?        @db.UnsignedBigInt
+  updater_type         String?        @db.VarChar(255)
+  deleter_id           BigInt?        @db.UnsignedBigInt
+  deleter_type         String?        @db.VarChar(255)
+
+  repostRequest        RepostRequest? @relation(fields: [repost_request_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  reposter             User           @relation("Reposter", fields: [reposter_urn], references: [urn], onDelete: Cascade, onUpdate: Cascade)
+  trackOwner           User           @relation("TrackOwner", fields: [track_owner_urn], references: [urn], onDelete: Cascade, onUpdate: Cascade)
+  campaign             Campaign?      @relation(fields: [campaign_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([repost_request_id])
+  @@index([reposter_urn])
+  @@index([track_owner_urn])
+  @@index([campaign_id])
+  @@index([reposted_at])
+  @@map("reposts")
+}
+
+// ============================================================================
+// 5. CREDITS, PLANS, ORDERS & PAYMENTS
+// ============================================================================
+
+model Credit {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order BigInt    @default(0) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  price      Decimal   @db.Decimal(10, 2)
+  status     Int       @default(1) @db.TinyInt
+  credits    String    @db.VarChar(255)
+  notes      String?   @db.Text
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  deleted_at DateTime? @db.Timestamp(0)
+  created_by BigInt?   @db.UnsignedBigInt
+  updated_by BigInt?   @db.UnsignedBigInt
+  deleted_by BigInt?   @db.UnsignedBigInt
+
+  @@index([status])
+  @@map("credits")
+}
+
+model Feature {
+  id               BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order       BigInt            @default(0) @db.UnsignedBigInt
+  name             String?           @unique @db.VarChar(255)
+  key              Int               @unique @db.TinyInt
+  type             Int               @default(0) @db.TinyInt
+  note             String?           @db.Text
+  status           Int               @default(1) @db.TinyInt
+  created_at       DateTime?         @db.Timestamp(0)
+  updated_at       DateTime?         @db.Timestamp(0)
+  deleted_at       DateTime?         @db.Timestamp(0)
+  created_by       BigInt?           @db.UnsignedBigInt
+  updated_by       BigInt?           @db.UnsignedBigInt
+  deleted_by       BigInt?           @db.UnsignedBigInt
+
+  featureRelations FeatureRelation[]
+
+  @@index([status])
+  @@map("features")
+}
+
+model Plan {
+  id            BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order    BigInt     @default(0) @db.UnsignedBigInt
+  name          String     @unique @db.VarChar(255)
+  monthly_price Decimal    @db.Decimal(10, 2)
+  tag           Int?       @db.TinyInt
+  status        Int        @default(1) @db.TinyInt
+  notes         String?    @db.Text
+  created_at    DateTime?  @db.Timestamp(0)
+  updated_at    DateTime?  @db.Timestamp(0)
+  deleted_at    DateTime?  @db.Timestamp(0)
+  created_by    BigInt?    @db.UnsignedBigInt
+  updated_by    BigInt?    @db.UnsignedBigInt
+  deleted_by    BigInt?    @db.UnsignedBigInt
+
+  userPlans     UserPlan[]
+
+  @@index([tag])
+  @@map("plans")
+}
+
+model FeatureRelation {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order   BigInt    @default(0) @db.UnsignedBigInt
+  package_id   BigInt    @db.UnsignedBigInt
+  feature_id   BigInt    @db.UnsignedBigInt
+  package_type String    @db.VarChar(255)
+  value        String    @db.VarChar(255)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  deleted_at   DateTime? @db.Timestamp(0)
+  created_by   BigInt?   @db.UnsignedBigInt
+  updated_by   BigInt?   @db.UnsignedBigInt
+  deleted_by   BigInt?   @db.UnsignedBigInt
+
+  feature      Feature   @relation(fields: [feature_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([package_id, package_type, feature_id])
+  @@index([package_id])
+  @@index([feature_id])
+  @@map("feature_relations")
+}
+
+model Product {
+  id            BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order    BigInt         @default(0) @db.UnsignedBigInt
+  product_id    String         @db.VarChar(255)
+  name          String         @db.VarChar(255)
+  created_at    DateTime?      @db.Timestamp(0)
+  updated_at    DateTime?      @db.Timestamp(0)
+  deleted_at    DateTime?      @db.Timestamp(0)
+  created_by    BigInt?        @db.UnsignedBigInt
+  updated_by    BigInt?        @db.UnsignedBigInt
+  deleted_by    BigInt?        @db.UnsignedBigInt
+
+  subscriptions Subscription[]
+
+  @@map("products")
+}
+
+model Subscription {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order   BigInt    @default(0) @db.UnsignedBigInt
+  user_urn     String    @db.VarChar(255)
+  product_id   BigInt    @db.UnsignedBigInt
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  deleted_at   DateTime? @db.Timestamp(0)
+  creater_id   BigInt?   @db.UnsignedBigInt
+  creater_type String?   @db.VarChar(255)
+  updater_id   BigInt?   @db.UnsignedBigInt
+  updater_type String?   @db.VarChar(255)
+  deleter_id   BigInt?   @db.UnsignedBigInt
+  deleter_type String?   @db.VarChar(255)
+
+  user         User      @relation(fields: [user_urn], references: [urn], onDelete: Cascade, onUpdate: Cascade)
+  product      Product   @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("subscriptions")
+}
+
+model Order {
+  id           BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order   BigInt     @default(0) @db.UnsignedBigInt
+  user_urn     String     @db.VarChar(255)
+  order_id     String     @unique @db.VarChar(255)
+  source_id    BigInt     @db.UnsignedBigInt
+  source_type  String     @db.VarChar(255)
+  credits      Decimal?   @db.Decimal(10, 2)
+  notes        String?    @db.LongText
+  amount       Decimal    @default(0.00) @db.Decimal(10, 2)
+  status       Int        @default(0) @db.TinyInt
+  type         Int        @default(1) @db.TinyInt
+  created_at   DateTime?  @db.Timestamp(0)
+  updated_at   DateTime?  @db.Timestamp(0)
+  deleted_at   DateTime?  @db.Timestamp(0)
+  creater_id   BigInt?    @db.UnsignedBigInt
+  creater_type String?    @db.VarChar(255)
+  updater_id   BigInt?    @db.UnsignedBigInt
+  updater_type String?    @db.VarChar(255)
+  deleter_id   BigInt?    @db.UnsignedBigInt
+  deleter_type String?    @db.VarChar(255)
+
+  payments     Payment[]
+  userPlan     UserPlan?
+
+  @@index([user_urn])
+  @@index([status])
+  @@index([type])
+  @@map("orders")
+}
+
+model CreditTransaction {
+  id               BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order       BigInt    @default(0) @db.UnsignedBigInt
+  receiver_urn     String    @db.VarChar(255)
+  sender_urn       String?   @db.VarChar(255)
+  calculation_type Int       @db.TinyInt
+  source_id        BigInt    @db.UnsignedBigInt
+  source_type      String    @db.VarChar(255)
+  transaction_type Int       @db.TinyInt
+  status           Int       @default(0) @db.TinyInt
+  amount           Decimal?  @db.Decimal(15, 2)
+  credits          Decimal   @db.Decimal(15, 2)
+  description      String?   @db.Text
+  metadata         Json?
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+  deleted_at       DateTime? @db.Timestamp(0)
+  creater_id       BigInt?   @db.UnsignedBigInt
+  creater_type     String?   @db.VarChar(255)
+  updater_id       BigInt?   @db.UnsignedBigInt
+  updater_type     String?   @db.VarChar(255)
+  deleter_id       BigInt?   @db.UnsignedBigInt
+  deleter_type     String?   @db.VarChar(255)
+
+  receiver         User      @relation("ReceiverTransactions", fields: [receiver_urn], references: [urn], onDelete: Cascade, onUpdate: Cascade)
+  sender           User?     @relation("SenderTransactions", fields: [sender_urn], references: [urn], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([receiver_urn])
+  @@index([sender_urn])
+  @@index([source_id, source_type])
+  @@map("credit_transactions")
+}
+
+model Payment {
+  id                  BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order          BigInt        @default(0) @db.UnsignedBigInt
+  name                String?       @db.VarChar(255)
+  email_address       String?       @db.VarChar(255)
+  address             String?       @db.VarChar(255)
+  postal_code         String?       @db.VarChar(255)
+  reference           String?       @unique @db.VarChar(255)
+  notes               String?       @db.LongText
+  user_urn            String        @db.VarChar(255)
+  order_id            BigInt        @db.UnsignedBigInt
+  payment_method      String?       @db.VarChar(255)
+  payment_gateway     Int           @db.TinyInt
+  payment_provider_id String?       @db.VarChar(255)
+  amount              Decimal       @default(0.00) @db.Decimal(10, 2)
+  currency            String        @default("USD") @db.VarChar(3)
+  credits_purchased   Decimal?      @db.Decimal(10, 2)
+  exchange_rate       Decimal?      @db.Decimal(10, 6)
+  status              PaymentStatus @default(requires_payment_method)
+  is_recurring        Boolean       @default(false)
+  payment_intent_id   String?       @db.VarChar(255)
+  subscription_id     String?       @db.VarChar(255)
+  receipt_url         String?       @db.Text
+  failure_reason      String?       @db.Text
+  metadata            Json?
+  processed_at        DateTime?     @db.Timestamp(0)
+  created_at          DateTime?     @db.Timestamp(0)
+  updated_at          DateTime?     @db.Timestamp(0)
+  deleted_at          DateTime?     @db.Timestamp(0)
+  creater_id          BigInt?       @db.UnsignedBigInt
+  creater_type        String?       @db.VarChar(255)
+  updater_id          BigInt?       @db.UnsignedBigInt
+  updater_type        String?       @db.VarChar(255)
+  deleter_id          BigInt?       @db.UnsignedBigInt
+  deleter_type        String?       @db.VarChar(255)
+
+  user                User          @relation(fields: [user_urn], references: [urn], onDelete: Cascade)
+  order               Order         @relation(fields: [order_id], references: [id], onDelete: Cascade)
+
+  @@index([payment_provider_id])
+  @@index([processed_at])
+  @@map("payments")
+}
+
+enum PaymentStatus {
+  requires_payment_method
+  requires_confirmation
+  requires_action
+  processing
+  succeeded
+  canceled
+}
+
+model UserPlan {
+  id                     BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order             BigInt    @default(0) @db.UnsignedBigInt
+  user_urn               String    @db.VarChar(255)
+  plan_id                BigInt    @db.UnsignedBigInt
+  order_id               BigInt    @unique @db.UnsignedBigInt
+  stripe_subscription_id String?   @db.VarChar(255)
+  paypal_subscription_id String?   @db.VarChar(255)
+  start_date             DateTime? @db.Date
+  end_date               DateTime? @db.Date
+  next_billing_date      DateTime? @db.Timestamp(0)
+  price                  Decimal   @default(0.00) @db.Decimal(15, 2)
+  status                 Int       @default(0) @db.TinyInt
+  auto_renew             Boolean   @default(true)
+  notes                  String?   @db.LongText
+  duration               Int
+  billing_cycle          String    @default("monthly") @db.VarChar(255)
+  created_at             DateTime? @db.Timestamp(0)
+  updated_at             DateTime? @db.Timestamp(0)
+  deleted_at             DateTime? @db.Timestamp(0)
+  canceled_at            DateTime? @db.Timestamp(0)
+  creater_id             BigInt?   @db.UnsignedBigInt
+  creater_type           String?   @db.VarChar(255)
+  updater_id             BigInt?   @db.UnsignedBigInt
+  updater_type           String?   @db.VarChar(255)
+  deleter_id             BigInt?   @db.UnsignedBigInt
+  deleter_type           String?   @db.VarChar(255)
+
+  user                   User      @relation(fields: [user_urn], references: [urn], onDelete: Cascade, onUpdate: Cascade)
+  plan                   Plan      @relation(fields: [plan_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  order                  Order     @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([start_date])
+  @@index([end_date])
+  @@index([status])
+  @@map("user_plans")
+}
+
+// ============================================================================
+// 6. ANALYTICS, GENRES, SETTINGS, NOTIFICATIONS, CHAT & REFERRALS
+// ============================================================================
+
+model UserAnalytics {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  owner_user_urn  String    @db.VarChar(255)
+  act_user_urn    String    @db.VarChar(255)
+  source_id       BigInt    @db.UnsignedBigInt
+  source_type     String    @db.VarChar(255)
+  actionable_id   BigInt?   @db.UnsignedBigInt
+  actionable_type String?   @db.VarChar(255)
+  type            Int       @db.TinyInt
+  ip_address      String?   @db.VarChar(255)
+  genre           String?   @db.VarChar(255)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+  deleted_at      DateTime? @db.Timestamp(0)
+  creater_id      BigInt?   @db.UnsignedBigInt
+  creater_type    String?   @db.VarChar(255)
+  updater_id      BigInt?   @db.UnsignedBigInt
+  updater_type    String?   @db.VarChar(255)
+  deleter_id      BigInt?   @db.UnsignedBigInt
+  deleter_type    String?   @db.VarChar(255)
+
+  ownerUser       User      @relation("OwnerUserAnalytics", fields: [owner_user_urn], references: [urn], onDelete: Cascade, onUpdate: Cascade)
+  actUser         User      @relation("ActUserAnalytics", fields: [act_user_urn], references: [urn], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([owner_user_urn])
+  @@index([act_user_urn])
+  @@index([type])
+  @@index([actionable_id, actionable_type])
+  @@map("user_analytics")
+}
+
+model UserGenre {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_urn     String    @db.VarChar(255)
+  genre        String    @db.VarChar(255)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  deleted_at   DateTime? @db.Timestamp(0)
+  creater_id   BigInt?   @db.UnsignedBigInt
+  creater_type String?   @db.VarChar(255)
+  updater_id   BigInt?   @db.UnsignedBigInt
+  updater_type String?   @db.VarChar(255)
+  deleter_id   BigInt?   @db.UnsignedBigInt
+  deleter_type String?   @db.VarChar(255)
+
+  user         User      @relation(fields: [user_urn], references: [urn], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([user_urn])
+  @@index([genre])
+  @@map("user_genres")
+}
+
+model UserSetting {
+  id                   BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_urn             String    @db.VarChar(255)
+  em_new_repost        Boolean   @default(true)
+  em_repost_accepted   Boolean   @default(true)
+  em_repost_declined   Boolean   @default(true)
+  em_repost_expired    Boolean   @default(true)
+  em_campaign_summary  Boolean   @default(true)
+  em_free_boost        Boolean   @default(true)
+  em_feedback_campaign Boolean   @default(true)
+  em_feedback_rated    Boolean   @default(true)
+  em_referrals         Boolean   @default(true)
+  em_reputation        Boolean   @default(true)
+  em_inactivity_warn   Boolean   @default(true)
+  em_marketing         Boolean   @default(false)
+  em_chart_entry       Boolean   @default(false)
+  em_mystery_box       Boolean   @default(true)
+  em_discussions       Boolean   @default(true)
+  em_competitions      Boolean   @default(true)
+  ps_new_repost        Boolean   @default(false)
+  ps_repost_accepted   Boolean   @default(false)
+  ps_repost_declined   Boolean   @default(false)
+  ps_repost_expired    Boolean   @default(false)
+  ps_campaign_summary  Boolean   @default(false)
+  ps_free_boost        Boolean   @default(false)
+  ps_feedback_campaign Boolean   @default(false)
+  ps_feedback_rated    Boolean   @default(false)
+  ps_referrals         Boolean   @default(false)
+  ps_reputation        Boolean   @default(false)
+  ps_inactivity_warn   Boolean   @default(false)
+  ps_marketing         Boolean   @default(false)
+  ps_chart_entry       Boolean   @default(false)
+  ps_mystery_box       Boolean   @default(false)
+  ps_discussions       Boolean   @default(false)
+  ps_competitions      Boolean   @default(false)
+  accept_repost        Boolean   @default(false)
+  block_mismatch_genre Boolean   @default(false)
+  opt_mystery_box      Boolean   @default(false)
+  auto_boost           Boolean   @default(false)
+  enable_react         Boolean   @default(true)
+  sub_plan             String    @default("Free Forever Plan") @db.VarChar(255)
+  response_rate_reset  DateTime? @db.Timestamp(0)
+  created_at           DateTime? @db.Timestamp(0)
+  updated_at           DateTime? @db.Timestamp(0)
+  deleted_at           DateTime? @db.Timestamp(0)
+  created_by           BigInt?   @db.UnsignedBigInt
+  updated_by           BigInt?   @db.UnsignedBigInt
+  deleted_by           BigInt?   @db.UnsignedBigInt
+
+  user                 User      @relation(fields: [user_urn], references: [urn], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([user_urn])
+  @@map("user_settings")
+}
+
+model UserSocialInformation {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_urn   String    @db.VarChar(255)
+  instagram  String?   @db.VarChar(255)
+  twitter    String?   @db.VarChar(255)
+  facebook   String?   @db.VarChar(255)
+  youtube    String?   @db.VarChar(255)
+  tiktok     String?   @db.VarChar(255)
+  spotify    String?   @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  deleted_at DateTime? @db.Timestamp(0)
+  created_by BigInt?   @db.UnsignedBigInt
+  updated_by BigInt?   @db.UnsignedBigInt
+  deleted_by BigInt?   @db.UnsignedBigInt
+
+  user       User      @relation(fields: [user_urn], references: [urn], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([user_urn])
+  @@map("user_social_informations")
+}
+
+model StarredUser {
+  id               BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  follower_urn     String    @db.VarChar(255)
+  starred_user_urn String    @db.VarChar(255)
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+  deleted_at       DateTime? @db.Timestamp(0)
+  created_by       BigInt?   @db.UnsignedBigInt
+  updated_by       BigInt?   @db.UnsignedBigInt
+  deleted_by       BigInt?   @db.UnsignedBigInt
+
+  follower         User      @relation("FollowerStarred", fields: [follower_urn], references: [urn], onDelete: Cascade)
+  starredUser      User      @relation("StarredTarget", fields: [starred_user_urn], references: [urn], onDelete: Cascade)
+
+  @@index([follower_urn])
+  @@index([starred_user_urn])
+  @@map("starred_users")
+}
+
+model CustomNotification {
+  id           BigInt                      @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order   BigInt                      @default(0) @db.UnsignedBigInt
+  sender_id    BigInt?                     @db.UnsignedBigInt
+  sender_type  String?                     @db.VarChar(255)
+  receiver_id  BigInt?                     @db.UnsignedBigInt
+  receiver_type String?                    @db.VarChar(255)
+  type         Int                         @db.TinyInt
+  url          String?                     @db.VarChar(255)
+  message_data Json?
+  created_at   DateTime?                   @db.Timestamp(0)
+  updated_at   DateTime?                   @db.Timestamp(0)
+  deleted_at   DateTime?                   @db.Timestamp(0)
+  creater_id   BigInt?                     @db.UnsignedBigInt
+  creater_type String?                     @db.VarChar(255)
+  updater_id   BigInt?                     @db.UnsignedBigInt
+  updater_type String?                     @db.VarChar(255)
+  deleter_id   BigInt?                     @db.UnsignedBigInt
+  deleter_type String?                     @db.VarChar(255)
+
+  statuses     CustomNotificationStatus[]
+  deleteds     CustomNotificationDeleted[]
+
+  @@index([receiver_id, receiver_type])
+  @@index([type])
+  @@map("custom_notifications")
+}
+
+model CustomNotificationStatus {
+  id              BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order      BigInt             @default(0) @db.UnsignedBigInt
+  user_id         BigInt             @db.UnsignedBigInt
+  user_type       String             @db.VarChar(255)
+  notification_id BigInt             @db.UnsignedBigInt
+  read_at         DateTime?          @db.Timestamp(0)
+  created_at      DateTime?          @db.Timestamp(0)
+  updated_at      DateTime?          @db.Timestamp(0)
+  deleted_at      DateTime?          @db.Timestamp(0)
+  creater_id      BigInt?            @db.UnsignedBigInt
+  creater_type    String?            @db.VarChar(255)
+  updater_id      BigInt?            @db.UnsignedBigInt
+  updater_type    String?            @db.VarChar(255)
+  deleter_id      BigInt?            @db.UnsignedBigInt
+  deleter_type    String?            @db.VarChar(255)
+
+  notification    CustomNotification @relation(fields: [notification_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([user_id, user_type])
+  @@index([notification_id])
+  @@map("custom_notification_statuses")
+}
+
+model CustomNotificationDeleted {
+  id              BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order      BigInt             @default(0) @db.UnsignedBigInt
+  user_id         BigInt             @db.UnsignedBigInt
+  user_type       String             @db.VarChar(255)
+  notification_id BigInt             @db.UnsignedBigInt
+  created_at      DateTime?          @db.Timestamp(0)
+  updated_at      DateTime?          @db.Timestamp(0)
+  deleted_at      DateTime?          @db.Timestamp(0)
+  creater_id      BigInt?            @db.UnsignedBigInt
+  creater_type    String?            @db.VarChar(255)
+  updater_id      BigInt?            @db.UnsignedBigInt
+  updater_type    String?            @db.VarChar(255)
+  deleter_id      BigInt?            @db.UnsignedBigInt
+  deleter_type    String?            @db.VarChar(255)
+
+  notification    CustomNotification @relation(fields: [notification_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([user_id, user_type])
+  @@index([notification_id])
+  @@map("custom_notification_deleteds")
+}
+
+model FaqCategory {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order BigInt    @default(0) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  slug       String    @unique @db.VarChar(255)
+  status     Int       @default(1) @db.TinyInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  deleted_at DateTime? @db.Timestamp(0)
+  created_by BigInt?   @db.UnsignedBigInt
+  updated_by BigInt?   @db.UnsignedBigInt
+  deleted_by BigInt?   @db.UnsignedBigInt
+
+  faqs       Faq[]
+
+  @@index([status])
+  @@map("faq_categories")
+}
+
+model Faq {
+  id              BigInt      @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order      BigInt      @default(0) @db.UnsignedBigInt
+  faq_category_id BigInt      @default(1) @db.UnsignedBigInt
+  question        String      @db.VarChar(255)
+  description     String      @db.VarChar(255)
+  status          Int         @default(1) @db.TinyInt
+  created_at      DateTime?   @db.Timestamp(0)
+  updated_at      DateTime?   @db.Timestamp(0)
+  deleted_at      DateTime?   @db.Timestamp(0)
+  created_by      BigInt?     @db.UnsignedBigInt
+  updated_by      BigInt?     @db.UnsignedBigInt
+  deleted_by      BigInt?     @db.UnsignedBigInt
+
+  category        FaqCategory @relation(fields: [faq_category_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@index([faq_category_id])
+  @@index([status])
+  @@map("faqs")
+}
+
+model ApplicationSetting {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  key        String    @unique @db.VarChar(255)
+  env_key    String?   @db.VarChar(255)
+  value      String?   @db.Text
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  deleted_at DateTime? @db.Timestamp(0)
+  created_by BigInt?   @db.UnsignedBigInt
+  updated_by BigInt?   @db.UnsignedBigInt
+  deleted_by BigInt?   @db.UnsignedBigInt
+
+  @@index([key])
+  @@map("application_settings")
+}
+
+model Contact {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  sort_order BigInt    @default(0) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  email      String    @db.VarChar(255)
+  subject    String    @db.VarChar(255)
+  message    String?   @db.Text
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  deleted_at DateTime? @db.Timestamp(0)
+  created_by BigInt?   @db.UnsignedBigInt
+  updated_by BigInt?   @db.UnsignedBigInt
+  deleted_by BigInt?   @db.UnsignedBigInt
+
+  @@map("contacts")
+}
+
+model Referral {
+  id                       BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  referrer_urn             String    @db.VarChar(255)
+  referred_urn             String    @unique @db.VarChar(255)
+  status                   Int       @default(0) @db.TinyInt
+  credits_awarded_referrer Int       @default(0) @db.UnsignedInt
+  credits_awarded_referred Int       @default(0) @db.UnsignedInt
+  completed_at             DateTime? @db.Timestamp(0)
+  created_at               DateTime? @db.Timestamp(0)
+  updated_at               DateTime? @db.Timestamp(0)
+
+  @@index([referrer_urn])
+  @@index([status])
+  @@map("referrals")
+}
+
+model Conversation {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_one_urn    String    @db.VarChar(255)
+  user_two_urn    String    @db.VarChar(255)
+  last_message_at DateTime? @db.Timestamp(0)
+  pinned_by_one   Boolean   @default(false)
+  pinned_by_two   Boolean   @default(false)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+  deleted_at      DateTime? @db.Timestamp(0)
+
+  messages        Message[]
+
+  @@unique([user_one_urn, user_two_urn])
+  @@index([user_one_urn])
+  @@index([user_two_urn])
+  @@map("conversations")
+}
+
+model Message {
+  id              BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  conversation_id BigInt       @db.UnsignedBigInt
+  sender_urn      String       @db.VarChar(255)
+  body            String       @db.Text
+  read_at         DateTime?    @db.Timestamp(0)
+  created_at      DateTime?    @db.Timestamp(0)
+  updated_at      DateTime?    @db.Timestamp(0)
+  deleted_at      DateTime?    @db.Timestamp(0)
+
+  conversation    Conversation @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+
+  @@index([conversation_id])
+  @@index([sender_urn])
+  @@map("messages")
+}
