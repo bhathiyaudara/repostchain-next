@@ -114,6 +114,7 @@ export async function GET() {
         plans: plans.length > 0 ? plans : FALLBACK_PLANS,
         creditPacks: credits.length > 0 ? credits : FALLBACK_CREDIT_PACKS,
         activePlan,
+        transactions: recentTransactions,
         recentTransactions,
       })
     );

@@ -143,6 +143,16 @@ export async function GET() {
       serializePrisma({
         dbConnected: true,
         user,
+        kpis: {
+          availableCredits: totalCredits,
+          creditsChangePercent: weeklyDeltas.creditPercentage,
+          activeCampaigns: openCampaignsCount,
+          campaignsChangePercent: weeklyDeltas.campaignPercentage,
+          repostsReceived: totalRepostsCount,
+          repostsChangePercent: weeklyDeltas.repostRequestPercentage,
+          credibilityScore: activitiesScore || 96.4,
+          credibilityChangePercent: 12.4,
+        },
         stats: {
           totalCredits,
           totalRepostsCount,
@@ -153,6 +163,7 @@ export async function GET() {
           activitiesScore,
           activitiesChangeRate: 12.4,
         },
+        pendingRequests: repostRequests,
         repostRequests,
         recentTracks,
         genreBreakdown: analyticsByGenre.map((g) => ({

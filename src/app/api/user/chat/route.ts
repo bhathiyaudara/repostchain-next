@@ -58,8 +58,10 @@ const FALLBACK_CONVERSATIONS = [
   },
 ];
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const user = (await getCurrentUser()) ?? FALLBACK_USER;
+  const { searchParams } = new URL(request.url);
+  const conversationIdParam = searchParams.get('conversationId');
 
   try {
     const rawConversations = await prisma.conversation.findMany({
@@ -115,25 +117,34 @@ export async function GET() {
     const conversations = rawConversations.map((c) => {
       const isUserOne = c.user_one_urn === user.urn;
       const partnerUrn = isUserOne ? c.user_two_urn : c.user_one_urn;
+      const partner = partnerMap.get(partnerUrn) ?? {
+        urn: partnerUrn,
+        name: 'Artist',
+        avatar: null,
+        followers_count: 0,
+      };
+      const lastMsg = c.messages[c.messages.length - 1];
       return {
         id: Number(c.id),
-        partner: partnerMap.get(partnerUrn) ?? {
-          urn: partnerUrn,
-          name: 'Artist',
-          avatar: null,
-          followers_count: 0,
-        },
+        partner,
+        otherUser: partner,
+        lastMessage: lastMsg?.body || null,
         pinned: isUserOne ? c.pinned_by_one : c.pinned_by_two,
         last_message_at: c.last_message_at,
         messages: c.messages,
       };
     });
 
+    const selectedConv =
+      conversations.find((c) => String(c.id) === String(conversationIdParam)) ||
+      conversations[0];
+
     return NextResponse.json(
       serializePrisma({
         dbConnected: true,
         currentUserUrn: user.urn,
         conversations,
+        messages: selectedConv ? selectedConv.messages : [],
       })
     );
   } catch {
@@ -148,7 +159,8 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const user = (await getCurrentUser()) ?? FALLBACK_USER;
   const body = await request.json();
-  const { conversationId, partnerUrn, message } = body;
+  const { conversationId, partnerUrn } = body;
+  const message = body.message || body.body;
 
   if (!message || !String(message).trim()) {
     return NextResponse.json({ error: 'Message cannot be empty.' }, { status: 400 });

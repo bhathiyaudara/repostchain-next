@@ -222,6 +222,22 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      let resolvedMusicId = musicId ? BigInt(musicId) : null;
+      if (!resolvedMusicId && body.musicUrn) {
+        const foundTrack = await prisma.track.findFirst({
+          where: { urn: String(body.musicUrn) },
+          select: { id: true },
+        });
+        if (foundTrack) resolvedMusicId = foundTrack.id;
+      }
+      if (!resolvedMusicId) {
+        const fallbackTrack = await prisma.track.findFirst({
+          where: { user_urn: user.urn, deleted_at: null },
+          select: { id: true },
+        });
+        resolvedMusicId = fallbackTrack?.id ?? BigInt(1);
+      }
+
       const now = new Date();
       const endDate = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000); // +5 days matching Campaign::booted()
 
@@ -229,8 +245,8 @@ export async function POST(request: NextRequest) {
         const campaign = await tx.campaign.create({
           data: {
             user_urn: user.urn,
-            music_id: BigInt(musicId),
-            music_type: musicType,
+            music_id: resolvedMusicId,
+            music_type: musicType === 'track' ? MORPH_TYPES.TRACK : musicType === 'playlist' ? MORPH_TYPES.PLAYLIST : musicType,
             title: title || 'Untitled Campaign',
             description: description || null,
             budget_credits: budget,

@@ -87,9 +87,17 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  return handleRepostRequestAction(request);
+}
+
+export async function PATCH(request: NextRequest) {
+  return handleRepostRequestAction(request);
+}
+
+async function handleRepostRequestAction(request: NextRequest) {
   const user = (await getCurrentUser()) ?? FALLBACK_USER;
   const body = await request.json();
-  const { requestId, action, rejectionReason } = body; // action: 'approve' | 'decline'
+  const { requestId, action, rejectionReason } = body; // action: 'approve' | 'confirm' | 'decline'
 
   try {
     const now = new Date();
@@ -143,7 +151,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (action === 'approve') {
+    if (action === 'approve' || action === 'confirm') {
       const updated = await prisma.$transaction(async (tx) => {
         const req = await tx.repostRequest.findUnique({
           where: { id: BigInt(requestId) },

@@ -16,12 +16,13 @@ export async function GET(request: NextRequest) {
       where: {
         deleted_at: null,
         banned_at: null,
+        status: 1,
       },
       include: {
         userInfo: true,
         genres: { where: { deleted_at: null } },
       },
-      orderBy: { id: 'asc' },
+      orderBy: { tracks: { _count: 'desc' } },
     });
 
     if (firstUser) {

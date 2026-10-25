@@ -77,18 +77,25 @@ export async function POST(request: NextRequest) {
   // 2. USER / ARTIST LOGIN (DB `users` table OR Temporary User Credentials)
   // ==========================================================================
   try {
-    const dbUser = email
+    const isDefaultDemoEmail =
+      instant || email.toLowerCase() === 'artist@repostchain.com' || !email;
+
+    const dbUser = isDefaultDemoEmail
       ? await prisma.user.findFirst({
           where: {
             deleted_at: null,
-            OR: [{ email }, { urn: email }, { nickname: email }],
+            banned_at: null,
+            status: 1,
           },
           include: { userInfo: true },
+          orderBy: { tracks: { _count: 'desc' } },
         })
       : await prisma.user.findFirst({
-          where: { deleted_at: null, banned_at: null },
+          where: {
+            deleted_at: null,
+            OR: [{ email }, { urn: email }, { nickname: email }, { name: email }],
+          },
           include: { userInfo: true },
-          orderBy: { id: 'asc' },
         });
 
     if (dbUser) {

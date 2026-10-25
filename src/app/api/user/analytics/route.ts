@@ -70,6 +70,14 @@ export async function GET(request: NextRequest) {
       serializePrisma({
         dbConnected: true,
         range,
+        totals: {
+          views: buildMetric(USER_ANALYTICS_TYPE.VIEW).total,
+          plays: buildMetric(USER_ANALYTICS_TYPE.PLAY).total,
+          reposts: buildMetric(USER_ANALYTICS_TYPE.REPOST).total,
+          likes: buildMetric(USER_ANALYTICS_TYPE.LIKE).total,
+          comments: buildMetric(USER_ANALYTICS_TYPE.COMMENT).total,
+          followers: buildMetric(USER_ANALYTICS_TYPE.FOLLOW).total,
+        },
         metrics: {
           views: buildMetric(USER_ANALYTICS_TYPE.VIEW),
           plays: buildMetric(USER_ANALYTICS_TYPE.PLAY),
