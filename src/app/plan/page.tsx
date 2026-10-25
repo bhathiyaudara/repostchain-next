@@ -1,218 +1,373 @@
-'use client';
-
-import { useState } from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { PublicHeader, PublicFooter } from '@/components/public-layout';
+import { PublicHeader, PublicFooter, SoundCloudMark } from '@/components/public-layout';
+import { PlanPricingTable } from '@/components/plan-pricing-table';
 
-const PLANS = [
+export const metadata: Metadata = {
+  title: 'Pricing & Plans — RepostChain | Organic SoundCloud Promotion',
+  description:
+    'Compare RepostChain plans. Start free with community repost exchanges or supercharge your SoundCloud reach with Pro Artist. Transparent pricing, no hidden fees.',
+  alternates: {
+    canonical: '/plan',
+  },
+};
+
+const PLAN_FAQS = [
   {
-    id: 1,
-    name: 'Free Plan',
-    notes: 'Perfect for getting started and exploring organic repost exchanges.',
-    monthly_price: 0,
-    yearly_price: 0,
-    features: [
-      { name: 'Active Campaigns', value: '2 Concurrent', included: true, note: 'Run up to 2 campaigns at once' },
-      { name: 'Direct Repost Requests', value: '20 / month', included: true, note: 'Reach curators directly' },
-      { name: 'Earn Credits by Reposting', value: 'Unlimited', included: true, note: 'Support artists to earn credits' },
-      { name: 'Basic Analytics', value: 'Included', included: true, note: 'Track plays, likes & reposts' },
-      { name: 'Priority Matching', value: '', included: false, note: 'Featured placement in campaign feed' },
-      { name: 'Multi-Account Management', value: '', included: false, note: 'Promote multiple artist profiles' },
-    ],
+    question: 'Can I cancel or change my plan anytime?',
+    answer:
+      'Yes, absolutely. You can upgrade, downgrade, or cancel your Pro Artist subscription at any time directly from your billing settings. If you cancel, you will continue to enjoy Pro features until the end of your current billing cycle with no extra fees.',
   },
   {
-    id: 2,
-    name: 'Pro Artist',
-    notes: 'Supercharge your SoundCloud growth with priority placement & 5x more direct requests.',
-    monthly_price: 9.99,
-    yearly_price: 95.9,
-    features: [
-      { name: 'Active Campaigns', value: '10 Concurrent', included: true, note: 'Run up to 10 campaigns at once' },
-      { name: 'Direct Repost Requests', value: '100 / month', included: true, note: '5x more direct outreach' },
-      { name: 'Earn Credits by Reposting', value: '2x Multiplier', included: true, note: 'Earn bonus credits per repost' },
-      { name: 'Advanced Analytics', value: 'Full Suite', included: true, note: 'Audience insights & growth metrics' },
-      { name: 'Priority Matching', value: 'Included', included: true, note: 'Top placement in campaign feed' },
-      { name: 'Priority Support', value: '24/7 Dedicated', included: true, note: 'Fast-track artist support' },
-    ],
+    question: 'How does the annual billing discount work?',
+    answer:
+      'When you choose annual billing, you receive an instant 20% discount on the Pro Artist tier—paying just $7.99/month ($95.90 billed annually) instead of the standard $9.99 monthly rate.',
+  },
+  {
+    question: 'Do I get to keep my earned credits if I downgrade?',
+    answer:
+      'Yes! Any credits you have earned through listening, reviewing, and reposting other creators belong to you permanently. They will never expire, even if you switch back to the Free Artist plan.',
+  },
+  {
+    question: 'What payment methods do you accept?',
+    answer:
+      'We accept all major credit and debit cards (Visa, Mastercard, American Express, Discover) as well as secure digital wallets via Stripe. All transactions are SSL encrypted and processed with bank-level security.',
+  },
+  {
+    question: 'Are all reposts and followers 100% genuine?',
+    answer:
+      'Yes, 100%. RepostChain strictly integrates via official SoundCloud OAuth. Every repost comes from a real, active SoundCloud creator. We enforce automated monitoring and immediately ban fake accounts or bot traffic.',
+  },
+];
+
+const TESTIMONIALS = [
+  {
+    name: 'Marcus Chen',
+    role: 'Electronic Producer',
+    avatar: '/frontend/images/testimonial/chen.png',
+    quote:
+      'RepostChain Pro gave my latest EP the early momentum it needed. Having 10 active campaign slots let me promote every track simultaneously.',
+  },
+  {
+    name: 'Riley Monroe',
+    role: 'Songwriter & Indie Artist',
+    avatar: '/frontend/images/testimonial/smith.png',
+    quote:
+      'The 2X credit multiplier makes a huge difference. I earn credits twice as fast, which keeps my tracks in continuous repost loops.',
+  },
+  {
+    name: 'Kai Rivers',
+    role: 'Hip-Hop Creator',
+    avatar: '/frontend/images/testimonial/singh.png',
+    quote:
+      'Priority matching and direct curator outreach helped me connect with taste-makers who genuinely love the sound. Zero bot fluff.',
   },
 ];
 
 export default function PublicPlanPage() {
-  const [isYearly, setIsYearly] = useState(false);
-
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-[#0A0A0A] text-white selection:bg-[#FF5500] selection:text-white overflow-x-hidden font-sans">
+      {/* Header */}
       <PublicHeader />
-      <main className="bg-gradient-to-b from-black via-zinc-950 to-black pt-28 sm:pt-32 pb-16">
-        <div className="container mx-auto px-4" id="plans">
-          <div className="text-center mb-10 sm:mb-12">
-            <h1 className="text-3xl sm:text-5xl font-bold text-white mb-4">Choose Your Perfect Plan</h1>
-            <p className="text-base sm:text-xl text-slate-300 max-w-2xl mx-auto">
-              Pro Plans unlock the full potential of RepostChain with exclusive features designed to
-              supercharge your music promotion.
+
+      <main>
+        {/* ========================================================= */}
+        {/* HERO SECTION — Modern SoundCloud Editorial Heading        */}
+        {/* ========================================================= */}
+        <section
+          id="plans"
+          className="relative pt-28 pb-12 sm:pt-36 sm:pb-16 lg:pt-40 lg:pb-20 overflow-hidden bg-[#0A0A0A]"
+        >
+          {/* Subtle Ambient Radial Glows */}
+          <div
+            className="absolute -top-32 -left-32 w-[520px] h-[520px] bg-[#FF5500]/10 rounded-full blur-[140px] pointer-events-none"
+            aria-hidden="true"
+          />
+          <div
+            className="absolute top-1/3 -right-32 w-[460px] h-[460px] bg-[#FF5500]/[0.06] rounded-full blur-[150px] pointer-events-none"
+            aria-hidden="true"
+          />
+
+          <div className="max-w-[1360px] mx-auto px-4 sm:px-6 relative z-10 text-center">
+            {/* Tag Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.06] border border-white/10 mb-6 backdrop-blur-sm">
+              <SoundCloudMark className="w-4 h-3 text-[#FF5500]" />
+              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-300">
+                TRANSPARENT CREATOR PRICING
+              </span>
+            </div>
+
+            {/* Display Headline */}
+            <h1 className="sc-display text-4xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[0.93] mb-5">
+              CHOOSE YOUR <span className="text-[#FF5500]">PERFECT PLAN</span>
+            </h1>
+
+            {/* Subheadline */}
+            <p className="text-zinc-400 text-base sm:text-lg lg:text-xl font-normal leading-relaxed max-w-2xl mx-auto mb-12">
+              Start 100% free with peer community exchanges or unlock Pro Artist features designed to
+              accelerate your SoundCloud fanbase.
             </p>
+
+            {/* Pricing Table Component (Interactive Toggle + Cards + Partner Banner) */}
+            <PlanPricingTable />
           </div>
+        </section>
 
-          {/* Monthly / Yearly Toggle */}
-          <div className="flex items-center justify-center mb-12">
-            <div className="bg-zinc-900 p-1.5 rounded-xl shadow-lg border border-zinc-800 inline-flex items-center">
-              <button
-                type="button"
-                onClick={() => setIsYearly(false)}
-                className={`px-5 sm:px-8 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-300 ${
-                  !isYearly ? 'bg-zinc-800 shadow-md text-white' : 'text-slate-300 hover:text-white'
-                }`}
-              >
-                Billed Monthly
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsYearly(true)}
-                className={`px-5 sm:px-8 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-300 relative ${
-                  isYearly ? 'bg-zinc-800 shadow-md text-white' : 'text-slate-300 hover:text-white'
-                }`}
-              >
-                Billed Annually
-                <span className="absolute -top-2.5 -right-2 bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">
-                  Save 20%
-                </span>
-              </button>
-            </div>
-          </div>
-
-          {/* Plan Cards */}
-          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-16">
-            {PLANS.map((plan) => {
-              const price = isYearly ? plan.yearly_price : plan.monthly_price;
-              const period = plan.monthly_price > 0 ? (isYearly ? 'year' : 'month') : 'Forever';
-              return (
-                <div
-                  key={plan.id}
-                  className="relative bg-zinc-900/90 rounded-3xl shadow-2xl border border-zinc-800 hover:border-[#ff5500]/50 transition-all duration-300 p-6 sm:p-8 flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="text-center mb-8">
-                      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">{plan.name}</h2>
-                      <p className="text-slate-300 text-sm sm:text-base mb-6">{plan.notes}</p>
-                      <div className="flex items-baseline justify-center">
-                        <span className="text-4xl sm:text-6xl font-bold text-white">
-                          ${price.toFixed(2)}
-                        </span>
-                        <span className="text-slate-400 ml-2">/{period}</span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4 mb-8">
-                      {plan.features.map((f) => (
-                        <div key={f.name} className="flex items-start space-x-3">
-                          {f.included ? (
-                            <div className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-0.5 bg-green-500/20 text-green-400">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 6 9 17l-5-5" />
-                              </svg>
-                            </div>
-                          ) : (
-                            <div className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-0.5 bg-red-500/20 text-red-400">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 6 6 18M6 6l12 12" />
-                              </svg>
-                            </div>
-                          )}
-                          <div className="flex-1">
-                            <div className="flex items-center flex-wrap gap-2">
-                              <span className="text-sm font-medium text-white">{f.name}</span>
-                              {f.value && (
-                                <span className="text-xs font-bold text-orange-400">{f.value}</span>
-                              )}
-                            </div>
-                            <p className="text-xs text-slate-400 mt-0.5">{f.note}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {plan.monthly_price > 0 ? (
-                    <a
-                      href="/api/auth/soundcloud/redirect"
-                      className="w-full py-3.5 px-6 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-semibold text-center transition-colors block"
-                    >
-                      Choose Plan
-                    </a>
-                  ) : (
-                    <Link
-                      href="/user/dashboard"
-                      className="w-full py-3.5 px-6 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-center transition-colors block"
-                    >
-                      Get Started
-                    </Link>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Join 10,000+ Artists */}
-          <div className="max-w-6xl mx-auto mb-16">
+        {/* ========================================================= */}
+        {/* METRICS STRIP — Clean Minimalist Divider Layout            */}
+        {/* ========================================================= */}
+        <section
+          aria-label="Platform Results"
+          className="border-y border-white/10 bg-[#0E0E0E] py-12 sm:py-16"
+        >
+          <div className="max-w-[1360px] mx-auto px-4 sm:px-6">
             <div className="text-center mb-10">
-              <h2 className="text-2xl sm:text-4xl font-bold text-white mb-4">
-                Join <span className="text-orange-400">10,000+</span> Artists Already Growing
+              <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#FF5500] block mb-2">
+                PROVEN TRACTION
+              </span>
+              <h2 className="sc-display text-2xl sm:text-4xl font-black text-white">
+                JOIN <span className="text-[#FF5500]">10,000+</span> ARTISTS ALREADY GROWING
               </h2>
-              <p className="text-base sm:text-xl text-slate-300">
-                See how artists are transforming their careers with RepostChain
-              </p>
             </div>
-            <div className="grid sm:grid-cols-3 gap-6 sm:gap-8">
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0">
               {[
-                { val: '500%', title: 'Average Growth', sub: 'in followers within 30 days' },
-                { val: '2.5M+', title: 'Total Plays', sub: 'generated for our artists' },
-                { val: '48hrs', title: 'Average Response', sub: 'time for campaigns' },
-              ].map((stat) => (
-                <div key={stat.title} className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 text-center">
-                  <div className="text-3xl font-bold text-orange-400 mb-2">{stat.val}</div>
-                  <div className="text-white font-semibold mb-1">{stat.title}</div>
-                  <div className="text-slate-400 text-sm">{stat.sub}</div>
+                {
+                  value: '500%',
+                  label: 'AVERAGE GROWTH',
+                  desc: 'In follower reach within first 30 days',
+                },
+                {
+                  value: '2.5M+',
+                  label: 'TOTAL PLAYS REACHED',
+                  desc: 'Organic streams across creator networks',
+                },
+                {
+                  value: '48hrs',
+                  label: 'AVERAGE RESPONSE',
+                  desc: 'Fast campaign fulfillment across queues',
+                },
+                {
+                  value: '100%',
+                  label: 'ORGANIC REPOSTS',
+                  desc: 'Zero bot policy strictly enforced',
+                },
+              ].map((stat, idx) => (
+                <div
+                  key={stat.label}
+                  className={`flex flex-col justify-center ${
+                    idx !== 0 ? 'lg:border-l lg:border-white/10 lg:pl-10 xl:pl-12' : ''
+                  }`}
+                >
+                  <span className="sc-display text-4xl sm:text-5xl lg:text-6xl font-black text-[#FF5500] tracking-tight leading-none">
+                    {stat.value}
+                  </span>
+                  <span className="text-xs sm:text-[13px] font-black uppercase tracking-[0.14em] text-white mt-2">
+                    {stat.label}
+                  </span>
+                  <span className="text-zinc-500 text-xs sm:text-[13px] mt-1 hidden sm:block">
+                    {stat.desc}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
+        </section>
 
-          {/* Why Artists Choose Pro Plans */}
-          <div className="max-w-4xl mx-auto mb-8">
-            <div className="bg-gradient-to-r from-orange-500/10 to-orange-600/10 rounded-3xl p-6 sm:p-8 border border-orange-500/20">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-8 text-center">
-                Why Artists Choose <span className="text-orange-400">Pro Plans</span>
-              </h2>
-              <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
-                <div>
-                  <h3 className="text-white font-semibold mb-2">5x More Exposure</h3>
-                  <p className="text-slate-300 text-sm">
-                    Get 100 direct requests vs 20 on free plan. Reach more curators and grow faster.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold mb-2">Multi-Account Power</h3>
-                  <p className="text-slate-300 text-sm">
-                    Promote unlimited accounts simultaneously. Perfect for labels and serious artists.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold mb-2">Advanced Analytics</h3>
-                  <p className="text-slate-300 text-sm">
-                    Track reach, followers, and reposts with detailed insights to optimize your strategy.
-                  </p>
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold mb-2">Priority Support</h3>
-                  <p className="text-slate-300 text-sm">
-                    Get faster responses and dedicated support to maximize your promotion success.
-                  </p>
-                </div>
+        {/* ========================================================= */}
+        {/* WHY ARTISTS CHOOSE PRO PLANS (4 Core Pillars)              */}
+        {/* ========================================================= */}
+        <section className="py-20 sm:py-28 bg-[#0A0A0A] border-b border-white/10">
+          <div className="max-w-[1360px] mx-auto px-4 sm:px-6">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-14 sm:mb-18">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#FF5500] block mb-2">
+                  THE PRO ADVANTAGE
+                </span>
+                <h2 className="sc-display text-3xl sm:text-5xl lg:text-6xl font-black text-white">
+                  WHY ARTISTS CHOOSE <span className="text-[#FF5500]">PRO PLANS</span>
+                </h2>
               </div>
+              <p className="text-zinc-400 text-sm sm:text-base max-w-md">
+                Built specifically for independent musicians, producers, and labels looking for
+                continuous reach without algorithmic limits.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                {
+                  title: '5x More Direct Reach',
+                  desc: 'Get 100 direct requests each month (vs 20 on Free). Directly submit your tracks to influential genre curators and taste-makers.',
+                  icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
+                },
+                {
+                  title: 'Multi-Account Power',
+                  desc: 'Promote multiple artist profiles, collaborative side-projects, or label accounts simultaneously from one unified command dashboard.',
+                  icon: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M16 3.13a4 4 0 0 1 0 7.75M22 21v-2a4 4 0 0 0-3-3.87M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
+                },
+                {
+                  title: 'Deep Track Analytics',
+                  desc: 'Gain granular demographic data on where your listeners originate, which tracks hold high retention, and how your fanbase expands.',
+                  icon: 'M3 3v18h18M18 17V9M13 17V5M8 17v-3',
+                },
+                {
+                  title: 'Priority Matching & 24/7',
+                  desc: 'Skip the standard queue. Your campaigns receive top-priority placement in fellow musicians’ feeds for lightning-fast reposts.',
+                  icon: 'M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zM5 20h14',
+                },
+              ].map((item) => (
+                <div
+                  key={item.title}
+                  className="rounded-2xl bg-[#121212] border border-white/10 p-7 sm:p-8 flex flex-col justify-between hover:border-[#FF5500]/60 transition-all duration-300 group"
+                >
+                  <div>
+                    <div className="w-12 h-12 rounded-xl bg-[#FF5500]/10 border border-[#FF5500]/20 flex items-center justify-center mb-5 text-[#FF5500] group-hover:bg-[#FF5500] group-hover:text-white transition-colors duration-200">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} />
+                      </svg>
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-3 tracking-tight">
+                      {item.title}
+                    </h3>
+                    <p className="text-zinc-400 text-sm leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        </section>
+
+        {/* ========================================================= */}
+        {/* WHAT ARTISTS ARE SAYING (Testimonials)                     */}
+        {/* ========================================================= */}
+        <section className="py-20 sm:py-28 bg-[#0E0E0E] border-b border-white/10">
+          <div className="max-w-[1360px] mx-auto px-4 sm:px-6">
+            <div className="text-center max-w-2xl mx-auto mb-14 sm:mb-18">
+              <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#FF5500] block mb-2">
+                COMMUNITY VOICES
+              </span>
+              <h2 className="sc-display text-3xl sm:text-5xl font-black text-white">
+                WHAT ARTISTS <span className="text-[#FF5500]">ARE SAYING</span>
+              </h2>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+              {TESTIMONIALS.map((t) => (
+                <div
+                  key={t.name}
+                  className="rounded-2xl bg-[#121212] border border-white/10 p-7 sm:p-8 flex flex-col justify-between hover:border-white/20 transition-all"
+                >
+                  <p className="text-zinc-300 text-sm sm:text-base leading-relaxed mb-6 italic">
+                    &ldquo;{t.quote}&rdquo;
+                  </p>
+                  <div className="flex items-center gap-3.5 pt-4 border-t border-white/10">
+                    <img
+                      src={t.avatar}
+                      alt={t.name}
+                      width={44}
+                      height={44}
+                      className="w-11 h-11 rounded-full object-cover border border-[#FF5500]"
+                    />
+                    <div>
+                      <h4 className="text-white font-bold text-sm">{t.name}</h4>
+                      <p className="text-xs text-zinc-400">{t.role}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================= */}
+        {/* MINIMALIST LINE-ACCORDION PRICING FAQ                      */}
+        {/* ========================================================= */}
+        <section className="py-20 sm:py-28 bg-[#0A0A0A] border-b border-white/10">
+          <div className="max-w-[960px] mx-auto px-4 sm:px-6">
+            <div className="text-center mb-14 sm:mb-18">
+              <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#FF5500] block mb-2">
+                HAVE QUESTIONS?
+              </span>
+              <h2 className="sc-display text-3xl sm:text-5xl font-black text-white">
+                PRICING &amp; PLAN <span className="text-[#FF5500]">FAQ</span>
+              </h2>
+            </div>
+
+            <div className="border-t border-white/10 divide-y divide-white/10">
+              {PLAN_FAQS.map((faq, idx) => (
+                <details
+                  key={idx}
+                  className="group py-6 transition-all duration-200 cursor-pointer"
+                >
+                  <summary className="flex items-center justify-between gap-4 text-left font-bold text-base sm:text-lg text-white group-hover:text-[#FF5500] transition-colors">
+                    <span className="tracking-tight">{faq.question}</span>
+                    <span className="w-8 h-8 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center shrink-0 group-open:rotate-45 transition-transform duration-200 text-zinc-300">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                    </span>
+                  </summary>
+                  <p className="mt-4 text-sm sm:text-base text-zinc-400 leading-relaxed pr-8">
+                    {faq.answer}
+                  </p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================= */}
+        {/* BOTTOM FINALE BANNER                                       */}
+        {/* ========================================================= */}
+        <section
+          aria-label="Get Started"
+          className="py-24 sm:py-32 bg-[#0A0A0A] px-4 sm:px-6 relative text-center overflow-hidden"
+        >
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-[#FF5500]/10 rounded-full blur-[140px] pointer-events-none"
+            aria-hidden="true"
+          />
+
+          <div className="max-w-4xl mx-auto relative z-10">
+            <span className="text-xs font-black uppercase tracking-[0.2em] text-[#FF5500] block mb-4">
+              READY TO SCALE?
+            </span>
+
+            <h2 className="sc-display text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white leading-[0.92] tracking-tight mb-6">
+              START YOUR MUSIC <span className="text-[#FF5500]">JOURNEY.</span>
+            </h2>
+
+            <p className="text-zinc-400 text-base sm:text-lg max-w-xl mx-auto mb-10 leading-relaxed">
+              Join thousands of musicians already building their audience organically on RepostChain.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <a
+                href="/api/auth/soundcloud/redirect"
+                className="sc-pill-white px-9 py-4 text-base font-bold shadow-2xl shadow-white/10"
+              >
+                <SoundCloudMark className="w-5 h-3.5" />
+                <span>Connect with SoundCloud</span>
+              </a>
+              <Link href="/features" className="sc-pill-dark px-8 py-4 text-base font-semibold">
+                <span>Explore Features</span>
+              </Link>
+            </div>
+
+            <p className="text-xs text-zinc-500 font-medium mt-8">
+              No credit card required for Free tier • Cancel Pro anytime
+            </p>
+          </div>
+        </section>
       </main>
+
+      {/* Footer */}
       <PublicFooter />
     </div>
   );
