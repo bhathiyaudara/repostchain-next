@@ -108,8 +108,11 @@ export const metadata: Metadata = {
     google: 'GVWhyXjde2aylNlCiqPIqSvPhx-VGi6hh5ajLaa-erg',
   },
   icons: {
-    icon: '/assets/favicons/fav icon 1.svg',
-    shortcut: '/default_img/logo.svg',
+    icon: [
+      { url: '/assets/favicons/fav icon 1.svg', media: '(prefers-color-scheme: light)' },
+      { url: '/assets/logo/favicon-dark.svg', media: '(prefers-color-scheme: dark)' },
+    ],
+    shortcut: '/assets/logo/favicon-dark.svg',
     apple: '/assets/logo/logo-1.png',
   },
 };

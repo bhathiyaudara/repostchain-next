@@ -1,6 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { PublicHeader, PublicFooter, SoundCloudMark } from '@/components/public-layout';
+import {
+  PublicHeader,
+  PublicFooter,
+  SoundCloudMark,
+  RepostChainMark,
+} from '@/components/public-layout';
 
 export const metadata: Metadata = {
   title: 'RepostChain — Grow Your Music Reach | SoundCloud Repost Exchange',
@@ -178,12 +183,14 @@ export default function LandingPage() {
             <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
               {/* Left Column: Massive Grotesque Typography & CTAs */}
               <div className="lg:col-span-7 text-left">
-                {/* Official Tagline Badge */}
-                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/[0.06] border border-white/10 mb-6 backdrop-blur-sm">
-                  <SoundCloudMark className="w-4 h-3 text-[#FF5500]" />
+                {/* Official Tagline Badge with RepostChain favicon-dark SVG */}
+                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/[0.06] border border-white/10 mb-6 backdrop-blur-sm shadow-sm">
+                  <RepostChainMark className="w-4 h-4 shrink-0 drop-shadow-[0_0_8px_rgba(255,85,0,0.35)]" />
+                  <span className="w-1 h-1 rounded-full bg-white/20" aria-hidden="true" />
                   <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-300">
                     BUILT FOR SOUNDCLOUD CREATORS
                   </span>
+                  <SoundCloudMark className="w-4 h-3 text-[#FF5500] shrink-0" />
                 </div>
 
                 {/* Ultra-bold All-Caps Display Headline */}
