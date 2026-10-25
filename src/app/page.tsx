@@ -2,7 +2,12 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PublicHeader, PublicFooter } from '@/components/public-layout';
 import { PartnerSpotlightCard } from '@/components/partner-spotlight-card';
-import { LiveActivityFeed, ReachEstimator } from '@/components/landing-enhancements';
+import {
+  LiveActivityFeed,
+  ReachEstimator,
+  SoundCloudHeroWaveform,
+  TrackCampaignPreviewer,
+} from '@/components/landing-enhancements';
 
 export const metadata: Metadata = {
   title: 'RepostChain — Grow Your Music Reach | Build Fans & Share Feedback',
@@ -237,7 +242,7 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div className="w-full lg:w-1/2 flex justify-center">
+              <div className="w-full lg:w-1/2 flex flex-col items-center">
                 <div className="relative flex justify-center lg:justify-end w-full">
                   <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-2xl">
                     <img
@@ -249,6 +254,7 @@ export default function LandingPage() {
                       decoding="async"
                       className="w-full h-auto relative z-10"
                     />
+                    <SoundCloudHeroWaveform />
                   </div>
                 </div>
               </div>
@@ -277,6 +283,9 @@ export default function LandingPage() {
 
         {/* Live Platform Activity Feed */}
         <LiveActivityFeed />
+
+        {/* Instant SoundCloud Track Campaign Simulator */}
+        <TrackCampaignPreviewer />
 
         {/* About Section - Exact match to includes/about.blade.php */}
         <section id="about" className="py-14 sm:py-20 bg-black">
