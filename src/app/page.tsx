@@ -1,13 +1,6 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import { PublicHeader, PublicFooter } from '@/components/public-layout';
+import { PublicHeader, PublicFooter, SoundCloudMark } from '@/components/public-layout';
 import { PartnerSpotlightCard } from '@/components/partner-spotlight-card';
-import {
-  LiveActivityFeed,
-  ReachEstimator,
-  SoundCloudHeroWaveform,
-  TrackCampaignPreviewer,
-} from '@/components/landing-enhancements';
 
 export const metadata: Metadata = {
   title: 'RepostChain — Grow Your Music Reach | Build Fans & Share Feedback',
@@ -53,44 +46,6 @@ const TESTIMONIALS = [
     name: 'Riley Monroe',
     role: 'Song Writer',
     image: '/frontend/images/testimonial/chen.png',
-  },
-];
-
-const SUPPORTED_GENRES = [
-  'Electronic & EDM',
-  'Hip-Hop & Rap',
-  'House & Techno',
-  'Lo-Fi & Chill',
-  'Trap & Bass',
-  'Pop & R&B',
-  'Indie & Alternative',
-  'Drum & Bass',
-  'Synthwave',
-  'Ambient & Instrumental',
-  'Afrobeats',
-  'Acoustic & Folk',
-];
-
-const HOME_FAQS = [
-  {
-    q: 'Is RepostChain safe for my SoundCloud account?',
-    a: 'Yes, 100%. RepostChain uses the official SoundCloud OAuth 2.1 API for authentication and never asks for or stores your SoundCloud password. All reposts and interactions are performed by real artists in our network.',
-  },
-  {
-    q: 'Is RepostChain really free to use?',
-    a: 'Yes! Joining RepostChain is completely free and no credit card is required. You earn Repost Credits by listening to and supporting tracks from other artists, and spend those credits to launch campaigns for your own releases.',
-  },
-  {
-    q: 'Are the reposts from real artists or bots?',
-    a: 'Every member on RepostChain is a verified SoundCloud creator. We strictly prohibit bots and fake engagement so your tracks reach genuine listeners and fellow musicians in your genre.',
-  },
-  {
-    q: 'Can I target artists in my specific music genre?',
-    a: 'Absolutely. When creating a campaign or sending Direct Repost Requests, you can filter by genre (EDM, Hip-Hop, House, Lo-Fi, Pop, Indie, and more) so your music is shared with fans who love your style.',
-  },
-  {
-    q: 'How fast will my campaign start receiving reposts?',
-    a: 'Most campaigns begin receiving organic plays, likes, feedback, and reposts within the first few hours of going live.',
   },
 ];
 
@@ -142,119 +97,87 @@ const STRUCTURED_DATA = {
         worstRating: '1',
       },
     },
-    {
-      '@type': 'FAQPage',
-      mainEntity: HOME_FAQS.map((item) => ({
-        '@type': 'Question',
-        name: item.q,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: item.a,
-        },
-      })),
-    },
   ],
 };
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-black text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[#121212] text-[#FAFAFA] overflow-x-hidden">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
       />
 
-      {/* Header - Exact match to resources/views/backend/user/layouts/partials/f_header.blade.php */}
+      {/* Header - SoundCloud Media Kit Dark Navigation */}
       <PublicHeader />
 
-      <main className="bg-black px-3 sm:px-4 md:px-8">
-        {/* Hero Section - Exact match to includes/hero.blade.php + Conversion Trust Badges */}
-        <section className="relative pt-28 pb-12 md:pt-40 md:pb-24 overflow-hidden" id="home">
-          <div className="container mx-auto px-2 sm:px-4 relative z-10">
+      <main className="bg-[#121212]">
+        {/* Hero Section */}
+        <section
+          id="home"
+          className="relative pt-24 pb-16 sm:pt-32 sm:pb-24 md:pt-36 md:pb-28 border-b border-[#272727] overflow-hidden"
+        >
+          <div className="max-w-[1240px] mx-auto px-4 sm:px-6 relative z-10">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-12">
               <div className="w-full lg:w-1/2 text-center lg:text-left">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-white">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-[4px] bg-[#1E1E1E] border border-[#272727] mb-6">
+                  <SoundCloudMark className="w-4 h-3 text-[#FF5500]" />
+                  <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#FAFAFA]">
+                    For SoundCloud Creators &amp; Artists
+                  </span>
+                </div>
+
+                <h1 className="sc-heading text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-bold mb-6 leading-[1.1]">
                   Grow Your Music Reach
-                  <span className="block text-gradient">Build Fans, Share Feedback</span>
+                  <span className="block text-[#FF5500] mt-1.5">Build Fans, Share Feedback</span>
                 </h1>
-                <p className="text-base sm:text-lg text-gray-300 mb-8 max-w-lg mx-auto lg:mx-0">
-                  Join more than 5,000+ music creators and grow your audience through our
-                  collaborative SoundCloud promotion platform.
-                  <br /> 100% Free to use
+
+                <p className="text-[15px] sm:text-[17px] text-[#999999] mb-8 max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                  Join more than thousands of music creators and grow your audience through our
+                  collaborative platform.
+                  <span className="block text-[#FAFAFA] font-medium mt-1">100% Free to use.</span>
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
+
+                <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                   <a
                     href="/api/auth/soundcloud/redirect"
-                    className="font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg inline-flex items-center justify-center bg-orange-600 text-white hover:bg-orange-500 active:bg-orange-700 px-6 py-3.5 text-base shadow-lg shadow-orange-600/25"
+                    className="sc-btn-orange px-6 py-3.5 text-[15px]"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="mr-2"
-                    >
-                      <path d="M9 18V5l12-2v13" />
-                      <circle cx="6" cy="18" r="3" />
-                      <circle cx="18" cy="16" r="3" />
-                    </svg>
-                    Connect SoundCloud
+                    <SoundCloudMark className="w-5 h-3.5" />
+                    <span>Connect SoundCloud</span>
                   </a>
 
                   <a
                     href="#how-it-works"
-                    className="font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg inline-flex items-center justify-center border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white px-6 py-3.5 text-base"
+                    className="sc-btn-outline px-6 py-3.5 text-[15px]"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
+                      width="16"
+                      height="16"
                       viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="mr-2"
+                      fill="currentColor"
+                      className="text-[#FF5500]"
                     >
                       <polygon points="5 3 19 12 5 21 5 3" />
                     </svg>
-                    See How It Works
+                    <span>See How It Works</span>
                   </a>
-                </div>
-
-                {/* Official SoundCloud OAuth Trust Badges */}
-                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 mt-6 text-xs sm:text-sm text-zinc-400">
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="text-emerald-400 font-bold">✓</span> Official SoundCloud OAuth
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="text-emerald-400 font-bold">✓</span> 100% Real Artists (No Bots)
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="text-emerald-400 font-bold">✓</span> Free Welcome Credits
-                  </span>
                 </div>
               </div>
 
-              <div className="w-full lg:w-1/2 flex flex-col items-center">
+              <div className="w-full lg:w-1/2 flex justify-center">
                 <div className="relative flex justify-center lg:justify-end w-full">
-                  <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-2xl">
+                  <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-xl">
                     <img
                       src="/frontend/user/image/FeaturedArtist.png"
-                      alt="Featured SoundCloud Artist Growing on RepostChain"
+                      alt="Featured Artist on RepostChain"
                       width={720}
                       height={540}
                       fetchPriority="high"
                       decoding="async"
                       className="w-full h-auto relative z-10"
                     />
-                    <SoundCloudHeroWaveform />
                   </div>
                 </div>
               </div>
@@ -262,185 +185,50 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Supported Music Genres Bar */}
-        <section aria-label="Supported Music Genres" className="py-6 sm:py-8 border-y border-zinc-900/90 bg-black">
-          <div className="max-w-[1400px] mx-auto px-2 sm:px-4">
-            <p className="text-center text-xs uppercase tracking-widest text-zinc-500 font-semibold mb-4">
-              Active Artist Communities Across Every SoundCloud Genre
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
-              {SUPPORTED_GENRES.map((genre) => (
-                <span
-                  key={genre}
-                  className="px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium bg-zinc-900/90 text-zinc-300 border border-zinc-800 hover:border-[#ff5500]/50 hover:text-white transition-colors"
-                >
-                  {genre}
-                </span>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Live Platform Activity Feed */}
-        <LiveActivityFeed />
-
-        {/* Instant SoundCloud Track Campaign Simulator */}
-        <TrackCampaignPreviewer />
-
-        {/* About Section - Exact match to includes/about.blade.php */}
-        <section id="about" className="py-14 sm:py-20 bg-black">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center mb-10 sm:mb-16">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-white">
+        {/* About Section */}
+        <section id="about" className="py-16 sm:py-24 bg-[#121212] border-b border-[#272727]">
+          <div className="max-w-[1240px] mx-auto px-4 sm:px-6">
+            <div className="max-w-3xl mx-auto text-center mb-12 sm:mb-16">
+              <span className="inline-block text-[11px] font-bold uppercase tracking-[0.1em] text-[#FF5500] mb-3">
+                Community-Driven Promotion
+              </span>
+              <h2 className="sc-heading text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
                 What is RepostChain?
               </h2>
-              <p className="text-lg text-gray-300">
+              <p className="text-[15px] sm:text-[17px] text-[#999999] leading-relaxed">
                 RepostChain is a revolutionary platform that connects musicians and content
                 creators, enabling organic growth through collaborative promotion and authentic
                 engagement.
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-5xl mx-auto">
-              <div className="group bg-gradient-to-br from-zinc-900/90 to-zinc-800/50 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300 hover:scale-[1.02]">
-                <div className="bg-[#ff5500]/10 w-14 h-14 rounded-xl flex items-center justify-center mb-5 group-hover:bg-[#ff5500]/20 transition-all">
-                  <svg
-                    className="w-7 h-7 text-[#ff5500]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-4">Collaborative Growth</h3>
-                <p className="text-zinc-400 leading-relaxed">
-                  Join a community of artists who support each other through strategic reposts,
-                  creating a network effect that amplifies everyone&apos;s reach.
-                </p>
-              </div>
-              <div className="group bg-gradient-to-br from-zinc-900/90 to-zinc-800/50 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300 hover:scale-[1.02]">
-                <div className="bg-[#ff5500]/10 w-14 h-14 rounded-xl flex items-center justify-center mb-5 group-hover:bg-[#ff5500]/20 transition-all">
-                  <svg
-                    className="w-7 h-7 text-[#ff5500]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-4">Real Engagement</h3>
-                <p className="text-zinc-400 leading-relaxed">
-                  Our platform ensures all interactions are genuine, helping you build a real
-                  fanbase that truly appreciates your music.
-                </p>
-              </div>
-              <div className="group bg-gradient-to-br from-zinc-900/90 to-zinc-800/50 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300 hover:scale-[1.02]">
-                <div className="bg-[#ff5500]/10 w-14 h-14 rounded-xl flex items-center justify-center mb-5 group-hover:bg-[#ff5500]/20 transition-all">
-                  <svg
-                    className="w-7 h-7 text-[#ff5500]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-4">Fair System</h3>
-                <p className="text-zinc-400 leading-relaxed">
-                  Our system ensures fair Collaboration between artists, preventing spam and
-                  promoting quality content.
-                </p>
-              </div>
-              <div className="group bg-gradient-to-br from-zinc-900/90 to-zinc-800/50 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300 hover:scale-[1.02]">
-                <div className="bg-[#ff5500]/10 w-14 h-14 rounded-xl flex items-center justify-center mb-5 group-hover:bg-[#ff5500]/20 transition-all">
-                  <svg
-                    className="w-7 h-7 text-[#ff5500]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
-                    />
-                  </svg>
-                </div>
-                <h3 className="text-2xl font-bold text-white mb-4">Analytics &amp; Growth</h3>
-                <p className="text-zinc-400 leading-relaxed">
-                  Track your growth with detailed analytics and insights, helping you optimize your
-                  promotion strategy.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        {/* How It Works Section - Exact match to includes/how-it-works.blade.php */}
-        <section id="how-it-works" className="py-14 sm:py-20 bg-black relative">
-          <div className="max-w-[1400px] mx-auto relative">
-            <div className="text-center mb-10 sm:mb-16">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
-                How RepostChain Works
-              </h2>
-              <p className="text-lg md:text-xl text-zinc-300 max-w-4xl mx-auto leading-relaxed">
-                Our platform makes it easy to grow your audience through a fair exchange system that
-                benefits everyone involved.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-5xl mx-auto">
               {[
                 {
-                  step: '1',
-                  title: 'Connect SoundCloud',
-                  desc: 'Link your SoundCloud account to get started. It only takes a few seconds.',
-                  path: 'M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3',
+                  title: 'Collaborative Growth',
+                  desc: "Join a community of artists who support each other through strategic reposts, creating a network effect that amplifies everyone's reach.",
+                  icon: 'M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3',
                 },
                 {
-                  step: '2',
-                  title: 'Earn Points',
-                  desc: 'Listen to and repost tracks from other artists to earn promotion points.',
-                  path: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15',
+                  title: 'Real Engagement',
+                  desc: 'Our platform ensures all interactions are genuine, helping you build a real fanbase that truly appreciates your music.',
+                  icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
                 },
                 {
-                  step: '3',
-                  title: 'Repost Tracks',
-                  desc: 'Use your points to get your tracks reposted by other artists.',
-                  path: 'M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z',
+                  title: 'Fair System',
+                  desc: 'Our system ensures fair collaboration between artists, preventing spam and promoting quality content.',
+                  icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
                 },
                 {
-                  step: '4',
-                  title: 'Grow Followers',
-                  desc: 'Watch your fan base grow as your music reaches new audiences.',
-                  path: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
+                  title: 'Analytics & Growth',
+                  desc: 'Track your growth with detailed analytics and insights, helping you optimize your promotion strategy.',
+                  icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
                 },
               ].map((item) => (
-                <div
-                  key={item.step}
-                  className="group bg-gradient-to-br from-zinc-900/90 to-zinc-800/70 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300 sm:hover:scale-[1.05] relative overflow-hidden"
-                >
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#ff5500] to-orange-600" />
-                  <span className="text-4xl font-bold text-[#ff5500] mb-6 block">{item.step}</span>
-                  <div className="bg-[#ff5500]/10 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:bg-[#ff5500]/20 transition-all">
+                <div key={item.title} className="sc-card p-6 sm:p-8">
+                  <div className="w-12 h-12 rounded-[4px] bg-[#FF5500]/10 border border-[#FF5500]/30 flex items-center justify-center mb-5">
                     <svg
-                      className="w-8 h-8 text-[#ff5500]"
+                      className="w-6 h-6 text-[#FF5500]"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -449,133 +237,170 @@ export default function LandingPage() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         strokeWidth="2"
-                        d={item.path}
+                        d={item.icon}
                       />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-4">{item.title}</h3>
-                  <p className="text-zinc-400 leading-relaxed">{item.desc}</p>
+                  <h3 className="text-xl font-bold text-[#FAFAFA] mb-2.5 tracking-tight">
+                    {item.title}
+                  </h3>
+                  <p className="text-[#999999] text-[14px] sm:text-[15px] leading-relaxed">
+                    {item.desc}
+                  </p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Interactive Reach & Growth Estimator */}
-        <ReachEstimator />
+        {/* How It Works Section */}
+        <section id="how-it-works" className="py-16 sm:py-24 bg-[#121212] border-b border-[#272727]">
+          <div className="max-w-[1240px] mx-auto px-4 sm:px-6">
+            <div className="text-center mb-12 sm:mb-16">
+              <span className="inline-block text-[11px] font-bold uppercase tracking-[0.1em] text-[#FF5500] mb-3">
+                4 Simple Steps
+              </span>
+              <h2 className="sc-heading text-3xl sm:text-4xl font-bold mb-4">
+                How RepostChain Works
+              </h2>
+              <p className="text-[15px] sm:text-[17px] text-[#999999] max-w-3xl mx-auto leading-relaxed">
+                Our platform makes it easy to grow your audience through a fair exchange system that
+                benefits everyone involved.
+              </p>
+            </div>
 
-        {/* SoundCloud Pro Section - Exact match to includes/sound-cloud-pro.blade.php */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {[
+                {
+                  step: '01',
+                  title: 'Connect SoundCloud',
+                  desc: 'Link your SoundCloud account to get started. It only takes a few seconds.',
+                  path: 'M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3',
+                },
+                {
+                  step: '02',
+                  title: 'Earn Points',
+                  desc: 'Listen to and repost tracks from other artists to earn promotion points.',
+                  path: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15',
+                },
+                {
+                  step: '03',
+                  title: 'Repost Tracks',
+                  desc: 'Use your points to get your tracks reposted by other artists.',
+                  path: 'M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z',
+                },
+                {
+                  step: '04',
+                  title: 'Grow Followers',
+                  desc: 'Watch your fan base grow as your music reaches new audiences.',
+                  path: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
+                },
+              ].map((item) => (
+                <div key={item.step} className="sc-card p-6 sm:p-7 relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-[2px] bg-[#FF5500]" />
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="w-12 h-12 rounded-[4px] bg-[#FF5500]/10 border border-[#FF5500]/30 flex items-center justify-center">
+                      <svg
+                        className="w-6 h-6 text-[#FF5500]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d={item.path}
+                        />
+                      </svg>
+                    </div>
+                    <span className="text-2xl font-bold font-mono text-[#FF5500]">{item.step}</span>
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-bold text-[#FAFAFA] mb-2.5 tracking-tight">
+                    {item.title}
+                  </h3>
+                  <p className="text-[#999999] text-[14px] leading-relaxed">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Partner Spotlight Section - SoundCloud Pro */}
         <section
           id="plan"
-          className="py-16 sm:py-24 relative overflow-hidden bg-gradient-to-b from-black via-[#ff5500]/5 to-black"
+          className="py-16 sm:py-24 bg-[#121212] border-b border-[#272727] relative overflow-hidden"
         >
-          <div className="max-w-[1400px] mx-auto relative">
+          <div className="max-w-[1240px] mx-auto px-4 sm:px-6 relative">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div className="text-left">
-                <div className="inline-flex items-center gap-2 bg-[#ff5500]/10 border border-[#ff5500]/30 px-4 py-2 rounded-full mb-6">
-                  <svg
-                    className="w-4 h-4 text-[#ff5500]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                    />
-                  </svg>
-                  <span className="text-[#ff5500] text-sm font-semibold">Partner Spotlight</span>
+                <div className="inline-flex items-center gap-2 bg-[#1E1E1E] border border-[#272727] px-3 py-1 rounded-[4px] mb-6">
+                  <SoundCloudMark className="w-4 h-3 text-[#FF5500]" />
+                  <span className="text-[#FF5500] text-xs font-bold uppercase tracking-wider">
+                    Partner Spotlight
+                  </span>
                 </div>
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
-                  Supercharge Your Music with
-                  <br />
-                  <span className="text-[#ff5500]">SoundCloud Pro</span>
+                <h2 className="sc-heading text-3xl sm:text-4xl md:text-[42px] font-bold mb-5 leading-tight">
+                  Supercharge Your Music with{' '}
+                  <span className="text-[#FF5500] block sm:inline">SoundCloud Pro</span>
                 </h2>
-                <p className="text-lg text-zinc-300 mb-8 leading-relaxed">
+                <p className="text-[15px] sm:text-[17px] text-[#999999] mb-8 leading-relaxed">
                   SoundCloud Pro gives you the tools to take your music career to the next level.
                   Get advanced stats, unlimited uploads, and more control over your content.
                 </p>
+
                 <div className="space-y-4 mb-8">
-                  <div className="flex items-start gap-3">
-                    <div className="bg-[#ff5500]/10 w-10 h-10 rounded-lg flex items-center justify-center shrink-0 mt-1">
-                      <svg
-                        className="w-5 h-5 text-[#ff5500]"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                        />
-                      </svg>
+                  {[
+                    {
+                      title: 'Advanced Analytics',
+                      desc: 'Track your audience with detailed insights and performance metrics',
+                      d: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+                    },
+                    {
+                      title: 'Unlimited Uploads',
+                      desc: 'Upload as much music as you want with no storage limits',
+                      d: 'M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3',
+                    },
+                    {
+                      title: 'Spotlight Features',
+                      desc: 'Pin your best tracks and get featured placement on your profile',
+                      d: 'M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z',
+                    },
+                  ].map((f) => (
+                    <div key={f.title} className="flex items-start gap-3.5">
+                      <div className="bg-[#181818] border border-[#272727] w-10 h-10 rounded-[4px] flex items-center justify-center shrink-0 mt-0.5">
+                        <svg
+                          className="w-5 h-5 text-[#FF5500]"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d={f.d}
+                          />
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 className="text-[#FAFAFA] font-semibold text-[15px] mb-0.5">
+                          {f.title}
+                        </h4>
+                        <p className="text-[#999999] text-[13px]">{f.desc}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-white font-semibold mb-1">Advanced Analytics</h4>
-                      <p className="text-zinc-400 text-sm">
-                        Track your audience with detailed insights and performance metrics
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="bg-[#ff5500]/10 w-10 h-10 rounded-lg flex items-center justify-center shrink-0 mt-1">
-                      <svg
-                        className="w-5 h-5 text-[#ff5500]"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"
-                        />
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 className="text-white font-semibold mb-1">Unlimited Uploads</h4>
-                      <p className="text-zinc-400 text-sm">
-                        Upload as much music as you want with no storage limits
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="bg-[#ff5500]/10 w-10 h-10 rounded-lg flex items-center justify-center shrink-0 mt-1">
-                      <svg
-                        className="w-5 h-5 text-[#ff5500]"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                        />
-                      </svg>
-                    </div>
-                    <div>
-                      <h4 className="text-white font-semibold mb-1">Spotlight Features</h4>
-                      <p className="text-zinc-400 text-sm">
-                        Pin your best tracks and get featured placement on your profile
-                      </p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
+
                 <a
                   href="https://invite.soundcloud.com/pjoy4"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-gradient-to-r from-[#ff5500] to-orange-600 hover:from-[#ff6a1a] hover:to-orange-700 text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all hover:scale-105 shadow-lg shadow-[#ff5500]/30"
+                  className="sc-btn-orange w-full sm:w-auto px-7 py-3.5 text-[15px]"
                 >
-                  Upgrade to SoundCloud Pro
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span>Upgrade to SoundCloud Pro</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -584,7 +409,7 @@ export default function LandingPage() {
                     />
                   </svg>
                 </a>
-                <p className="text-sm text-zinc-500 mt-4">
+                <p className="text-xs text-[#666666] mt-3.5">
                   Special offer for RepostChain users • Start your free trial today
                 </p>
               </div>
@@ -594,84 +419,88 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Statistics Section - Exact match to includes/statistics.blade.php */}
-        <section id="statistics" className="py-14 sm:py-20 bg-black relative">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#ff5500]/5 via-transparent to-[#ff5500]/5" />
-          <div className="max-w-[1400px] mx-auto relative">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
+        {/* Statistics Section */}
+        <section id="statistics" className="py-16 sm:py-24 bg-[#121212] border-b border-[#272727]">
+          <div className="max-w-[1240px] mx-auto px-4 sm:px-6">
+            <div className="text-center mb-12 sm:mb-16">
+              <span className="inline-block text-[11px] font-bold uppercase tracking-[0.1em] text-[#FF5500] mb-3">
+                Proven Results
+              </span>
+              <h2 className="sc-heading text-3xl sm:text-4xl font-bold mb-4">
                 RepostChain in Numbers
               </h2>
-              <p className="text-lg md:text-xl text-zinc-300 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-[15px] sm:text-[17px] text-[#999999] max-w-2xl mx-auto">
                 Join thousands of artists already growing their audience with our platform.
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {[
                 { value: '10K+', label: 'Tracks Reposted' },
                 { value: '2K+', label: 'Feedback Circulated' },
                 { value: '5K+', label: 'Artists Registered' },
                 { value: '2M+', label: 'Total Followers Reached' },
               ].map((stat) => (
-                <div
-                  key={stat.label}
-                  className="bg-gradient-to-br from-zinc-900/90 to-zinc-800/70 backdrop-blur-sm p-6 sm:p-10 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300 text-center group sm:hover:scale-[1.05]"
-                >
-                  <span className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#ff5500] block mb-4">
+                <div key={stat.label} className="sc-card p-6 sm:p-8 text-center">
+                  <span className="text-4xl sm:text-5xl font-bold text-[#FF5500] block mb-2.5 tracking-tight">
                     {stat.value}
                   </span>
-                  <p className="text-zinc-300 text-lg font-medium">{stat.label}</p>
+                  <p className="text-[#999999] text-[14px] font-medium uppercase tracking-wider">
+                    {stat.label}
+                  </p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Testimonials Section - Exact match to includes/testimonials.blade.php */}
-        <section id="testimonials" className="py-14 sm:py-20 bg-black relative">
-          <div className="max-w-[1400px] mx-auto relative">
-            <div className="text-center mb-10 sm:mb-16">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
-                Success Stories
-              </h2>
-              <p className="text-lg md:text-xl text-zinc-300 max-w-3xl mx-auto leading-relaxed">
+        {/* Testimonials Section */}
+        <section id="testimonials" className="py-16 sm:py-24 bg-[#121212] border-b border-[#272727]">
+          <div className="max-w-[1240px] mx-auto px-4 sm:px-6">
+            <div className="text-center mb-12 sm:mb-16">
+              <span className="inline-block text-[11px] font-bold uppercase tracking-[0.1em] text-[#FF5500] mb-3">
+                Artist Community
+              </span>
+              <h2 className="sc-heading text-3xl sm:text-4xl font-bold mb-4">Success Stories</h2>
+              <p className="text-[15px] sm:text-[17px] text-[#999999] max-w-2xl mx-auto">
                 See how artists like you are growing their audience with RepostChain.
               </p>
             </div>
+
             <div className="overflow-hidden relative w-full">
-              <div className="flex gap-6 animate-scroll">
+              <div className="flex gap-5 animate-scroll">
                 {[...TESTIMONIALS, ...TESTIMONIALS].map((t, idx) => (
                   <div
                     key={idx}
-                    className="shrink-0 w-[280px] sm:w-[360px] md:w-[400px] bg-gradient-to-br from-zinc-900/90 to-zinc-800/70 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300"
+                    className="shrink-0 w-[280px] sm:w-[350px] md:w-[380px] sc-card p-6 sm:p-7"
                   >
-                    <div className="flex items-center gap-0.5 mb-4">
+                    <div className="flex items-center gap-1 mb-4">
                       {[1, 2, 3, 4, 5].map((star) => (
-                        <div key={star} className="bg-[#00b67a] p-1">
-                          <svg className="w-4 h-4 text-white fill-white" viewBox="0 0 24 24">
+                        <div key={star} className="bg-[#FF5500] p-1 rounded-[2px]">
+                          <svg className="w-3.5 h-3.5 text-white fill-white" viewBox="0 0 24 24">
                             <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                           </svg>
                         </div>
                       ))}
                     </div>
-                    <p className="text-zinc-300 text-base leading-relaxed mb-6 italic">
+                    <p className="text-[#FAFAFA] text-[14px] sm:text-[15px] leading-relaxed mb-6">
                       &ldquo;{t.quote}&rdquo;
                     </p>
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#ff5500] to-orange-600 flex items-center justify-center text-white font-bold overflow-hidden shrink-0">
+                    <div className="flex items-center gap-3 pt-4 border-t border-[#272727]">
+                      <div className="w-11 h-11 rounded-full bg-[#FF5500] p-[2px] shrink-0">
                         <img
                           className="w-full h-full object-cover rounded-full"
                           src={t.image}
                           alt={t.name}
-                          width={48}
-                          height={48}
+                          width={44}
+                          height={44}
                           loading="lazy"
                           decoding="async"
                         />
                       </div>
                       <div>
-                        <p className="text-white font-semibold">{t.name}</p>
-                        <p className="text-[#ff5500] text-sm">{t.role}</p>
+                        <p className="text-[#FAFAFA] font-semibold text-[14px]">{t.name}</p>
+                        <p className="text-[#FF5500] text-[12px]">{t.role}</p>
                       </div>
                     </div>
                   </div>
@@ -681,79 +510,29 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* On-Page FAQ Section for SEO Rich Snippets & Conversion */}
-        <section id="faq" className="py-14 sm:py-20 bg-black relative">
-          <div className="max-w-4xl mx-auto px-2 sm:px-4">
-            <div className="text-center mb-10 sm:mb-14">
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                Frequently Asked Questions
-              </h2>
-              <p className="text-base sm:text-lg text-zinc-400">
-                Everything you need to know before connecting your SoundCloud account.
-              </p>
-            </div>
-            <div className="space-y-3.5">
-              {HOME_FAQS.map((item) => (
-                <details
-                  key={item.q}
-                  className="group rounded-2xl bg-zinc-900/60 border border-zinc-800/70 hover:border-[#ff5500]/40 transition-all"
-                >
-                  <summary className="w-full flex items-center justify-between p-5 sm:p-6 cursor-pointer list-none">
-                    <span className="text-base sm:text-lg font-semibold text-white pr-4 group-hover:text-[#ff5500] transition-colors">
-                      {item.q}
-                    </span>
-                    <svg
-                      className="w-5 h-5 text-zinc-400 shrink-0 transition-transform group-open:rotate-180"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </summary>
-                  <div className="px-5 sm:px-6 pb-5 sm:pb-6 text-zinc-300 text-sm sm:text-base leading-relaxed border-t border-zinc-800/60 pt-4">
-                    {item.a}
-                  </div>
-                </details>
-              ))}
-            </div>
-            <div className="text-center mt-8">
-              <Link
-                href="/faq"
-                className="text-sm sm:text-base font-medium text-[#ff5500] hover:text-orange-400 transition-colors"
-              >
-                View all 15+ Frequently Asked Questions →
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section - Exact match to includes/cta.blade.php */}
-        <section id="cta" className="py-12 sm:py-20 bg-black relative overflow-hidden">
-          <div className="max-w-5xl mx-auto">
-            <div className="bg-gradient-to-br from-[#ff5500]/20 via-orange-600/10 to-transparent backdrop-blur-sm border border-[#ff5500]/30 rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#ff5500]/5 via-transparent to-[#ff5500]/5" />
+        {/* CTA Section */}
+        <section id="cta" className="py-16 sm:py-24 bg-[#121212] px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
+            <div
+              className="bg-[#181818] border border-[#272727] rounded-[6px] p-8 sm:p-12 text-center relative overflow-hidden"
+              style={{ borderTop: '3px solid #FF5500' }}
+            >
               <div className="relative z-10">
-                <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
-                  Ready to Take Your Music Career
-                  <br />
-                  <span className="text-[#ff5500]">To The Next Level?</span>
+                <h2 className="sc-heading text-2xl sm:text-4xl font-bold mb-4">
+                  Ready to Take Your Music Career{' '}
+                  <span className="text-[#FF5500] block sm:inline">To The Next Level?</span>
                 </h2>
-                <p className="text-base sm:text-xl text-zinc-300 mb-8">
+                <p className="text-[15px] sm:text-[17px] text-[#999999] mb-8 max-w-xl mx-auto">
                   Join 5,000+ artists already growing their fanbase with RepostChain
                 </p>
                 <a
                   href="/api/auth/soundcloud/redirect"
-                  className="bg-gradient-to-r from-[#ff5500] to-orange-600 hover:from-[#ff6a1a] hover:to-orange-700 text-white px-6 py-3.5 sm:px-12 sm:py-5 rounded-lg text-base sm:text-xl font-semibold transition-all hover:scale-105 shadow-lg shadow-[#ff5500]/30 inline-block w-full sm:w-auto"
+                  className="sc-btn-orange px-8 py-4 text-[15px] sm:text-[16px] w-full sm:w-auto"
                 >
-                  Start Your Music Growth
+                  <SoundCloudMark className="w-5 h-3.5" />
+                  <span>Start Your Music Growth</span>
                 </a>
-                <p className="text-sm text-zinc-500 mt-8">
+                <p className="text-[12px] text-[#666666] mt-6">
                   No credit card required • 100% Free for Artists
                 </p>
               </div>
@@ -762,7 +541,7 @@ export default function LandingPage() {
         </section>
       </main>
 
-      {/* Footer - Exact match to f_footer.blade.php */}
+      {/* Footer */}
       <PublicFooter />
     </div>
   );
