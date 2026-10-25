@@ -115,7 +115,7 @@ export function PublicHeader() {
               href="/api/auth/soundcloud/redirect"
               className="sc-pill-white px-5 py-2.5 text-[13px]"
             >
-              <SoundCloudMark className="w-4 h-3 text-[#FF5500]" />
+              <SoundCloudMark className="w-4 h-3" />
               <span>Connect with SoundCloud</span>
             </a>
           )}
@@ -135,7 +135,7 @@ export function PublicHeader() {
               href="/api/auth/soundcloud/redirect"
               className="sc-pill-white px-3.5 py-1.5 text-[12px]"
             >
-              <SoundCloudMark className="w-3.5 h-2.5 text-[#FF5500]" />
+              <SoundCloudMark className="w-3.5 h-2.5" />
               <span>Connect</span>
             </a>
           )}
