@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { PublicHeader, PublicFooter } from '@/components/public-layout';
 import { PartnerSpotlightCard } from '@/components/partner-spotlight-card';
+import { LiveActivityFeed, ReachEstimator } from '@/components/landing-enhancements';
 
 export const metadata: Metadata = {
   title: 'RepostChain — Grow Your Music Reach | Build Fans & Share Feedback',
@@ -46,6 +48,44 @@ const TESTIMONIALS = [
     name: 'Riley Monroe',
     role: 'Song Writer',
     image: '/frontend/images/testimonial/chen.png',
+  },
+];
+
+const SUPPORTED_GENRES = [
+  'Electronic & EDM',
+  'Hip-Hop & Rap',
+  'House & Techno',
+  'Lo-Fi & Chill',
+  'Trap & Bass',
+  'Pop & R&B',
+  'Indie & Alternative',
+  'Drum & Bass',
+  'Synthwave',
+  'Ambient & Instrumental',
+  'Afrobeats',
+  'Acoustic & Folk',
+];
+
+const HOME_FAQS = [
+  {
+    q: 'Is RepostChain safe for my SoundCloud account?',
+    a: 'Yes, 100%. RepostChain uses the official SoundCloud OAuth 2.1 API for authentication and never asks for or stores your SoundCloud password. All reposts and interactions are performed by real artists in our network.',
+  },
+  {
+    q: 'Is RepostChain really free to use?',
+    a: 'Yes! Joining RepostChain is completely free and no credit card is required. You earn Repost Credits by listening to and supporting tracks from other artists, and spend those credits to launch campaigns for your own releases.',
+  },
+  {
+    q: 'Are the reposts from real artists or bots?',
+    a: 'Every member on RepostChain is a verified SoundCloud creator. We strictly prohibit bots and fake engagement so your tracks reach genuine listeners and fellow musicians in your genre.',
+  },
+  {
+    q: 'Can I target artists in my specific music genre?',
+    a: 'Absolutely. When creating a campaign or sending Direct Repost Requests, you can filter by genre (EDM, Hip-Hop, House, Lo-Fi, Pop, Indie, and more) so your music is shared with fans who love your style.',
+  },
+  {
+    q: 'How fast will my campaign start receiving reposts?',
+    a: 'Most campaigns begin receiving organic plays, likes, feedback, and reposts within the first few hours of going live.',
   },
 ];
 
@@ -97,6 +137,17 @@ const STRUCTURED_DATA = {
         worstRating: '1',
       },
     },
+    {
+      '@type': 'FAQPage',
+      mainEntity: HOME_FAQS.map((item) => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.a,
+        },
+      })),
+    },
   ],
 };
 
@@ -112,8 +163,8 @@ export default function LandingPage() {
       <PublicHeader />
 
       <main className="bg-black px-3 sm:px-4 md:px-8">
-        {/* Hero Section - Exact match to includes/hero.blade.php */}
-        <section className="relative pt-28 pb-16 md:pt-40 md:pb-32 overflow-hidden" id="home">
+        {/* Hero Section - Exact match to includes/hero.blade.php + Conversion Trust Badges */}
+        <section className="relative pt-28 pb-12 md:pt-40 md:pb-24 overflow-hidden" id="home">
           <div className="container mx-auto px-2 sm:px-4 relative z-10">
             <div className="flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-12">
               <div className="w-full lg:w-1/2 text-center lg:text-left">
@@ -122,14 +173,14 @@ export default function LandingPage() {
                   <span className="block text-gradient">Build Fans, Share Feedback</span>
                 </h1>
                 <p className="text-base sm:text-lg text-gray-300 mb-8 max-w-lg mx-auto lg:mx-0">
-                  Join More than thousands of music creators and grow audience Through our
-                  collaborative platform.
+                  Join more than 5,000+ music creators and grow your audience through our
+                  collaborative SoundCloud promotion platform.
                   <br /> 100% Free to use
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
                   <a
                     href="/api/auth/soundcloud/redirect"
-                    className="font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg inline-flex items-center justify-center bg-orange-600 text-white hover:bg-orange-500 active:bg-orange-700 px-6 py-3 text-base"
+                    className="font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg inline-flex items-center justify-center bg-orange-600 text-white hover:bg-orange-500 active:bg-orange-700 px-6 py-3.5 text-base shadow-lg shadow-orange-600/25"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -152,7 +203,7 @@ export default function LandingPage() {
 
                   <a
                     href="#how-it-works"
-                    className="font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg inline-flex items-center justify-center border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white px-6 py-3 text-base"
+                    className="font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg inline-flex items-center justify-center border border-orange-500 text-orange-500 hover:bg-orange-500 hover:text-white px-6 py-3.5 text-base"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -171,6 +222,19 @@ export default function LandingPage() {
                     See How It Works
                   </a>
                 </div>
+
+                {/* Official SoundCloud OAuth Trust Badges */}
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 mt-6 text-xs sm:text-sm text-zinc-400">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="text-emerald-400 font-bold">✓</span> Official SoundCloud OAuth
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="text-emerald-400 font-bold">✓</span> 100% Real Artists (No Bots)
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="text-emerald-400 font-bold">✓</span> Free Welcome Credits
+                  </span>
+                </div>
               </div>
 
               <div className="w-full lg:w-1/2 flex justify-center">
@@ -182,6 +246,7 @@ export default function LandingPage() {
                       width={720}
                       height={540}
                       fetchPriority="high"
+                      decoding="async"
                       className="w-full h-auto relative z-10"
                     />
                   </div>
@@ -190,6 +255,28 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        {/* Supported Music Genres Bar */}
+        <section aria-label="Supported Music Genres" className="py-6 sm:py-8 border-y border-zinc-900/90 bg-black">
+          <div className="max-w-[1400px] mx-auto px-2 sm:px-4">
+            <p className="text-center text-xs uppercase tracking-widest text-zinc-500 font-semibold mb-4">
+              Active Artist Communities Across Every SoundCloud Genre
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
+              {SUPPORTED_GENRES.map((genre) => (
+                <span
+                  key={genre}
+                  className="px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-medium bg-zinc-900/90 text-zinc-300 border border-zinc-800 hover:border-[#ff5500]/50 hover:text-white transition-colors"
+                >
+                  {genre}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Live Platform Activity Feed */}
+        <LiveActivityFeed />
 
         {/* About Section - Exact match to includes/about.blade.php */}
         <section id="about" className="py-14 sm:py-20 bg-black">
@@ -364,6 +451,9 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
+        {/* Interactive Reach & Growth Estimator */}
+        <ReachEstimator />
 
         {/* SoundCloud Pro Section - Exact match to includes/sound-cloud-pro.blade.php */}
         <section
@@ -567,6 +657,7 @@ export default function LandingPage() {
                           width={48}
                           height={48}
                           loading="lazy"
+                          decoding="async"
                         />
                       </div>
                       <div>
@@ -577,6 +668,58 @@ export default function LandingPage() {
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* On-Page FAQ Section for SEO Rich Snippets & Conversion */}
+        <section id="faq" className="py-14 sm:py-20 bg-black relative">
+          <div className="max-w-4xl mx-auto px-2 sm:px-4">
+            <div className="text-center mb-10 sm:mb-14">
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                Frequently Asked Questions
+              </h2>
+              <p className="text-base sm:text-lg text-zinc-400">
+                Everything you need to know before connecting your SoundCloud account.
+              </p>
+            </div>
+            <div className="space-y-3.5">
+              {HOME_FAQS.map((item) => (
+                <details
+                  key={item.q}
+                  className="group rounded-2xl bg-zinc-900/60 border border-zinc-800/70 hover:border-[#ff5500]/40 transition-all"
+                >
+                  <summary className="w-full flex items-center justify-between p-5 sm:p-6 cursor-pointer list-none">
+                    <span className="text-base sm:text-lg font-semibold text-white pr-4 group-hover:text-[#ff5500] transition-colors">
+                      {item.q}
+                    </span>
+                    <svg
+                      className="w-5 h-5 text-zinc-400 shrink-0 transition-transform group-open:rotate-180"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </summary>
+                  <div className="px-5 sm:px-6 pb-5 sm:pb-6 text-zinc-300 text-sm sm:text-base leading-relaxed border-t border-zinc-800/60 pt-4">
+                    {item.a}
+                  </div>
+                </details>
+              ))}
+            </div>
+            <div className="text-center mt-8">
+              <Link
+                href="/faq"
+                className="text-sm sm:text-base font-medium text-[#ff5500] hover:text-orange-400 transition-colors"
+              >
+                View all 15+ Frequently Asked Questions →
+              </Link>
             </div>
           </div>
         </section>

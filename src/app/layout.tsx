@@ -1,6 +1,22 @@
 import type { Metadata, Viewport } from 'next';
+import { Inter, Poppins } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import { QueryProvider } from '@/components/providers/QueryProvider';
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-inter',
+});
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-poppins',
+});
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://growmusicians.com';
 
@@ -90,14 +106,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" data-theme="dark" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`dark ${inter.variable} ${poppins.variable}`}
+      data-theme="dark"
+      suppressHydrationWarning
+    >
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"
-          rel="stylesheet"
-        />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -117,29 +132,26 @@ export default function RootLayout({
             `,
           }}
         />
-        {/* Meta Pixel Code from frontend/layouts/app.blade.php */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              !function(f,b,e,v,n,t,s)
-              {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-              n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-              if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-              n.queue=[];t=b.createElement(e);t.async=!0;
-              t.src=v;s=b.getElementsByTagName(e)[0];
-              s.parentNode.insertBefore(t,s)}(window, document,'script',
-              'https://connect.facebook.net/en_US/fbevents.js');
-              fbq('init', '1001160992310803');
-              fbq('track', 'PageView');
-            `,
-          }}
-        />
       </head>
       <body
-        className="bg-gray-50 dark:bg-gray-900 text-slate-800 dark:text-white min-h-screen overflow-x-hidden antialiased transition-colors duration-200 relative"
+        className={`${inter.className} bg-gray-50 dark:bg-gray-900 text-slate-800 dark:text-white min-h-screen overflow-x-hidden antialiased transition-colors duration-200 relative`}
         suppressHydrationWarning
       >
         <QueryProvider>{children}</QueryProvider>
+        <Script id="meta-pixel" strategy="lazyOnload">
+          {`
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '1001160992310803');
+            fbq('track', 'PageView');
+          `}
+        </Script>
       </body>
     </html>
   );
