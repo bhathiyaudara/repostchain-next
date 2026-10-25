@@ -67,7 +67,7 @@ export default function MyCampaignsPage() {
         {/* Underline Tabs */}
         <div className="mb-8">
           <div className="border-b border-gray-200 dark:border-gray-700">
-            <nav className="-mb-px flex space-x-8">
+            <nav className="-mb-px flex overflow-x-auto no-scrollbar whitespace-nowrap space-x-4 sm:space-x-8">
               <button
                 type="button"
                 onClick={() => setActiveMainTab('all')}
@@ -107,7 +107,7 @@ export default function MyCampaignsPage() {
 
         <div className="flex flex-col xl:flex-row justify-between gap-6">
           {/* Main Content */}
-          <div className="w-full flex flex-col gap-6">
+          <div className="w-full min-w-0 flex-1 flex flex-col gap-6">
             {isLoading ? (
               <div className="space-y-4">
                 {[1, 2].map((i) => (
@@ -243,7 +243,7 @@ export default function MyCampaignsPage() {
                         <hr className="my-3 border-gray-200 dark:border-gray-700" />
 
                         {/* Bottom Stats */}
-                        <div className="flex justify-between items-center gap-6">
+                        <div className="flex flex-wrap justify-between items-center gap-3 sm:gap-6">
                           <div className="flex gap-4 md:gap-6">
                             <div className="flex items-center gap-1.5">
                               <Repeat className="text-gray-500 w-5 h-5 dark:text-white" />

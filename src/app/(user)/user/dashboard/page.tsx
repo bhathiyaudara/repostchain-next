@@ -138,10 +138,10 @@ export default function UserDashboardPage() {
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <Link
               href="/user/campaign-management/campaigns"
-              className="font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg inline-flex items-center justify-center bg-orange-100 text-orange-800 hover:bg-orange-200 active:bg-orange-300 px-4 py-2 text-base"
+              className="flex-1 sm:flex-initial font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg inline-flex items-center justify-center bg-orange-100 text-orange-800 hover:bg-orange-200 active:bg-orange-300 px-3 sm:px-4 py-2 text-sm sm:text-base whitespace-nowrap"
             >
               💰 Earn Credits
             </Link>
@@ -149,9 +149,9 @@ export default function UserDashboardPage() {
             <button
               type="button"
               onClick={() => setShowCampaignsModal(true)}
-              className="font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg inline-flex items-center justify-center bg-orange-600 text-white hover:bg-orange-500 active:bg-orange-700 px-4 py-2 text-base cursor-pointer"
+              className="flex-1 sm:flex-initial font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg inline-flex items-center justify-center bg-orange-600 text-white hover:bg-orange-500 active:bg-orange-700 px-3 sm:px-4 py-2 text-sm sm:text-base cursor-pointer whitespace-nowrap"
             >
-              <Plus className="w-5 h-5 mr-1" />
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-1 shrink-0" />
               Start a new campaign
             </button>
           </div>
@@ -273,7 +273,7 @@ export default function UserDashboardPage() {
       <div className="p-2 mt-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 dark:text-white">
           {/* Left Section: Performance Overview Chart */}
-          <div className="lg:col-span-2 rounded-lg p-4 shadow-sm bg-white dark:bg-slate-800">
+          <div className="lg:col-span-2 min-w-0 overflow-hidden rounded-lg p-4 shadow-sm bg-white dark:bg-slate-800">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center p-2">
               <div>
                 <h2 className="dark:text-white text-lg font-semibold">Performance Overview</h2>
@@ -376,7 +376,7 @@ export default function UserDashboardPage() {
           </div>
 
           {/* Right Section: Genre Distribution + Referral Widget */}
-          <div className="rounded-lg p-4 sm:p-6 shadow-sm bg-white dark:bg-slate-800 flex flex-col justify-between">
+          <div className="min-w-0 overflow-hidden rounded-lg p-4 sm:p-6 shadow-sm bg-white dark:bg-slate-800 flex flex-col justify-between">
             <div>
               <h3 className="dark:text-white text-lg font-semibold">Genre Distribution</h3>
               <p className="text-slate-400 text-sm mb-5">What your audience listens to</p>
@@ -446,7 +446,7 @@ export default function UserDashboardPage() {
           </div>
 
           {/* Bottom Left Section: Recent Tracks */}
-          <div className="lg:col-span-2 rounded-lg p-4 shadow-sm bg-white dark:bg-slate-800">
+          <div className="lg:col-span-2 min-w-0 overflow-hidden rounded-lg p-4 shadow-sm bg-white dark:bg-slate-800">
             <div className="flex items-center justify-between p-4">
               <div>
                 <h3 className="text-lg font-semibold">Recent Tracks</h3>
@@ -498,7 +498,7 @@ export default function UserDashboardPage() {
           </div>
 
           {/* Bottom Right Section: Latest Repost Requests */}
-          <div className="rounded-lg shadow-sm p-4 bg-white dark:bg-slate-800">
+          <div className="min-w-0 overflow-hidden rounded-lg shadow-sm p-4 bg-white dark:bg-slate-800">
             <div className="flex items-center justify-between p-2">
               <div>
                 <h3 className="text-lg font-semibold">Latest Repost Requests</h3>

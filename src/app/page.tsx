@@ -38,19 +38,17 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-black text-white overflow-x-hidden">
       {/* Header - Exact match to resources/views/backend/user/layouts/partials/f_header.blade.php */}
       <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-black/70 backdrop-blur-md">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="container mx-auto px-4 py-3.5 sm:py-4 flex justify-between items-center gap-3">
           {/* Logo */}
-          <Link href="/">
-            <div className="w-72">
-              <img
-                src="/assets/logo/rc-logo-white.png"
-                alt="RepostChain"
-                className="w-36 lg:w-48 object-contain"
-              />
-            </div>
+          <Link href="/" className="shrink-0">
+            <img
+              src="/assets/logo/rc-logo-white.png"
+              alt="RepostChain"
+              className="w-32 sm:w-36 lg:w-48 object-contain"
+            />
           </Link>
 
           {/* Desktop Menu */}
@@ -207,22 +205,22 @@ export default function LandingPage() {
         )}
       </header>
 
-      <div className="bg-black px-4 md:px-8">
+      <div className="bg-black px-3 sm:px-4 md:px-8">
         {/* Hero Section - Exact match to includes/hero.blade.php */}
-        <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden" id="home">
-          <div className="container mx-auto px-4 relative z-10">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-12">
-              <div className="lg:w-1/2 text-center lg:text-left">
-                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-white">
+        <section className="relative pt-28 pb-16 md:pt-40 md:pb-32 overflow-hidden" id="home">
+          <div className="container mx-auto px-2 sm:px-4 relative z-10">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-12">
+              <div className="w-full lg:w-1/2 text-center lg:text-left">
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-white">
                   Grow Your Music Reach
                   <span className="block text-gradient">Build Fans, Share Feedback</span>
                 </h1>
-                <p className="text-lg text-gray-300 mb-8 max-w-lg mx-auto lg:mx-0">
+                <p className="text-base sm:text-lg text-gray-300 mb-8 max-w-lg mx-auto lg:mx-0">
                   Join More than thousands of music creators and grow audience Through our
                   collaborative platform.
                   <br /> 100% Free to use
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
                   <a
                     href="/api/auth/soundcloud/redirect"
                     className="font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg inline-flex items-center justify-center bg-orange-600 text-white hover:bg-orange-500 active:bg-orange-700 px-6 py-3 text-base"
@@ -269,9 +267,9 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div className="lg:w-1/2 flex justify-center">
-                <div className="relative hidden lg:flex justify-end">
-                  <div className="relative w-full max-w-2xl">
+              <div className="w-full lg:w-1/2 flex justify-center">
+                <div className="relative flex justify-center lg:justify-end w-full">
+                  <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-2xl">
                     <img
                       src="/frontend/user/image/FeaturedArtist.png"
                       alt="Featured Artist"
@@ -689,7 +687,7 @@ export default function LandingPage() {
                 {[...TESTIMONIALS, ...TESTIMONIALS].map((t, idx) => (
                   <div
                     key={idx}
-                    className="shrink-0 w-[360px] sm:w-[400px] bg-gradient-to-br from-zinc-900/90 to-zinc-800/70 backdrop-blur-sm p-8 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300"
+                    className="shrink-0 w-[280px] sm:w-[360px] md:w-[400px] bg-gradient-to-br from-zinc-900/90 to-zinc-800/70 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300"
                   >
                     <div className="flex items-center gap-0.5 mb-4">
                       {[1, 2, 3, 4, 5].map((star) => (
@@ -730,17 +728,17 @@ export default function LandingPage() {
             <div className="bg-gradient-to-br from-[#ff5500]/20 via-orange-600/10 to-transparent backdrop-blur-sm border border-[#ff5500]/30 rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-[#ff5500]/5 via-transparent to-[#ff5500]/5" />
               <div className="relative z-10">
-                <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
                   Ready to Take Your Music Career
                   <br />
                   <span className="text-[#ff5500]">To The Next Level?</span>
                 </h2>
-                <p className="text-xl text-zinc-300 mb-8">
+                <p className="text-base sm:text-xl text-zinc-300 mb-8">
                   Join 5,000+ artists already growing their fanbase with RepostChain
                 </p>
                 <a
                   href="/api/auth/soundcloud/redirect"
-                  className="bg-gradient-to-r from-[#ff5500] to-orange-600 hover:from-[#ff6a1a] hover:to-orange-700 text-white px-12 py-5 rounded-lg text-xl font-semibold transition-all hover:scale-105 shadow-lg shadow-[#ff5500]/30 inline-block"
+                  className="bg-gradient-to-r from-[#ff5500] to-orange-600 hover:from-[#ff6a1a] hover:to-orange-700 text-white px-6 py-3.5 sm:px-12 sm:py-5 rounded-lg text-base sm:text-xl font-semibold transition-all hover:scale-105 shadow-lg shadow-[#ff5500]/30 inline-block w-full sm:w-auto"
                 >
                   Start Your Music Growth
                 </a>
@@ -754,7 +752,7 @@ export default function LandingPage() {
       </div>
 
       {/* Footer - Exact match to f_footer.blade.php */}
-      <footer className="border-t border-zinc-800/50 py-16 px-8 bg-black">
+      <footer className="border-t border-zinc-800/50 py-12 sm:py-16 px-4 sm:px-8 bg-black">
         <div className="max-w-[1400px] mx-auto">
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div>

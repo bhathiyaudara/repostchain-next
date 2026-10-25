@@ -105,13 +105,13 @@ export default function CampaignsFeedPage() {
 
   return (
     <div>
-      <section className="flex flex-col lg:flex-row gap-4 lg:gap-6">
+      <section className="flex flex-col xl:flex-row gap-4 lg:gap-6">
         {/* Left Main Feed Column - Exact match to redesign-campaign.blade.php */}
-        <div className="w-full">
+        <div className="w-full min-w-0 flex-1">
           {/* Top Tabs + Start Campaign Button */}
           <div className="mb-4">
             <div className="border-b border-gray-200 dark:border-gray-700 flex flex-wrap justify-between items-center gap-3 pb-2">
-              <nav className="-mb-px flex flex-wrap space-x-4 md:space-x-8">
+              <nav className="-mb-px flex overflow-x-auto no-scrollbar whitespace-nowrap space-x-4 md:space-x-8">
                 <button
                   type="button"
                   onClick={() => setActiveMainTab('recommended_pro')}
@@ -159,7 +159,7 @@ export default function CampaignsFeedPage() {
                 <button
                   type="button"
                   onClick={() => setShowStats(!showStats)}
-                  className="2xl:hidden flex items-center gap-1 text-sm text-orange-500 cursor-pointer"
+                  className="xl:hidden flex items-center gap-1 text-sm text-orange-500 cursor-pointer"
                 >
                   <span>{showStats ? 'Hide Stats' : 'Show Stats'}</span>
                   {showStats ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -170,7 +170,7 @@ export default function CampaignsFeedPage() {
 
           {/* Mobile/Tablet Collapsible Dashboard Summary */}
           {showStats && (
-            <div className="2xl:hidden mb-8">
+            <div className="xl:hidden mb-8">
               <DashboardSummary
                 earnings={1}
                 dailyRepostCurrent={Object.keys(repostedIds).length}
@@ -186,8 +186,8 @@ export default function CampaignsFeedPage() {
           )}
 
           {/* Filter by track type + Filter by genre + Search tags */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center mb-4 gap-3 relative z-30">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center mb-4 gap-3 relative z-20">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               {/* Track Type Dropdown */}
               <div className="relative">
                 <button

@@ -62,10 +62,10 @@ export default function RepostRequestsPage() {
     <div>
       <section className="flex flex-col lg:flex-row gap-4 lg:gap-6">
         {/* Left Side - Exact match to resources/views/livewire/user/repost-request.blade.php */}
-        <div className="w-full">
+        <div className="w-full min-w-0 flex-1">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-5 gap-3">
             <div>
-              <h1 className="text-3xl md:text-4xl text-black dark:text-gray-100 font-bold">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl text-black dark:text-gray-100 font-bold">
                 Repost Requests
               </h1>
             </div>
@@ -73,16 +73,16 @@ export default function RepostRequestsPage() {
             <div className="flex items-center gap-3">
               <Link
                 href="/user/members"
-                className="font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg inline-flex items-center justify-center bg-orange-600 text-white hover:bg-orange-500 px-4 py-2 text-base"
+                className="font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg inline-flex items-center justify-center bg-orange-600 text-white hover:bg-orange-500 px-3 sm:px-4 py-2 text-sm sm:text-base"
               >
-                <Plus className="w-5 h-5 mr-1" />
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-1 shrink-0" />
                 Send a New Request
               </Link>
 
               <button
                 type="button"
                 onClick={() => setShowStats(!showStats)}
-                className="xl:hidden flex items-center gap-1 text-sm text-orange-500 cursor-pointer"
+                className="xl:hidden flex items-center gap-1 text-sm text-orange-500 cursor-pointer shrink-0"
               >
                 <span>{showStats ? 'Hide Stats' : 'Show Stats'}</span>
                 {showStats ? (
@@ -113,7 +113,7 @@ export default function RepostRequestsPage() {
           {/* Underline Tabs */}
           <div className="mb-8">
             <div className="border-b border-gray-200 dark:border-gray-700">
-              <nav className="-mb-px flex space-x-8">
+              <nav className="-mb-px flex overflow-x-auto no-scrollbar whitespace-nowrap space-x-4 sm:space-x-8">
                 <button
                   type="button"
                   onClick={() => setActiveMainTab('incoming_request')}

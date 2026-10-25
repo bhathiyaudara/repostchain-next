@@ -96,9 +96,9 @@ export default function CollabChatPage() {
           </p>
         </div>
       ) : (
-        <div className="flex flex-col md:flex-row" style={{ height: '75vh' }}>
+        <div className="flex flex-col md:flex-row h-[calc(100vh-8rem)] min-h-[520px]">
           {/* Conversation list */}
-          <div className="w-full md:w-1/3 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 overflow-y-auto">
+          <div className="w-full md:w-1/3 max-h-56 md:max-h-none md:h-full border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 overflow-y-auto shrink-0">
             <div className="p-5 border-b border-slate-200 dark:border-slate-700">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white">Collab Chat</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">

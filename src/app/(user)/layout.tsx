@@ -115,21 +115,22 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-slate-800 dark:text-white flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-slate-800 dark:text-white overflow-x-hidden relative">
       {/* Header - Exact match to resources/views/backend/user/layouts/partials/header.blade.php */}
-      <header className="bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 px-4 md:px-6 py-3 md:py-4 sticky top-0 z-30">
-        <div className="flex items-center justify-between">
+      <header className="bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 px-3 sm:px-4 md:px-6 h-16 flex items-center sticky top-0 z-40">
+        <div className="flex items-center justify-between w-full gap-2">
           {/* Left Side: Mobile Menu Button + Logo */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
             <button
               type="button"
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden p-2 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              className="lg:hidden p-1.5 sm:p-2 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+              aria-label="Toggle Menu"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
+                width="22"
+                height="22"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -143,20 +144,18 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
               </svg>
             </button>
 
-            <div className="w-72">
-              <Link href="/" className="inline-block">
-                <img
-                  src="/assets/logo/rc-logo-black.png"
-                  alt="RepostChain"
-                  className="w-36 lg:w-48 object-contain dark:hidden"
-                />
-                <img
-                  src="/assets/logo/rc-logo-white.png"
-                  alt="RepostChain"
-                  className="w-36 lg:w-48 object-contain hidden dark:block"
-                />
-              </Link>
-            </div>
+            <Link href="/user/dashboard" className="inline-flex items-center shrink-0">
+              <img
+                src="/assets/logo/rc-logo-black.png"
+                alt="RepostChain"
+                className="w-28 sm:w-36 lg:w-44 object-contain dark:hidden"
+              />
+              <img
+                src="/assets/logo/rc-logo-white.png"
+                alt="RepostChain"
+                className="w-28 sm:w-36 lg:w-44 object-contain hidden dark:block"
+              />
+            </Link>
           </div>
 
           {/* Search Bar - Hidden on mobile, visible on tablet+ */}
@@ -264,7 +263,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
               </button>
 
               {notificationsOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden">
+                <div className="absolute right-0 mt-2 w-72 sm:w-80 max-w-[calc(100vw-1.5rem)] bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl shadow-xl z-50 overflow-hidden">
                   <div className="px-4 py-3 border-b border-gray-100 dark:border-slate-700 flex items-center justify-between">
                     <span className="font-semibold text-sm text-slate-800 dark:text-white">
                       Notifications
@@ -335,7 +334,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
               </div>
 
               {profileOpen && (
-                <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-slate-800 rounded-md shadow-lg overflow-hidden z-50 border border-gray-200 dark:border-slate-700">
+                <div className="absolute right-0 mt-2 w-64 sm:w-72 max-w-[calc(100vw-1.5rem)] bg-white dark:bg-slate-800 rounded-md shadow-lg overflow-hidden z-50 border border-gray-200 dark:border-slate-700">
                   <div className="py-2">
                     <Link
                       href="/user/my-account"
@@ -487,17 +486,16 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 bg-black/50 z-10 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
         />
       )}
 
-      <div className="flex flex-1">
-        {/* Sidebar - Exact match to resources/views/backend/user/layouts/partials/sidebar.blade.php */}
-        <aside
-          className={`fixed left-0 lg:top-18 top-15 z-20 w-64 lg:w-[15%] h-[calc(100vh-4.25rem)] bg-white dark:bg-slate-800 border-r border-gray-100 dark:border-slate-700 transform transition-transform duration-300 ease-in-out flex flex-col ${
-            sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-          }`}
-        >
+      {/* Sidebar - Exact match to resources/views/backend/user/layouts/partials/sidebar.blade.php */}
+      <aside
+        className={`fixed left-0 top-16 z-40 w-64 lg:w-[15%] h-[calc(100vh-4rem)] bg-white dark:bg-slate-800 border-r border-gray-100 dark:border-slate-700 transform transition-transform duration-300 ease-in-out flex flex-col ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}
+      >
           {/* Sidebar Profile - Exact match to livewire/user/sidebar-profile.blade.php */}
           <div className="flex items-center gap-3 p-4 border-b border-gray-100 dark:border-slate-700">
             <img
@@ -707,10 +705,11 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
           </div>
         </aside>
 
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col min-w-0 ml-auto lg:w-[calc(100%-15%)]">
-          <main className="flex-1 p-4 md:p-6 min-h-[calc(100vh-64px)]">{children}</main>
-        </div>
+      {/* Main Content Area - Exact match to app.blade.php line 217 */}
+      <div className="w-full lg:w-[calc(100%-15%)] ml-auto min-w-0">
+        <main className="p-3 sm:p-4 md:p-6 min-h-[calc(100vh-4rem)] max-w-full overflow-x-hidden">
+          {children}
+        </main>
       </div>
     </div>
   );

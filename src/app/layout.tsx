@@ -1,6 +1,12 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { QueryProvider } from '@/components/providers/QueryProvider';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   title: 'RepostChain - Grow Your Music Reach',
@@ -45,7 +51,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className="bg-gray-50 dark:bg-gray-900 text-slate-800 dark:text-white min-h-screen antialiased transition-colors duration-200"
+        className="bg-gray-50 dark:bg-gray-900 text-slate-800 dark:text-white min-h-screen overflow-x-hidden antialiased transition-colors duration-200 relative"
         suppressHydrationWarning
       >
         <QueryProvider>{children}</QueryProvider>

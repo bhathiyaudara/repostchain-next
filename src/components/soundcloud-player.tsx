@@ -59,7 +59,7 @@ export function SoundCloudPlayer({
 
   return (
     <div
-      className="soundcloud-embed-container w-full bg-white dark:bg-slate-800"
+      className="soundcloud-embed-container w-full max-w-full overflow-hidden bg-white dark:bg-slate-800"
       style={{ borderTop: '2px solid #ff5500' }}
     >
       {embedUrl && !onTogglePlay ? (
@@ -71,14 +71,15 @@ export function SoundCloudPlayer({
           allow="autoplay; encrypted-media"
           src={embedUrl}
           title={track.title || 'SoundCloud Player'}
+          className="w-full max-w-full block"
         />
       ) : (
         <div
-          className="flex items-center gap-4 p-3 sm:p-4 bg-[#f2f2f2] dark:bg-slate-800/95 select-none"
-          style={{ minHeight: `${Math.min(height, 150)}px` }}
+          className="flex items-center gap-3 sm:gap-4 p-2.5 sm:p-4 bg-[#f2f2f2] dark:bg-slate-800/95 select-none"
+          style={{ minHeight: `${Math.min(height, 140)}px` }}
         >
           {/* Left Artwork */}
-          <div className="relative w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded overflow-hidden bg-gray-300 dark:bg-slate-700 shadow">
+          <div className="relative w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 shrink-0 rounded overflow-hidden bg-gray-300 dark:bg-slate-700 shadow">
             <img
               src={track.artwork_url || '/default_img/no_img.jpg'}
               alt={track.title || 'Track'}
@@ -90,7 +91,7 @@ export function SoundCloudPlayer({
           </div>
 
           {/* Right Controls + Waveform */}
-          <div className="flex-1 min-w-0 flex flex-col justify-between h-24 sm:h-28">
+          <div className="flex-1 min-w-0 flex flex-col justify-between min-h-16 sm:h-24 md:h-28">
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-3 min-w-0">
                 <button

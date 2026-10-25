@@ -43,24 +43,24 @@ export default function PlansPage() {
   return (
     <section>
       {/* Exact match to resources/views/livewire/user/plans.blade.php */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+      <div className="text-center mb-8 sm:mb-12">
+        <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
           Choose Your Perfect Plan
         </h1>
-        <p className="text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+        <p className="text-sm sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto px-2">
           Pro Plans unlock the full potential of RepostChain with exclusive features designed to
           supercharge your music promotion.
         </p>
       </div>
 
       {/* Monthly / Yearly Toggle */}
-      <div className="flex items-center justify-center mb-12">
+      <div className="flex items-center justify-center mb-8 sm:mb-12">
         <div className="bg-slate-200 dark:bg-slate-700 p-1 rounded-xl shadow-lg border border-slate-300 dark:border-slate-600">
           <div className="flex items-center">
             <button
               type="button"
               onClick={() => setIsYearly(false)}
-              className={`px-8 py-3 rounded-lg text-sm font-semibold transition-all duration-300 cursor-pointer ${
+              className={`px-4 sm:px-8 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-300 cursor-pointer ${
                 !isYearly
                   ? 'bg-slate-300 dark:bg-slate-600 shadow-md text-slate-900 dark:text-white'
                   : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
@@ -71,14 +71,14 @@ export default function PlansPage() {
             <button
               type="button"
               onClick={() => setIsYearly(true)}
-              className={`px-8 py-3 rounded-lg text-sm font-semibold transition-all duration-300 relative cursor-pointer ${
+              className={`px-4 sm:px-8 py-2.5 sm:py-3 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-300 relative cursor-pointer ${
                 isYearly
                   ? 'bg-slate-300 dark:bg-slate-600 shadow-md text-slate-900 dark:text-white'
                   : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               Billed Annually
-              <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full">
+              <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 rounded-full">
                 Save 25%
               </span>
             </button>
@@ -87,23 +87,23 @@ export default function PlansPage() {
       </div>
 
       {/* Plan Cards */}
-      <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-16">
+      <div className="grid md:grid-cols-2 gap-6 sm:gap-8 max-w-6xl mx-auto mb-16">
         {PLANS.map((plan) => (
           <div
             key={plan.id}
-            className={`relative bg-white dark:bg-slate-700 rounded-3xl shadow-2xl border transition-all duration-300 hover:scale-[1.02] border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 ${
+            className={`relative bg-white dark:bg-slate-700 rounded-2xl sm:rounded-3xl shadow-2xl border transition-all duration-300 hover:scale-[1.02] border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 ${
               plan.isCurrent ? 'opacity-75' : ''
             }`}
           >
-            <div className="p-8">
-              <div className="text-center mb-8">
-                <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-3">
+            <div className="p-5 sm:p-8">
+              <div className="text-center mb-6 sm:mb-8">
+                <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-3">
                   {plan.name}
                 </h3>
-                <p className="text-slate-600 dark:text-slate-300 mb-6">{plan.notes}</p>
+                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mb-6">{plan.notes}</p>
                 <div className="mb-6">
                   <div className="flex items-baseline justify-center">
-                    <span className="text-6xl font-bold text-slate-900 dark:text-white">
+                    <span className="text-4xl sm:text-6xl font-bold text-slate-900 dark:text-white">
                       ${isYearly ? plan.yearly_price.toFixed(2) : plan.monthly_price.toFixed(2)}
                     </span>
                     <span className="text-slate-500 dark:text-slate-400 ml-2">

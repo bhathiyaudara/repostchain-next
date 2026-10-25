@@ -262,7 +262,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </aside>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col custom-scrollbar overflow-y-auto">
+        <div className="flex-1 flex flex-col min-w-0 custom-scrollbar overflow-y-auto overflow-x-hidden">
           {/* Header - Exact match to resources/views/backend/admin/layouts/partials/header.blade.php */}
           <header className="sticky top-0 z-30 pt-2 px-2">
             <div className="glass-card rounded-xl">
