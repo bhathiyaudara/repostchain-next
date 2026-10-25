@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Poppins, Archivo_Black } from 'next/font/google';
+import { Inter, Poppins, Archivo_Black, Overpass } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import { QueryProvider } from '@/components/providers/QueryProvider';
@@ -9,6 +9,13 @@ const inter = Inter({
   weight: ['400', '500', '600', '700', '800', '900'],
   display: 'swap',
   variable: '--font-inter',
+});
+
+const overpass = Overpass({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800', '900'],
+  display: 'swap',
+  variable: '--font-overpass',
 });
 
 const poppins = Poppins({
@@ -115,7 +122,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`dark ${inter.variable} ${poppins.variable} ${archivoBlack.variable}`}
+      className={`dark ${overpass.variable} ${inter.variable} ${poppins.variable} ${archivoBlack.variable}`}
       data-theme="dark"
       suppressHydrationWarning
     >
