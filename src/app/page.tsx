@@ -1,7 +1,15 @@
-'use client';
+import type { Metadata } from 'next';
+import { PublicHeader, PublicFooter } from '@/components/public-layout';
+import { PartnerSpotlightCard } from '@/components/partner-spotlight-card';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+export const metadata: Metadata = {
+  title: 'RepostChain — Grow Your Music Reach | Build Fans & Share Feedback',
+  description:
+    'Join 5,000+ SoundCloud artists on RepostChain. Grow your audience organically through collaborative repost exchanges, real listener feedback, and detailed SoundCloud analytics. 100% free to use.',
+  alternates: {
+    canonical: '/',
+  },
+};
 
 const TESTIMONIALS = [
   {
@@ -32,207 +40,78 @@ const TESTIMONIALS = [
     role: 'Record Label',
     image: '/frontend/images/testimonial/greenn.png',
   },
+  {
+    quote:
+      "RepostChain's fair exchange system is brilliant. I've built real relationships with other artists and my fanbase has grown organically.",
+    name: 'Riley Monroe',
+    role: 'Song Writer',
+    image: '/frontend/images/testimonial/chen.png',
+  },
 ];
 
+const STRUCTURED_DATA = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': 'https://growmusicians.com/#organization',
+      name: 'RepostChain',
+      legalName: 'Tunexa Limited',
+      url: 'https://growmusicians.com',
+      logo: 'https://growmusicians.com/assets/logo/rc-logo-white.png',
+      contactPoint: {
+        '@type': 'ContactPoint',
+        email: 'support@repostchain.com',
+        contactType: 'customer support',
+        availableLanguage: ['English'],
+      },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://growmusicians.com/#website',
+      url: 'https://growmusicians.com',
+      name: 'RepostChain',
+      description: 'The collaborative music promotion platform for SoundCloud artists.',
+      publisher: {
+        '@id': 'https://growmusicians.com/#organization',
+      },
+    },
+    {
+      '@type': 'SoftwareApplication',
+      name: 'RepostChain',
+      applicationCategory: 'MultimediaApplication',
+      operatingSystem: 'Web',
+      url: 'https://growmusicians.com',
+      description:
+        'Collaborative SoundCloud music promotion platform connecting 5,000+ independent artists for organic repost exchanges, real listener feedback, and analytics.',
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD',
+      },
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: '4.9',
+        reviewCount: '2000',
+        bestRating: '5',
+        worstRating: '1',
+      },
+    },
+  ],
+};
+
 export default function LandingPage() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [flippedPlan, setFlippedPlan] = useState(false);
-  const [bannerMessage, setBannerMessage] = useState<{ type: 'error' | 'warning'; text: string } | null>(null);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const error = params.get('error');
-    const warning = params.get('warning');
-    if (error) {
-      setBannerMessage({ type: 'error', text: error });
-    } else if (warning) {
-      setBannerMessage({ type: 'warning', text: warning });
-    }
-  }, []);
-
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
+      />
+
       {/* Header - Exact match to resources/views/backend/user/layouts/partials/f_header.blade.php */}
-      <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-black/70 backdrop-blur-md">
-        {bannerMessage && (
-          <div
-            className={`px-4 py-2 text-xs sm:text-sm flex items-center justify-between gap-3 ${
-              bannerMessage.type === 'error'
-                ? 'bg-red-900/90 text-red-100 border-b border-red-700'
-                : 'bg-amber-900/90 text-amber-100 border-b border-amber-700'
-            }`}
-          >
-            <span className="truncate">{bannerMessage.text}</span>
-            <button
-              type="button"
-              onClick={() => setBannerMessage(null)}
-              className="shrink-0 text-white/80 hover:text-white font-bold px-2"
-            >
-              ✕
-            </button>
-          </div>
-        )}
-        <div className="container mx-auto px-4 py-3.5 sm:py-4 flex justify-between items-center gap-3">
-          {/* Logo */}
-          <Link href="/" className="shrink-0">
-            <img
-              src="/assets/logo/rc-logo-white.png"
-              alt="RepostChain"
-              className="w-32 sm:w-36 lg:w-48 object-contain"
-            />
-          </Link>
+      <PublicHeader />
 
-          {/* Desktop Menu */}
-          <nav className="hidden lg:flex items-center space-x-2 sm:space-x-3 xl:space-x-6">
-            <a
-              href="#home"
-              className="text-gray-300 text-sm xl:text-base hover:text-white transition-colors"
-            >
-              Home
-            </a>
-            <Link
-              href="/user/plans"
-              className="text-gray-300 text-sm xl:text-base hover:text-white transition-colors"
-            >
-              Pricing
-            </Link>
-            <a
-              href="#about"
-              className="text-gray-300 text-sm xl:text-base hover:text-white transition-colors"
-            >
-              About
-            </a>
-            <a
-              href="#how-it-works"
-              className="text-gray-300 text-sm xl:text-base hover:text-white transition-colors"
-            >
-              How it Works
-            </a>
-            <a
-              href="#plan"
-              className="text-gray-300 text-sm xl:text-base hover:text-white transition-colors"
-            >
-              Features
-            </a>
-            <a
-              href="#testimonials"
-              className="text-gray-300 text-sm xl:text-base hover:text-white transition-colors"
-            >
-              Testimonials
-            </a>
-
-
-            <a
-              href="/api/auth/soundcloud/redirect"
-              className="font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg inline-flex items-center justify-center bg-orange-600 text-white hover:bg-orange-500 active:bg-orange-700 px-4 py-2 text-base"
-            >
-              Continue with SoundCloud
-            </a>
-          </nav>
-
-          {/* Mobile Menu Toggle */}
-          <div className="lg:hidden flex items-center space-x-3">
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-              aria-expanded={mobileMenuOpen}
-              className="text-gray-200 hover:text-white p-1"
-            >
-              {!mobileMenuOpen ? (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="30"
-                  height="30"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="4" x2="20" y1="12" y2="12" />
-                  <line x1="4" x2="20" y1="6" y2="6" />
-                  <line x1="4" x2="20" y1="18" y2="18" />
-                </svg>
-              ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="30"
-                  height="30"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        {mobileMenuOpen && (
-          <div className="lg:hidden bg-zinc-900 border-t border-zinc-800 max-h-[calc(100vh-4rem)] overflow-y-auto">
-            <div className="container mx-auto px-4 py-4 space-y-4">
-              <a
-                href="#home"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block text-gray-300 hover:text-white transition-colors"
-              >
-                Home
-              </a>
-              <Link
-                href="/user/plans"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block text-gray-300 hover:text-white transition-colors"
-              >
-                Pricing
-              </Link>
-              <a
-                href="#about"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block text-gray-300 hover:text-white transition-colors"
-              >
-                About
-              </a>
-              <a
-                href="#how-it-works"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block text-gray-300 hover:text-white transition-colors"
-              >
-                How it Works
-              </a>
-              <a
-                href="#plan"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block text-gray-300 hover:text-white transition-colors"
-              >
-                Features
-              </a>
-              <a
-                href="#testimonials"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block text-gray-300 hover:text-white transition-colors"
-              >
-                Testimonials
-              </a>
-              <a
-                href="/api/auth/soundcloud/redirect"
-                className="block text-center w-full px-3 py-2 rounded-md bg-orange-600 text-white hover:bg-orange-700"
-              >
-                Continue with SoundCloud
-              </a>
-            </div>
-          </div>
-        )}
-      </header>
-
-      <div className="bg-black px-3 sm:px-4 md:px-8">
+      <main className="bg-black px-3 sm:px-4 md:px-8">
         {/* Hero Section - Exact match to includes/hero.blade.php */}
         <section className="relative pt-28 pb-16 md:pt-40 md:pb-32 overflow-hidden" id="home">
           <div className="container mx-auto px-2 sm:px-4 relative z-10">
@@ -299,7 +178,10 @@ export default function LandingPage() {
                   <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-2xl">
                     <img
                       src="/frontend/user/image/FeaturedArtist.png"
-                      alt="Featured Artist"
+                      alt="Featured SoundCloud Artist Growing on RepostChain"
+                      width={720}
+                      height={540}
+                      fetchPriority="high"
                       className="w-full h-auto relative z-10"
                     />
                   </div>
@@ -608,161 +490,7 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              <div
-                className="relative block mt-4 lg:mt-0 cursor-pointer"
-                onClick={() => setFlippedPlan((prev) => !prev)}
-              >
-                <div className="w-full max-w-lg mx-auto h-[390px] sm:h-[420px]" style={{ perspective: '1000px' }}>
-                  <div
-                    className={`relative w-full h-full transition-transform duration-700 ${
-                      flippedPlan ? '' : 'animate-flip'
-                    }`}
-                    style={{
-                      transformStyle: 'preserve-3d',
-                      transform: flippedPlan ? 'rotateY(180deg)' : undefined,
-                    }}
-                  >
-                    {[
-                      {
-                        front: true,
-                        title: 'Artist Pro',
-                        sub: 'Unlimited access to all tools',
-                        price: '$8.25',
-                        accent: '#ff5500',
-                        features: [
-                          'Unlimited uploads',
-                          'Boost tracks unlimited',
-                          'Distribute & monetize tracks',
-                          'Replace tracks anytime',
-                        ],
-                        popular: true,
-                      },
-                      {
-                        front: false,
-                        title: 'Artist',
-                        sub: 'Essential artist tools',
-                        price: '$3.25',
-                        accent: '#3b82f6',
-                        features: [
-                          '3 hours of uploads',
-                          'Boost tracks (2x per month)',
-                          'Distribute & monetize tracks',
-                          'Replace tracks (3x per month)',
-                        ],
-                        popular: false,
-                      },
-                    ].map((plan) => (
-                      <div
-                        key={plan.title}
-                        className="absolute inset-0 backface-hidden"
-                        style={plan.front ? undefined : { transform: 'rotateY(180deg)' }}
-                      >
-                        <div
-                          className="bg-gradient-to-br from-zinc-900/90 to-zinc-800/70 backdrop-blur-sm p-4 sm:p-6 rounded-3xl border shadow-2xl h-full relative flex flex-col justify-between"
-                          style={{
-                            borderColor: plan.accent + '4D',
-                            boxShadow: '0 25px 50px -12px ' + plan.accent + '33',
-                          }}
-                        >
-                          {plan.popular && (
-                            <div className="absolute top-3 right-3 bg-[#ff5500] text-white px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold">
-                              MOST POPULAR
-                            </div>
-                          )}
-                          <div
-                            className="rounded-2xl p-4 sm:p-5 mb-3 border mt-3 sm:mt-0"
-                            style={{
-                              backgroundColor: plan.accent + '0D',
-                              borderColor: plan.accent + '1A',
-                            }}
-                          >
-                            <div className="flex items-center justify-between gap-2 mb-4">
-                              <div>
-                                <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">{plan.title}</h3>
-                                <p className="text-zinc-400 text-xs">{plan.sub}</p>
-                              </div>
-                              <div
-                                className="text-white px-2.5 sm:px-3 py-1.5 rounded-lg font-bold text-lg sm:text-xl shrink-0"
-                                style={{ backgroundColor: plan.accent }}
-                              >
-                                {plan.price}
-                                <span className="text-xs font-normal">/mo</span>
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              {plan.features.map((feature) => (
-                                <div key={feature} className="flex items-center gap-2 text-zinc-300 text-xs">
-                                  <div
-                                    className="w-4 h-4 rounded-full flex items-center justify-center shrink-0"
-                                    style={{ backgroundColor: plan.accent + '33' }}
-                                  >
-                                    <svg
-                                      className="w-2.5 h-2.5"
-                                      style={{ color: plan.accent }}
-                                      fill="none"
-                                      stroke="currentColor"
-                                      viewBox="0 0 24 24"
-                                    >
-                                      <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="M5 13l4 4L19 7"
-                                      />
-                                    </svg>
-                                  </div>
-                                  <span>{feature}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                          <div>
-                            <div className="text-center mb-2">
-                              <a
-                                href="https://invite.soundcloud.com/pjoy4"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()}
-                                className={
-                                  'inline-block text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all hover:scale-105 w-full text-center bg-gradient-to-r ' +
-                                  (plan.popular
-                                    ? 'from-[#ff5500] to-orange-600 hover:from-[#ff6a1a] hover:to-orange-700'
-                                    : 'from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700')
-                                }
-                              >
-                                Get Started
-                              </a>
-                            </div>
-                            <div className="text-center">
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setFlippedPlan((prev) => !prev);
-                                }}
-                                className="inline-flex items-center gap-2 text-xs font-semibold hover:opacity-80 transition-opacity"
-                                style={{ color: plan.accent }}
-                              >
-                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                                  />
-                                </svg>
-                                Click to see other plan
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="absolute -bottom-6 -right-6 w-64 h-64 bg-[#ff5500]/10 rounded-full blur-3xl pointer-events-none" />
-                  <div className="absolute -top-6 -left-6 w-48 h-48 bg-orange-600/10 rounded-full blur-2xl pointer-events-none" />
-                </div>
-              </div>
+              <PartnerSpotlightCard />
             </div>
           </div>
         </section>
@@ -804,7 +532,9 @@ export default function LandingPage() {
         <section id="testimonials" className="py-14 sm:py-20 bg-black relative">
           <div className="max-w-[1400px] mx-auto relative">
             <div className="text-center mb-10 sm:mb-16">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">Success Stories</h2>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
+                Success Stories
+              </h2>
               <p className="text-lg md:text-xl text-zinc-300 max-w-3xl mx-auto leading-relaxed">
                 See how artists like you are growing their audience with RepostChain.
               </p>
@@ -819,10 +549,7 @@ export default function LandingPage() {
                     <div className="flex items-center gap-0.5 mb-4">
                       {[1, 2, 3, 4, 5].map((star) => (
                         <div key={star} className="bg-[#00b67a] p-1">
-                          <svg
-                            className="w-4 h-4 text-white fill-white"
-                            viewBox="0 0 24 24"
-                          >
+                          <svg className="w-4 h-4 text-white fill-white" viewBox="0 0 24 24">
                             <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                           </svg>
                         </div>
@@ -832,15 +559,16 @@ export default function LandingPage() {
                       &ldquo;{t.quote}&rdquo;
                     </p>
                     <div className="flex items-center gap-3">
-                      <img
-                        className="ring-1 ring-gray-400 rounded-full w-10 h-10 object-cover"
-                        src={t.image}
-                        alt={t.name}
-                        loading="lazy"
-                        onError={(e) => {
-                          (e.currentTarget as HTMLImageElement).src = '/default_img/no_img.jpg';
-                        }}
-                      />
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#ff5500] to-orange-600 flex items-center justify-center text-white font-bold overflow-hidden shrink-0">
+                        <img
+                          className="w-full h-full object-cover rounded-full"
+                          src={t.image}
+                          alt={t.name}
+                          width={48}
+                          height={48}
+                          loading="lazy"
+                        />
+                      </div>
                       <div>
                         <p className="text-white font-semibold">{t.name}</p>
                         <p className="text-[#ff5500] text-sm">{t.role}</p>
@@ -880,96 +608,10 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
-      </div>
+      </main>
 
       {/* Footer - Exact match to f_footer.blade.php */}
-      <footer className="border-t border-zinc-800/50 py-12 sm:py-16 px-4 sm:px-8 bg-black">
-        <div className="max-w-[1400px] mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 mb-12">
-            <div>
-              <div className="flex items-center mb-4">
-                <img
-                  src="/assets/logo/rc-logo-white.png"
-                  alt="RepostChain"
-                  className="w-36 lg:w-48 object-contain"
-                />
-              </div>
-              <p className="text-zinc-400 text-sm mb-6 leading-relaxed">
-                The collaborative music promotion platform for SoundCloud artists.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4 text-base">Quick Links</h4>
-              <ul className="space-y-3">
-                <li>
-                  <a
-                    href="#how-it-works"
-                    className="text-zinc-400 hover:text-zinc-200 transition-colors text-sm"
-                  >
-                    How It Works
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="#plan"
-                    className="text-zinc-400 hover:text-zinc-200 transition-colors text-sm"
-                  >
-                    Features
-                  </a>
-                </li>
-                <li>
-                  <Link
-                    href="/user/plans"
-                    className="text-zinc-400 hover:text-zinc-200 transition-colors text-sm"
-                  >
-                    Pricing
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4 text-base">Legal</h4>
-              <ul className="space-y-3">
-                <li>
-                  <span className="text-zinc-400 text-sm">Terms of Service</span>
-                </li>
-                <li>
-                  <span className="text-zinc-400 text-sm">Privacy Policy</span>
-                </li>
-                <li>
-                  <span className="text-zinc-400 text-sm">Refund Policy</span>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4 text-base">Contact</h4>
-              <ul className="space-y-3">
-                <li>
-                  <a
-                    href="mailto:support@repostchain.com"
-                    className="text-zinc-400 hover:text-zinc-200 transition-colors text-sm"
-                  >
-                    support@repostchain.com
-                  </a>
-                </li>
-                <li>
-                  <Link
-                    href="/user/help"
-                    className="text-zinc-400 hover:text-zinc-200 transition-colors text-sm"
-                  >
-                    Help Center
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-zinc-800/50 pt-8 text-center">
-            <p className="text-zinc-500 text-sm">
-              &copy; {new Date().getFullYear()} RepostChain. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <PublicFooter />
     </div>
   );
 }
