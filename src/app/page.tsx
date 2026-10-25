@@ -393,6 +393,78 @@ export default function LandingPage() {
         </section>
 
         {/* ========================================================= */}
+        {/* WHAT IS REPOSTCHAIN? (Restored from Laravel, modernized)  */}
+        {/* ========================================================= */}
+        <section id="about" className="py-20 sm:py-28 bg-[#0A0A0A] border-b border-white/10">
+          <div className="max-w-[1360px] mx-auto px-4 sm:px-6">
+            <div className="max-w-3xl mx-auto text-center mb-14 sm:mb-18">
+              <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#FF5500] block mb-2">
+                COMMUNITY-DRIVEN PROMOTION
+              </span>
+              <h2 className="sc-display text-3xl sm:text-5xl lg:text-6xl font-black text-white mb-4">
+                WHAT IS <span className="text-[#FF5500]">REPOSTCHAIN?</span>
+              </h2>
+              <p className="text-zinc-400 text-base sm:text-lg leading-relaxed">
+                RepostChain is a revolutionary platform that connects musicians and content creators,
+                enabling organic growth through collaborative promotion and authentic engagement.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+              {[
+                {
+                  title: 'Collaborative Growth',
+                  desc: "Join a community of artists who support each other through strategic reposts, creating a network effect that amplifies everyone's reach.",
+                  icon: 'M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3',
+                },
+                {
+                  title: 'Real Engagement',
+                  desc: 'Our platform ensures all interactions are genuine, helping you build a real fanbase that truly appreciates your music.',
+                  icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z',
+                },
+                {
+                  title: 'Fair System',
+                  desc: 'Our credit-based exchange ensures fair collaboration between artists, preventing spam and promoting quality content.',
+                  icon: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
+                },
+                {
+                  title: 'Analytics & Growth',
+                  desc: 'Track your growth with detailed analytics and insights, helping you optimize your promotion strategy.',
+                  icon: 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
+                },
+              ].map((item) => (
+                <div
+                  key={item.title}
+                  className="group rounded-2xl bg-[#121212] border border-white/10 p-7 sm:p-8 hover:border-[#FF5500]/60 transition-all duration-300"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-[#FF5500]/10 border border-[#FF5500]/20 flex items-center justify-center mb-5 text-[#FF5500] group-hover:bg-[#FF5500] group-hover:text-white transition-colors duration-200">
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d={item.icon}
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 tracking-tight">
+                    {item.title}
+                  </h3>
+                  <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================= */}
         {/* ARTIST SPOTLIGHT (TALL EDITORIAL PORTRAIT CARDS) */}
         {/* ========================================================= */}
         <section id="community" className="py-20 sm:py-28 bg-[#0A0A0A] border-b border-white/10">
