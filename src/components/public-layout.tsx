@@ -104,39 +104,41 @@ export function PublicHeader() {
           ))}
         </nav>
 
-        {/* Right Pill CTA Buttons (matches Screenshot 1 & 2) */}
+        {/* Right Pill CTA: Single official Connect with SoundCloud button */}
         <div className="hidden lg:flex items-center gap-3">
           {isLoggedIn ? (
             <Link href="/user/dashboard" className="sc-pill-white px-5 py-2 text-[13px]">
               Dashboard
             </Link>
           ) : (
-            <>
-              <a
-                href="/api/auth/soundcloud/redirect"
-                className="sc-pill-white px-5 py-2 text-[13px]"
-              >
-                Sign in
-              </a>
-              <a
-                href="/api/auth/soundcloud/redirect"
-                className="sc-pill-dark px-5 py-2 text-[13px]"
-              >
-                <SoundCloudMark className="w-4 h-3 text-[#FF5500]" />
-                <span>Connect SoundCloud</span>
-              </a>
-            </>
+            <a
+              href="/api/auth/soundcloud/redirect"
+              className="sc-pill-white px-5 py-2.5 text-[13px]"
+            >
+              <SoundCloudMark className="w-4 h-3 text-[#FF5500]" />
+              <span>Connect with SoundCloud</span>
+            </a>
           )}
         </div>
 
-        {/* Mobile Menu Toggle */}
+        {/* Mobile Action & Menu Toggle */}
         <div className="lg:hidden flex items-center gap-2">
-          <a
-            href={isLoggedIn ? '/user/dashboard' : '/api/auth/soundcloud/redirect'}
-            className="sc-pill-white px-3.5 py-1.5 text-[12px]"
-          >
-            {isLoggedIn ? 'Dashboard' : 'Sign in'}
-          </a>
+          {isLoggedIn ? (
+            <Link
+              href="/user/dashboard"
+              className="sc-pill-white px-3.5 py-1.5 text-[12px]"
+            >
+              Dashboard
+            </Link>
+          ) : (
+            <a
+              href="/api/auth/soundcloud/redirect"
+              className="sc-pill-white px-3.5 py-1.5 text-[12px]"
+            >
+              <SoundCloudMark className="w-3.5 h-2.5 text-[#FF5500]" />
+              <span>Connect</span>
+            </a>
+          )}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -210,7 +212,7 @@ export function PublicHeader() {
                   className="sc-pill-orange w-full py-3 text-sm"
                 >
                   <SoundCloudMark className="w-5 h-3.5" />
-                  <span>Continue with SoundCloud</span>
+                  <span>Connect with SoundCloud</span>
                 </a>
               )}
             </div>
