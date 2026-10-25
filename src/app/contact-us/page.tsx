@@ -74,46 +74,43 @@ export default function ContactUsPage() {
 
       <main>
         {/* ========================================================= */}
-        {/* HERO SECTION — Modern SoundCloud Editorial Heading        */}
+        {/* UNIFIED HERO & CONTACT GRID SECTION (Seamless layout)     */}
         {/* ========================================================= */}
-        <section className="relative pt-24 pb-10 sm:pt-36 sm:pb-16 lg:pt-40 lg:pb-20 overflow-hidden bg-[#0A0A0A]">
-          {/* Subtle Ambient Radial Glows */}
+        <section className="relative pt-28 pb-20 sm:pt-36 sm:pb-28 lg:pt-40 lg:pb-32 overflow-hidden bg-[#0A0A0A]">
+          {/* Ambient Glows covering the entire section smoothly */}
           <div
-            className="absolute -top-32 -left-32 w-[520px] h-[520px] bg-[#FF5500]/10 rounded-full blur-[140px] pointer-events-none"
+            className="absolute -top-32 -left-32 w-[600px] h-[600px] bg-[#FF5500]/[0.08] rounded-full blur-[160px] pointer-events-none"
             aria-hidden="true"
           />
           <div
-            className="absolute top-1/3 -right-32 w-[460px] h-[460px] bg-[#FF5500]/[0.06] rounded-full blur-[150px] pointer-events-none"
+            className="absolute top-1/2 -right-32 w-[600px] h-[600px] bg-[#FF5500]/[0.05] rounded-full blur-[160px] pointer-events-none"
             aria-hidden="true"
           />
 
-          <div className="max-w-[1360px] mx-auto px-4 sm:px-6 relative z-10 text-center">
-            {/* Tag Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.06] border border-white/10 mb-5 sm:mb-6 backdrop-blur-sm">
-              <SoundCloudMark className="w-4 h-3 text-[#FF5500]" />
-              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-300">
-                ARTIST SUPPORT &amp; INQUIRIES
-              </span>
+          <div className="max-w-[1360px] mx-auto px-4 sm:px-6 relative z-10">
+            {/* Centered Hero Header */}
+            <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-14">
+              {/* Tag Badge */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.06] border border-white/10 mb-5 sm:mb-6 backdrop-blur-sm">
+                <SoundCloudMark className="w-4 h-3 text-[#FF5500]" />
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-300">
+                  ARTIST SUPPORT &amp; INQUIRIES
+                </span>
+              </div>
+
+              {/* Display Headline */}
+              <h1 className="sc-display text-4xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[0.93] mb-4 sm:mb-5">
+                GET IN <span className="text-[#FF5500]">TOUCH</span>
+              </h1>
+
+              {/* Subheadline */}
+              <p className="text-zinc-400 text-sm sm:text-base lg:text-lg font-normal leading-relaxed">
+                Have questions about your track campaigns, billing, account setup, or partnership
+                opportunities? We&apos;re here to help you succeed on SoundCloud.
+              </p>
             </div>
 
-            {/* Display Headline */}
-            <h1 className="sc-display text-4xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[0.93] mb-4 sm:mb-5">
-              GET IN <span className="text-[#FF5500]">TOUCH</span>
-            </h1>
-
-            {/* Subheadline */}
-            <p className="text-zinc-400 text-sm sm:text-base lg:text-xl font-normal leading-relaxed max-w-2xl mx-auto">
-              Have questions about your track campaigns, billing, account setup, or partnership
-              opportunities? We&apos;re here to help you succeed on SoundCloud.
-            </p>
-          </div>
-        </section>
-
-        {/* ========================================================= */}
-        {/* CONTACT CONTENT GRID (Form + Information Cards)           */}
-        {/* ========================================================= */}
-        <section className="pb-20 sm:pb-28 bg-[#0A0A0A]">
-          <div className="max-w-[1360px] mx-auto px-4 sm:px-6">
+            {/* 12-Column Content Grid: Form (7 cols) + Info Cards (5 cols) */}
             <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-start">
               {/* Left Column: Form */}
               <div className="lg:col-span-7 w-full">
@@ -121,13 +118,13 @@ export default function ContactUsPage() {
               </div>
 
               {/* Right Column: Information Cards */}
-              <div className="lg:col-span-5 w-full space-y-4 sm:space-y-5">
+              <div className="lg:col-span-5 w-full space-y-4">
                 {CONTACT_INFO.map((item) => (
                   <div
                     key={item.title}
-                    className="rounded-2xl bg-[#121212] border border-white/10 p-5 sm:p-6 md:p-7 hover:border-white/20 transition-all flex items-start gap-4 shadow-lg"
+                    className="rounded-2xl bg-[#121212] border border-white/10 p-5 sm:p-6 hover:border-white/20 transition-all flex items-start gap-4 shadow-lg"
                   >
-                    <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#FF5500]/10 border border-[#FF5500]/20 flex items-center justify-center text-[#FF5500] shrink-0 mt-0.5">
+                    <div className="w-10 h-10 rounded-xl bg-[#FF5500]/10 border border-[#FF5500]/20 flex items-center justify-center text-[#FF5500] shrink-0 mt-0.5">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={item.icon} />
                       </svg>
@@ -150,25 +147,25 @@ export default function ContactUsPage() {
                 ))}
 
                 {/* FAQ Help Quick Card */}
-                <div className="rounded-2xl bg-gradient-to-br from-[#161616] to-[#121212] border border-[#FF5500]/30 p-5 sm:p-6 md:p-7 shadow-lg">
+                <div className="rounded-2xl bg-gradient-to-br from-[#161616] to-[#121212] border border-[#FF5500]/30 p-5 sm:p-6 shadow-lg">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#FF5500] block mb-1">
                     NEED ANSWERS FASTER?
                   </span>
-                  <h3 className="text-base font-bold text-white mb-2">Check the Artist Help Center</h3>
-                  <p className="text-xs text-zinc-400 mb-5 leading-relaxed">
+                  <h3 className="text-base font-bold text-white mb-1.5">Check the Artist Help Center</h3>
+                  <p className="text-xs text-zinc-400 mb-4 leading-relaxed">
                     Most common questions about credits, campaigns, SoundCloud OAuth, and Pro perks
                     are already answered in our Help Center.
                   </p>
-                  <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
+                  <div className="flex flex-wrap items-center gap-2.5">
                     <Link
                       href="/faq"
-                      className="sc-pill-white px-4 sm:px-5 py-2 text-xs font-bold"
+                      className="sc-pill-white px-4 py-2 text-xs font-bold"
                     >
                       Browse FAQ
                     </Link>
                     <Link
                       href="/help"
-                      className="sc-pill-dark px-4 sm:px-5 py-2 text-xs font-semibold"
+                      className="sc-pill-dark px-4 py-2 text-xs font-semibold"
                     >
                       Help Center
                     </Link>
@@ -184,7 +181,7 @@ export default function ContactUsPage() {
         {/* ========================================================= */}
         <section
           aria-label="Get Started"
-          className="py-20 sm:py-28 lg:py-32 bg-[#0A0A0A] border-t border-white/10 px-4 sm:px-6 relative text-center overflow-hidden"
+          className="py-20 sm:py-28 bg-[#0A0A0A] border-t border-white/10 px-4 sm:px-6 relative text-center overflow-hidden"
         >
           <div
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-[#FF5500]/10 rounded-full blur-[140px] pointer-events-none"
@@ -207,14 +204,14 @@ export default function ContactUsPage() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-4">
               <a
                 href="/api/auth/soundcloud/redirect"
-                className="sc-pill-white w-full sm:w-auto px-8 sm:px-9 py-3.5 sm:py-4 text-sm sm:text-base font-bold shadow-2xl shadow-white/10"
+                className="sc-pill-white w-full sm:w-auto px-8 sm:px-9 py-3.5 sm:py-4 text-sm sm:text-base font-bold shadow-2xl shadow-white/10 justify-center"
               >
                 <SoundCloudMark className="w-5 h-3.5" />
                 <span>Connect with SoundCloud</span>
               </a>
               <Link
                 href="/plan"
-                className="sc-pill-dark w-full sm:w-auto px-7 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-semibold"
+                className="sc-pill-dark w-full sm:w-auto px-7 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-semibold justify-center"
               >
                 <span>View Creator Plans</span>
               </Link>
