@@ -11,6 +11,10 @@ import { FALLBACK_USER } from '@/lib/fallback-data';
 export async function GET(request: NextRequest) {
   const appUrl = new URL(request.url).origin;
 
+  if (process.env.ALLOW_DEV_LOGIN === 'false') {
+    return NextResponse.redirect(`${appUrl}/`);
+  }
+
   try {
     const firstUser =
       (await prisma.user.findUnique({

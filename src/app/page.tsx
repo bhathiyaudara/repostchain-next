@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 const TESTIMONIALS = [
@@ -9,38 +9,69 @@ const TESTIMONIALS = [
       "RepostChain's fair exchange system is brilliant. I've built real relationships with other artists and my fanbase has grown organically.",
     name: 'Riley Monroe',
     role: 'Song Writer',
-    image: '/frontend/images/testimonial/1.jpg',
+    image: '/frontend/images/testimonial/smith.png',
   },
   {
     quote:
       'Best decision I made for my music career. The analytics help me understand my audience, and the community is incredibly supportive.',
     name: 'Kai Rivers',
     role: 'Hip Hop Artist',
-    image: '/frontend/images/testimonial/2.jpg',
+    image: '/frontend/images/testimonial/singh.png',
   },
   {
     quote:
       'RepostChain helped me gain over 2,500 genuine followers in just 3 months. The engagement is real, and my plays have increased dramatically.',
     name: 'The Velvet Echoes',
     role: 'Band',
-    image: '/frontend/images/testimonial/3.jpg',
+    image: '/frontend/images/testimonial/mic_check.png',
   },
   {
     quote:
       'I was struggling to break through until I found RepostChain. Now my tracks are being discovered by the right audience. Incredible platform!',
     name: 'Midnight Skyline',
     role: 'Record Label',
-    image: '/frontend/images/testimonial/4.jpg',
+    image: '/frontend/images/testimonial/greenn.png',
   },
 ];
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [flippedPlan, setFlippedPlan] = useState(false);
+  const [bannerMessage, setBannerMessage] = useState<{ type: 'error' | 'warning'; text: string } | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get('error');
+    const warning = params.get('warning');
+    if (error) {
+      setBannerMessage({ type: 'error', text: error });
+    } else if (warning) {
+      setBannerMessage({ type: 'warning', text: warning });
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
       {/* Header - Exact match to resources/views/backend/user/layouts/partials/f_header.blade.php */}
       <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-black/70 backdrop-blur-md">
+        {bannerMessage && (
+          <div
+            className={`px-4 py-2 text-xs sm:text-sm flex items-center justify-between gap-3 ${
+              bannerMessage.type === 'error'
+                ? 'bg-red-900/90 text-red-100 border-b border-red-700'
+                : 'bg-amber-900/90 text-amber-100 border-b border-amber-700'
+            }`}
+          >
+            <span className="truncate">{bannerMessage.text}</span>
+            <button
+              type="button"
+              onClick={() => setBannerMessage(null)}
+              className="shrink-0 text-white/80 hover:text-white font-bold px-2"
+            >
+              ✕
+            </button>
+          </div>
+        )}
         <div className="container mx-auto px-4 py-3.5 sm:py-4 flex justify-between items-center gap-3">
           {/* Logo */}
           <Link href="/" className="shrink-0">
@@ -90,12 +121,6 @@ export default function LandingPage() {
               Testimonials
             </a>
 
-            <Link
-              href="/login"
-              className="text-orange-400 hover:text-orange-300 text-sm font-medium px-3 py-2 border border-orange-500/40 rounded-lg transition-colors"
-            >
-              Dev / Admin Login
-            </Link>
 
             <a
               href="/api/auth/soundcloud/redirect"
@@ -110,7 +135,9 @@ export default function LandingPage() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="text-gray-200 hover:text-white"
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileMenuOpen}
+              className="text-gray-200 hover:text-white p-1"
             >
               {!mobileMenuOpen ? (
                 <svg
@@ -150,7 +177,7 @@ export default function LandingPage() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-zinc-900 border-t border-zinc-800">
+          <div className="lg:hidden bg-zinc-900 border-t border-zinc-800 max-h-[calc(100vh-4rem)] overflow-y-auto">
             <div className="container mx-auto px-4 py-4 space-y-4">
               <a
                 href="#home"
@@ -181,19 +208,19 @@ export default function LandingPage() {
                 How it Works
               </a>
               <a
+                href="#plan"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-gray-300 hover:text-white transition-colors"
+              >
+                Features
+              </a>
+              <a
                 href="#testimonials"
                 onClick={() => setMobileMenuOpen(false)}
                 className="block text-gray-300 hover:text-white transition-colors"
               >
                 Testimonials
               </a>
-              <Link
-                href="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block text-center w-full px-3 py-2 rounded-md border border-orange-500 text-orange-400 hover:bg-orange-500/10"
-              >
-                Dev / Admin Login
-              </Link>
               <a
                 href="/api/auth/soundcloud/redirect"
                 className="block text-center w-full px-3 py-2 rounded-md bg-orange-600 text-white hover:bg-orange-700"
@@ -283,10 +310,10 @@ export default function LandingPage() {
         </section>
 
         {/* About Section - Exact match to includes/about.blade.php */}
-        <section id="about" className="py-20 bg-black">
+        <section id="about" className="py-14 sm:py-20 bg-black">
           <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-white">
+            <div className="max-w-3xl mx-auto text-center mb-10 sm:mb-16">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-white">
                 What is RepostChain?
               </h2>
               <p className="text-lg text-gray-300">
@@ -295,8 +322,8 @@ export default function LandingPage() {
                 engagement.
               </p>
             </div>
-            <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
-              <div className="group bg-gradient-to-br from-zinc-900/90 to-zinc-800/50 backdrop-blur-sm p-8 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300 hover:scale-[1.02]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-5xl mx-auto">
+              <div className="group bg-gradient-to-br from-zinc-900/90 to-zinc-800/50 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300 hover:scale-[1.02]">
                 <div className="bg-[#ff5500]/10 w-14 h-14 rounded-xl flex items-center justify-center mb-5 group-hover:bg-[#ff5500]/20 transition-all">
                   <svg
                     className="w-7 h-7 text-[#ff5500]"
@@ -318,7 +345,7 @@ export default function LandingPage() {
                   creating a network effect that amplifies everyone&apos;s reach.
                 </p>
               </div>
-              <div className="group bg-gradient-to-br from-zinc-900/90 to-zinc-800/50 backdrop-blur-sm p-8 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300 hover:scale-[1.02]">
+              <div className="group bg-gradient-to-br from-zinc-900/90 to-zinc-800/50 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300 hover:scale-[1.02]">
                 <div className="bg-[#ff5500]/10 w-14 h-14 rounded-xl flex items-center justify-center mb-5 group-hover:bg-[#ff5500]/20 transition-all">
                   <svg
                     className="w-7 h-7 text-[#ff5500]"
@@ -340,7 +367,7 @@ export default function LandingPage() {
                   fanbase that truly appreciates your music.
                 </p>
               </div>
-              <div className="group bg-gradient-to-br from-zinc-900/90 to-zinc-800/50 backdrop-blur-sm p-8 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300 hover:scale-[1.02]">
+              <div className="group bg-gradient-to-br from-zinc-900/90 to-zinc-800/50 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300 hover:scale-[1.02]">
                 <div className="bg-[#ff5500]/10 w-14 h-14 rounded-xl flex items-center justify-center mb-5 group-hover:bg-[#ff5500]/20 transition-all">
                   <svg
                     className="w-7 h-7 text-[#ff5500]"
@@ -362,7 +389,7 @@ export default function LandingPage() {
                   promoting quality content.
                 </p>
               </div>
-              <div className="group bg-gradient-to-br from-zinc-900/90 to-zinc-800/50 backdrop-blur-sm p-8 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300 hover:scale-[1.02]">
+              <div className="group bg-gradient-to-br from-zinc-900/90 to-zinc-800/50 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300 hover:scale-[1.02]">
                 <div className="bg-[#ff5500]/10 w-14 h-14 rounded-xl flex items-center justify-center mb-5 group-hover:bg-[#ff5500]/20 transition-all">
                   <svg
                     className="w-7 h-7 text-[#ff5500]"
@@ -389,10 +416,10 @@ export default function LandingPage() {
         </section>
 
         {/* How It Works Section - Exact match to includes/how-it-works.blade.php */}
-        <section id="how-it-works" className="py-20 bg-black relative">
+        <section id="how-it-works" className="py-14 sm:py-20 bg-black relative">
           <div className="max-w-[1400px] mx-auto relative">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+            <div className="text-center mb-10 sm:mb-16">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
                 How RepostChain Works
               </h2>
               <p className="text-lg md:text-xl text-zinc-300 max-w-4xl mx-auto leading-relaxed">
@@ -400,7 +427,7 @@ export default function LandingPage() {
                 benefits everyone involved.
               </p>
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
                 {
                   step: '1',
@@ -429,7 +456,7 @@ export default function LandingPage() {
               ].map((item) => (
                 <div
                   key={item.step}
-                  className="group bg-gradient-to-br from-zinc-900/90 to-zinc-800/70 backdrop-blur-sm p-8 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300 hover:scale-[1.05] relative overflow-hidden"
+                  className="group bg-gradient-to-br from-zinc-900/90 to-zinc-800/70 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300 sm:hover:scale-[1.05] relative overflow-hidden"
                 >
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#ff5500] to-orange-600" />
                   <span className="text-4xl font-bold text-[#ff5500] mb-6 block">{item.step}</span>
@@ -459,7 +486,7 @@ export default function LandingPage() {
         {/* SoundCloud Pro Section - Exact match to includes/sound-cloud-pro.blade.php */}
         <section
           id="plan"
-          className="py-24 relative overflow-hidden bg-gradient-to-b from-black via-[#ff5500]/5 to-black"
+          className="py-16 sm:py-24 relative overflow-hidden bg-gradient-to-b from-black via-[#ff5500]/5 to-black"
         >
           <div className="max-w-[1400px] mx-auto relative">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -480,7 +507,7 @@ export default function LandingPage() {
                   </svg>
                   <span className="text-[#ff5500] text-sm font-semibold">Partner Spotlight</span>
                 </div>
-                <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
                   Supercharge Your Music with
                   <br />
                   <span className="text-[#ff5500]">SoundCloud Pro</span>
@@ -564,7 +591,7 @@ export default function LandingPage() {
                   href="https://invite.soundcloud.com/pjoy4"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-[#ff5500] to-orange-600 hover:from-[#ff6a1a] hover:to-orange-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-all hover:scale-105 shadow-lg shadow-[#ff5500]/30"
+                  className="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-gradient-to-r from-[#ff5500] to-orange-600 hover:from-[#ff6a1a] hover:to-orange-700 text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded-lg text-base sm:text-lg font-semibold transition-all hover:scale-105 shadow-lg shadow-[#ff5500]/30"
                 >
                   Upgrade to SoundCloud Pro
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -581,9 +608,20 @@ export default function LandingPage() {
                 </p>
               </div>
 
-              <div className="relative hidden lg:block cursor-pointer">
-                <div className="w-full max-w-lg mx-auto h-[420px]" style={{ perspective: '1000px' }}>
-                  <div className="relative w-full h-full animate-flip">
+              <div
+                className="relative block mt-4 lg:mt-0 cursor-pointer"
+                onClick={() => setFlippedPlan((prev) => !prev)}
+              >
+                <div className="w-full max-w-lg mx-auto h-[390px] sm:h-[420px]" style={{ perspective: '1000px' }}>
+                  <div
+                    className={`relative w-full h-full transition-transform duration-700 ${
+                      flippedPlan ? '' : 'animate-flip'
+                    }`}
+                    style={{
+                      transformStyle: 'preserve-3d',
+                      transform: flippedPlan ? 'rotateY(180deg)' : undefined,
+                    }}
+                  >
                     {[
                       {
                         front: true,
@@ -620,31 +658,31 @@ export default function LandingPage() {
                         style={plan.front ? undefined : { transform: 'rotateY(180deg)' }}
                       >
                         <div
-                          className="bg-gradient-to-br from-zinc-900/90 to-zinc-800/70 backdrop-blur-sm p-6 rounded-3xl border shadow-2xl h-full relative"
+                          className="bg-gradient-to-br from-zinc-900/90 to-zinc-800/70 backdrop-blur-sm p-4 sm:p-6 rounded-3xl border shadow-2xl h-full relative flex flex-col justify-between"
                           style={{
                             borderColor: plan.accent + '4D',
                             boxShadow: '0 25px 50px -12px ' + plan.accent + '33',
                           }}
                         >
                           {plan.popular && (
-                            <div className="absolute top-3 right-3 bg-[#ff5500] text-white px-3 py-1 rounded-full text-xs font-bold">
+                            <div className="absolute top-3 right-3 bg-[#ff5500] text-white px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold">
                               MOST POPULAR
                             </div>
                           )}
                           <div
-                            className="rounded-2xl p-5 mb-3 border"
+                            className="rounded-2xl p-4 sm:p-5 mb-3 border mt-3 sm:mt-0"
                             style={{
                               backgroundColor: plan.accent + '0D',
                               borderColor: plan.accent + '1A',
                             }}
                           >
-                            <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center justify-between gap-2 mb-4">
                               <div>
-                                <h3 className="text-2xl font-bold text-white mb-1">{plan.title}</h3>
+                                <h3 className="text-xl sm:text-2xl font-bold text-white mb-1">{plan.title}</h3>
                                 <p className="text-zinc-400 text-xs">{plan.sub}</p>
                               </div>
                               <div
-                                className="text-white px-3 py-1.5 rounded-lg font-bold text-xl"
+                                className="text-white px-2.5 sm:px-3 py-1.5 rounded-lg font-bold text-lg sm:text-xl shrink-0"
                                 style={{ backgroundColor: plan.accent }}
                               >
                                 {plan.price}
@@ -655,7 +693,7 @@ export default function LandingPage() {
                               {plan.features.map((feature) => (
                                 <div key={feature} className="flex items-center gap-2 text-zinc-300 text-xs">
                                   <div
-                                    className="w-4 h-4 rounded-full flex items-center justify-center"
+                                    className="w-4 h-4 rounded-full flex items-center justify-center shrink-0"
                                     style={{ backgroundColor: plan.accent + '33' }}
                                   >
                                     <svg
@@ -678,35 +716,43 @@ export default function LandingPage() {
                               ))}
                             </div>
                           </div>
-                          <div className="text-center mb-2">
-                            <a
-                              href="https://invite.soundcloud.com/pjoy4"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={
-                                'inline-block text-white px-6 py-2 rounded-lg text-sm font-semibold transition-all hover:scale-105 w-full text-center bg-gradient-to-r ' +
-                                (plan.popular
-                                  ? 'from-[#ff5500] to-orange-600 hover:from-[#ff6a1a] hover:to-orange-700'
-                                  : 'from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700')
-                              }
-                            >
-                              Get Started
-                            </a>
-                          </div>
-                          <div className="text-center">
-                            <div
-                              className="inline-flex items-center gap-2 text-xs font-semibold"
-                              style={{ color: plan.accent }}
-                            >
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth="2"
-                                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                                />
-                              </svg>
-                              Click to see other plan
+                          <div>
+                            <div className="text-center mb-2">
+                              <a
+                                href="https://invite.soundcloud.com/pjoy4"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                                className={
+                                  'inline-block text-white px-6 py-2.5 rounded-lg text-sm font-semibold transition-all hover:scale-105 w-full text-center bg-gradient-to-r ' +
+                                  (plan.popular
+                                    ? 'from-[#ff5500] to-orange-600 hover:from-[#ff6a1a] hover:to-orange-700'
+                                    : 'from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700')
+                                }
+                              >
+                                Get Started
+                              </a>
+                            </div>
+                            <div className="text-center">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setFlippedPlan((prev) => !prev);
+                                }}
+                                className="inline-flex items-center gap-2 text-xs font-semibold hover:opacity-80 transition-opacity"
+                                style={{ color: plan.accent }}
+                              >
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                                  />
+                                </svg>
+                                Click to see other plan
+                              </button>
                             </div>
                           </div>
                         </div>
@@ -722,18 +768,18 @@ export default function LandingPage() {
         </section>
 
         {/* Statistics Section - Exact match to includes/statistics.blade.php */}
-        <section id="statistics" className="py-20 bg-black relative">
+        <section id="statistics" className="py-14 sm:py-20 bg-black relative">
           <div className="absolute inset-0 bg-gradient-to-b from-[#ff5500]/5 via-transparent to-[#ff5500]/5" />
           <div className="max-w-[1400px] mx-auto relative">
             <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
                 RepostChain in Numbers
               </h2>
               <p className="text-lg md:text-xl text-zinc-300 max-w-3xl mx-auto leading-relaxed">
                 Join thousands of artists already growing their audience with our platform.
               </p>
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
               {[
                 { value: '10K+', label: 'Tracks Reposted' },
                 { value: '2K+', label: 'Feedback Circulated' },
@@ -742,9 +788,9 @@ export default function LandingPage() {
               ].map((stat) => (
                 <div
                   key={stat.label}
-                  className="bg-gradient-to-br from-zinc-900/90 to-zinc-800/70 backdrop-blur-sm p-10 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300 text-center group hover:scale-[1.05]"
+                  className="bg-gradient-to-br from-zinc-900/90 to-zinc-800/70 backdrop-blur-sm p-6 sm:p-10 rounded-2xl border border-zinc-800/50 hover:border-[#ff5500]/50 transition-all duration-300 text-center group sm:hover:scale-[1.05]"
                 >
-                  <span className="text-5xl md:text-6xl font-bold text-[#ff5500] block mb-4">
+                  <span className="text-4xl sm:text-5xl md:text-6xl font-bold text-[#ff5500] block mb-4">
                     {stat.value}
                   </span>
                   <p className="text-zinc-300 text-lg font-medium">{stat.label}</p>
@@ -755,10 +801,10 @@ export default function LandingPage() {
         </section>
 
         {/* Testimonials Section - Exact match to includes/testimonials.blade.php */}
-        <section id="testimonials" className="py-20 bg-black relative">
+        <section id="testimonials" className="py-14 sm:py-20 bg-black relative">
           <div className="max-w-[1400px] mx-auto relative">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">Success Stories</h2>
+            <div className="text-center mb-10 sm:mb-16">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">Success Stories</h2>
               <p className="text-lg md:text-xl text-zinc-300 max-w-3xl mx-auto leading-relaxed">
                 See how artists like you are growing their audience with RepostChain.
               </p>
@@ -790,6 +836,10 @@ export default function LandingPage() {
                         className="ring-1 ring-gray-400 rounded-full w-10 h-10 object-cover"
                         src={t.image}
                         alt={t.name}
+                        loading="lazy"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = '/default_img/no_img.jpg';
+                        }}
                       />
                       <div>
                         <p className="text-white font-semibold">{t.name}</p>
@@ -804,7 +854,7 @@ export default function LandingPage() {
         </section>
 
         {/* CTA Section - Exact match to includes/cta.blade.php */}
-        <section id="cta" className="py-20 bg-black relative overflow-hidden">
+        <section id="cta" className="py-12 sm:py-20 bg-black relative overflow-hidden">
           <div className="max-w-5xl mx-auto">
             <div className="bg-gradient-to-br from-[#ff5500]/20 via-orange-600/10 to-transparent backdrop-blur-sm border border-[#ff5500]/30 rounded-3xl p-8 md:p-12 text-center relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-[#ff5500]/5 via-transparent to-[#ff5500]/5" />
@@ -835,7 +885,7 @@ export default function LandingPage() {
       {/* Footer - Exact match to f_footer.blade.php */}
       <footer className="border-t border-zinc-800/50 py-12 sm:py-16 px-4 sm:px-8 bg-black">
         <div className="max-w-[1400px] mx-auto">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 mb-12">
             <div>
               <div className="flex items-center mb-4">
                 <img
@@ -873,14 +923,6 @@ export default function LandingPage() {
                     className="text-zinc-400 hover:text-zinc-200 transition-colors text-sm"
                   >
                     Pricing
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/login"
-                    className="text-orange-400 hover:text-orange-300 transition-colors text-sm"
-                  >
-                    Developer / Admin Login
                   </Link>
                 </li>
               </ul>

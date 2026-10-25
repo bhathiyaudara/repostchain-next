@@ -4,9 +4,13 @@ import { setSessionCookie } from '@/lib/auth';
 import { verifyLaravelPassword } from '@/lib/crypto';
 import { FALLBACK_USER } from '@/lib/fallback-data';
 
+// Passwordless / demo shortcuts are enabled unless explicitly disabled.
+const DEV_LOGIN_ALLOWED = process.env.ALLOW_DEV_LOGIN !== 'false';
+
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  const { role = 'user', email = '', password = '', instant = false } = body;
+  const { role = 'user', email = '', password = '' } = body;
+  const instant = DEV_LOGIN_ALLOWED && Boolean(body.instant);
 
   // ==========================================================================
   // 1. ADMIN LOGIN (DB `admins` table OR Temporary Admin Credentials)
@@ -20,7 +24,7 @@ export async function POST(request: NextRequest) {
       if (dbAdmin) {
         const validPassword =
           instant ||
-          password === 'admin123' ||
+          (DEV_LOGIN_ALLOWED && password === 'admin123') ||
           (await verifyLaravelPassword(password, dbAdmin.password));
 
         if (!validPassword) {
@@ -49,8 +53,8 @@ export async function POST(request: NextRequest) {
 
     // Temporary Admin Login fallback (`admin@repostchain.com` / `admin123` or 1-click instant)
     if (
-      instant ||
-      (email.toLowerCase() === 'admin@repostchain.com' && password === 'admin123')
+      DEV_LOGIN_ALLOWED &&
+      (instant || (email.toLowerCase() === 'admin@repostchain.com' && password === 'admin123'))
     ) {
       await setSessionCookie({
         id: 1,
@@ -78,7 +82,8 @@ export async function POST(request: NextRequest) {
   // ==========================================================================
   try {
     const isDefaultDemoEmail =
-      instant || email.toLowerCase() === 'artist@repostchain.com' || !email;
+      DEV_LOGIN_ALLOWED &&
+      (instant || email.toLowerCase() === 'artist@repostchain.com' || !email);
 
     const dbUser = isDefaultDemoEmail
       ? (await prisma.user.findUnique({
@@ -129,8 +134,8 @@ export async function POST(request: NextRequest) {
   }
 
   if (
-    instant ||
-    (email.toLowerCase() === 'artist@repostchain.com' && password === 'artist123')
+    DEV_LOGIN_ALLOWED &&
+    (instant || (email.toLowerCase() === 'artist@repostchain.com' && password === 'artist123'))
   ) {
     await setSessionCookie(FALLBACK_USER);
     return NextResponse.json({
