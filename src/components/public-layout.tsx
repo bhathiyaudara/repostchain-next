@@ -8,12 +8,7 @@ import Link from 'next/link';
  */
 export function SoundCloudMark({ className = 'w-5 h-3.5' }: { className?: string }) {
   return (
-    <svg
-      className={className}
-      viewBox="0 0 32 18"
-      fill="currentColor"
-      aria-hidden="true"
-    >
+    <svg className={className} viewBox="0 0 32 18" fill="currentColor" aria-hidden="true">
       <rect x="0" y="9" width="1.6" height="8" rx="0.8" />
       <rect x="2.6" y="6" width="1.6" height="11" rx="0.8" />
       <rect x="5.2" y="7.5" width="1.6" height="9.5" rx="0.8" />
@@ -53,17 +48,23 @@ export function PublicHeader() {
       .catch(() => {});
   }, []);
 
-  return (
-    <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-200 bg-[#121212]/95 backdrop-blur-md border-b border-[#272727]">
-      {/* SoundCloud signature 2px top orange bar */}
-      <div className="h-[2px] w-full bg-[#FF5500]" />
+  const navItems = [
+    { href: '/#how-it-works', label: 'HOW IT WORKS' },
+    { href: '/#about', label: 'ABOUT' },
+    { href: '/#plan', label: 'PARTNER SPOTLIGHT' },
+    { href: '/plan', label: 'PRICING' },
+    { href: '/features', label: 'FEATURES' },
+    { href: '/#faq', label: 'FAQ' },
+  ];
 
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-[#0A0A0A]/85 backdrop-blur-xl border-b border-white/[0.07]">
       {bannerMessage && (
         <div
           className={`px-4 py-2 text-xs sm:text-sm flex items-center justify-between gap-3 ${
             bannerMessage.type === 'error'
-              ? 'bg-[#EC2E10]/90 text-white border-b border-[#EC2E10]'
-              : 'bg-[#FFB200]/90 text-[#121212] font-medium border-b border-[#FFB200]'
+              ? 'bg-[#EC2E10] text-white'
+              : 'bg-[#FFB200] text-[#0A0A0A] font-medium'
           }`}
         >
           <span className="truncate">{bannerMessage.text}</span>
@@ -78,9 +79,9 @@ export function PublicHeader() {
         </div>
       )}
 
-      <div className="max-w-[1240px] mx-auto px-4 h-14 sm:h-16 flex justify-between items-center gap-3">
+      <div className="max-w-[1360px] mx-auto px-4 sm:px-6 h-16 sm:h-20 flex justify-between items-center gap-4">
         {/* Logo */}
-        <Link href="/" className="shrink-0 flex items-center gap-2">
+        <Link href="/" className="shrink-0 flex items-center">
           <img
             src="/assets/logo/rc-logo-white.png"
             alt="RepostChain"
@@ -90,62 +91,64 @@ export function PublicHeader() {
           />
         </Link>
 
-        {/* Desktop Menu - SoundCloud Navigation Style */}
-        <nav
-          aria-label="Main Navigation"
-          className="hidden lg:flex items-center space-x-1 xl:space-x-2"
-        >
-          {[
-            { href: '/#home', label: 'Home' },
-            { href: '/plan', label: 'Pricing' },
-            { href: '/#about', label: 'About' },
-            { href: '/#how-it-works', label: 'How it Works' },
-            { href: '/features', label: 'Features' },
-            { href: '/#testimonials', label: 'Testimonials' },
-          ].map((item) => (
+        {/* Center Uppercase Editorial Navigation (matches SoundCloud for Artists screenshot) */}
+        <nav aria-label="Main Navigation" className="hidden lg:flex items-center gap-6 xl:gap-8">
+          {navItems.map((item) => (
             <Link
               key={item.label}
               href={item.href}
-              className="px-3 py-2 text-[14px] font-medium text-[#999999] hover:text-[#FAFAFA] transition-colors"
+              className="text-[11px] xl:text-[12px] font-bold tracking-[0.08em] text-zinc-400 hover:text-white transition-colors"
             >
               {item.label}
             </Link>
           ))}
-
-          <div className="pl-3 ml-2 border-l border-[#272727] flex items-center gap-2.5">
-            {isLoggedIn ? (
-              <Link
-                href="/user/dashboard"
-                className="sc-btn-orange px-4 py-2 text-[14px]"
-              >
-                Dashboard
-              </Link>
-            ) : (
-              <a
-                href="/api/auth/soundcloud/redirect"
-                className="sc-btn-orange px-4 py-2 text-[14px]"
-              >
-                <SoundCloudMark className="w-5 h-3.5" />
-                <span>Continue with SoundCloud</span>
-              </a>
-            )}
-          </div>
         </nav>
 
+        {/* Right Pill CTA Buttons (matches Screenshot 1 & 2) */}
+        <div className="hidden lg:flex items-center gap-3">
+          {isLoggedIn ? (
+            <Link href="/user/dashboard" className="sc-pill-white px-5 py-2 text-[13px]">
+              Dashboard
+            </Link>
+          ) : (
+            <>
+              <a
+                href="/api/auth/soundcloud/redirect"
+                className="sc-pill-white px-5 py-2 text-[13px]"
+              >
+                Sign in
+              </a>
+              <a
+                href="/api/auth/soundcloud/redirect"
+                className="sc-pill-dark px-5 py-2 text-[13px]"
+              >
+                <SoundCloudMark className="w-4 h-3 text-[#FF5500]" />
+                <span>Connect SoundCloud</span>
+              </a>
+            </>
+          )}
+        </div>
+
         {/* Mobile Menu Toggle */}
-        <div className="lg:hidden flex items-center">
+        <div className="lg:hidden flex items-center gap-2">
+          <a
+            href={isLoggedIn ? '/user/dashboard' : '/api/auth/soundcloud/redirect'}
+            className="sc-pill-white px-3.5 py-1.5 text-[12px]"
+          >
+            {isLoggedIn ? 'Dashboard' : 'Sign in'}
+          </a>
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={mobileMenuOpen}
-            className="text-[#999999] hover:text-[#FAFAFA] p-1.5 rounded-[4px] border border-transparent hover:border-[#272727]"
+            className="text-zinc-300 hover:text-white p-1.5"
           >
             {!mobileMenuOpen ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
+                width="26"
+                height="26"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -160,8 +163,8 @@ export function PublicHeader() {
             ) : (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
+                width="26"
+                height="26"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -177,41 +180,34 @@ export function PublicHeader() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-[#121212] border-t border-[#272727] max-h-[calc(100vh-4rem)] overflow-y-auto">
-          <div className="px-4 py-4 space-y-2">
-            {[
-              { href: '/#home', label: 'Home' },
-              { href: '/plan', label: 'Pricing' },
-              { href: '/#about', label: 'About' },
-              { href: '/#how-it-works', label: 'How it Works' },
-              { href: '/features', label: 'Features' },
-              { href: '/#testimonials', label: 'Testimonials' },
-            ].map((item) => (
+        <div className="lg:hidden bg-[#0A0A0A] border-t border-white/10 max-h-[calc(100vh-4rem)] overflow-y-auto">
+          <div className="px-5 py-5 space-y-3">
+            {navItems.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="block py-2 text-[15px] font-medium text-[#999999] hover:text-[#FAFAFA] transition-colors border-b border-[#1E1E1E]"
+                className="block py-2 text-xs font-bold tracking-[0.08em] text-zinc-300 hover:text-[#FF5500] transition-colors border-b border-white/[0.06]"
               >
                 {item.label}
               </Link>
             ))}
 
-            <div className="pt-2">
+            <div className="pt-3 flex flex-col gap-2.5">
               {isLoggedIn ? (
                 <Link
                   href="/user/dashboard"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="sc-btn-orange w-full py-2.5 text-[14px]"
+                  className="sc-pill-white w-full py-3 text-sm"
                 >
-                  Dashboard
+                  Open Artist Dashboard
                 </Link>
               ) : (
                 <a
                   href="/api/auth/soundcloud/redirect"
-                  className="sc-btn-orange w-full py-2.5 text-[14px]"
+                  className="sc-pill-orange w-full py-3 text-sm"
                 >
                   <SoundCloudMark className="w-5 h-3.5" />
                   <span>Continue with SoundCloud</span>
@@ -227,30 +223,151 @@ export function PublicHeader() {
 
 export function PublicFooter() {
   return (
-    <footer className="border-t border-[#272727] py-12 sm:py-16 px-4 sm:px-8 bg-[#121212]">
-      <div className="max-w-[1240px] mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 mb-12">
-          <div>
-            <div className="flex items-center mb-4">
-              <Link href="/">
-                <img
-                  src="/assets/logo/rc-logo-white.png"
-                  alt="RepostChain"
-                  width={176}
-                  height={40}
-                  className="w-36 lg:w-44 h-auto object-contain"
-                />
-              </Link>
-            </div>
-            <p className="text-[#999999] text-[13px] mb-6 leading-relaxed">
-              The collaborative music promotion platform for SoundCloud artists.
+    <footer className="border-t border-white/10 pt-14 sm:pt-20 pb-10 px-4 sm:px-8 bg-[#0A0A0A] relative overflow-hidden">
+      <div className="max-w-[1360px] mx-auto relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 sm:gap-12 mb-14">
+          {/* Left Editorial Tagline (matches Screenshot 2 bottom-left) */}
+          <div className="md:col-span-5">
+            <Link href="/" className="inline-block mb-5">
+              <img
+                src="/assets/logo/rc-logo-white.png"
+                alt="RepostChain"
+                width={176}
+                height={40}
+                className="w-36 lg:w-44 h-auto object-contain"
+              />
+            </Link>
+            <p className="sc-display text-xl sm:text-2xl text-[#FF5500] mb-3">
+              YOUR SOUND.
+              <br />
+              <span className="text-white">AMPLIFIED BY THE CHAIN.</span>
             </p>
-            <div className="flex items-center gap-3">
+            <p className="text-zinc-400 text-xs sm:text-sm max-w-sm leading-relaxed">
+              The collaborative music promotion network for independent SoundCloud artists,
+              producers, DJs, and labels.
+            </p>
+          </div>
+
+          {/* Center Navigation Columns */}
+          <div className="md:col-span-2">
+            <h4 className="text-zinc-500 font-bold mb-4 text-[11px] uppercase tracking-[0.12em]">
+              PLATFORM
+            </h4>
+            <ul className="space-y-2.5">
+              <li>
+                <Link
+                  href="/#how-it-works"
+                  className="text-zinc-300 hover:text-[#FF5500] transition-colors text-xs sm:text-[13px]"
+                >
+                  How It Works
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/features"
+                  className="text-zinc-300 hover:text-[#FF5500] transition-colors text-xs sm:text-[13px]"
+                >
+                  Features
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/plan"
+                  className="text-zinc-300 hover:text-[#FF5500] transition-colors text-xs sm:text-[13px]"
+                >
+                  Pricing Plans
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/#plan"
+                  className="text-zinc-300 hover:text-[#FF5500] transition-colors text-xs sm:text-[13px]"
+                >
+                  SoundCloud Pro
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div className="md:col-span-2">
+            <h4 className="text-zinc-500 font-bold mb-4 text-[11px] uppercase tracking-[0.12em]">
+              LEGAL
+            </h4>
+            <ul className="space-y-2.5">
+              <li>
+                <Link
+                  href="/terms-and-conditions"
+                  className="text-zinc-300 hover:text-[#FF5500] transition-colors text-xs sm:text-[13px]"
+                >
+                  Terms of Service
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/privacy-policy"
+                  className="text-zinc-300 hover:text-[#FF5500] transition-colors text-xs sm:text-[13px]"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/refund-policy"
+                  className="text-zinc-300 hover:text-[#FF5500] transition-colors text-xs sm:text-[13px]"
+                >
+                  Refund Policy
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          <div className="md:col-span-3 flex flex-col justify-between">
+            <div>
+              <h4 className="text-zinc-500 font-bold mb-4 text-[11px] uppercase tracking-[0.12em]">
+                SUPPORT &amp; SOCIAL
+              </h4>
+              <ul className="space-y-2.5 mb-6">
+                <li>
+                  <Link
+                    href="/faq"
+                    className="text-zinc-300 hover:text-[#FF5500] transition-colors text-xs sm:text-[13px]"
+                  >
+                    FAQ
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/help"
+                    className="text-zinc-300 hover:text-[#FF5500] transition-colors text-xs sm:text-[13px]"
+                  >
+                    Help Center
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/contact-us"
+                    className="text-zinc-300 hover:text-[#FF5500] transition-colors text-xs sm:text-[13px]"
+                  >
+                    Contact Us
+                  </Link>
+                </li>
+                <li>
+                  <a
+                    href="mailto:support@repostchain.com"
+                    className="text-zinc-400 hover:text-white transition-colors text-xs"
+                  >
+                    support@repostchain.com
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div className="flex items-center gap-4">
               {[
                 {
-                  label: 'Twitter',
+                  label: 'X / Twitter',
                   href: 'https://x.com',
-                  d: 'M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z',
+                  d: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z',
                 },
                 {
                   label: 'YouTube',
@@ -273,7 +390,7 @@ export function PublicFooter() {
                   href={s.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-[4px] bg-[#1A1A1A] border border-[#272727] flex items-center justify-center text-[#999999] hover:text-[#FAFAFA] hover:border-[#FF5500] transition-colors"
+                  className="text-zinc-400 hover:text-white transition-colors"
                   aria-label={s.label}
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -283,117 +400,13 @@ export function PublicFooter() {
               ))}
             </div>
           </div>
-
-          <div>
-            <h4 className="text-[#FAFAFA] font-semibold mb-4 text-[13px] uppercase tracking-wider">
-              Quick Links
-            </h4>
-            <ul className="space-y-2.5">
-              <li>
-                <Link
-                  href="/#how-it-works"
-                  className="text-[#999999] hover:text-[#FAFAFA] transition-colors text-[13px]"
-                >
-                  How It Works
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/features"
-                  className="text-[#999999] hover:text-[#FAFAFA] transition-colors text-[13px]"
-                >
-                  Features
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/plan"
-                  className="text-[#999999] hover:text-[#FAFAFA] transition-colors text-[13px]"
-                >
-                  Pricing
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/faq"
-                  className="text-[#999999] hover:text-[#FAFAFA] transition-colors text-[13px]"
-                >
-                  FAQ
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-[#FAFAFA] font-semibold mb-4 text-[13px] uppercase tracking-wider">
-              Legal
-            </h4>
-            <ul className="space-y-2.5">
-              <li>
-                <Link
-                  href="/terms-and-conditions"
-                  className="text-[#999999] hover:text-[#FAFAFA] transition-colors text-[13px]"
-                >
-                  Terms of Service
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/privacy-policy"
-                  className="text-[#999999] hover:text-[#FAFAFA] transition-colors text-[13px]"
-                >
-                  Privacy Policy
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/refund-policy"
-                  className="text-[#999999] hover:text-[#FAFAFA] transition-colors text-[13px]"
-                >
-                  Refund Policy
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-[#FAFAFA] font-semibold mb-4 text-[13px] uppercase tracking-wider">
-              Contact
-            </h4>
-            <ul className="space-y-2.5">
-              <li>
-                <a
-                  href="mailto:support@repostchain.com"
-                  className="text-[#999999] hover:text-[#FF5500] transition-colors text-[13px]"
-                >
-                  support@repostchain.com
-                </a>
-              </li>
-              <li>
-                <Link
-                  href="/contact-us"
-                  className="text-[#999999] hover:text-[#FAFAFA] transition-colors text-[13px]"
-                >
-                  Contact Us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/help"
-                  className="text-[#999999] hover:text-[#FAFAFA] transition-colors text-[13px]"
-                >
-                  Help Center
-                </Link>
-              </li>
-            </ul>
-          </div>
         </div>
 
-        <div className="border-t border-[#272727] pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[#666666] text-[12px]">
-          <p>&copy; {new Date().getFullYear()} RepostChain. All rights reserved.</p>
-          <p className="flex items-center gap-1.5">
+        <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-zinc-500 text-xs">
+          <p>&copy; {new Date().getFullYear()} RepostChain (Tunexa Limited). All rights reserved.</p>
+          <p className="flex items-center gap-2 text-zinc-400">
             <SoundCloudMark className="w-4 h-3 text-[#FF5500]" />
-            <span>Powered by Official SoundCloud API</span>
+            <span>Built for SoundCloud Artists</span>
           </p>
         </div>
       </div>

@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Poppins } from 'next/font/google';
+import { Inter, Poppins, Archivo_Black } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 
 const inter = Inter({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '500', '600', '700', '800', '900'],
   display: 'swap',
   variable: '--font-inter',
 });
@@ -16,6 +16,13 @@ const poppins = Poppins({
   weight: ['400', '500', '600', '700'],
   display: 'swap',
   variable: '--font-poppins',
+});
+
+const archivoBlack = Archivo_Black({
+  subsets: ['latin'],
+  weight: ['400'],
+  display: 'swap',
+  variable: '--font-display',
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://growmusicians.com';
@@ -108,7 +115,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`dark ${inter.variable} ${poppins.variable}`}
+      className={`dark ${inter.variable} ${poppins.variable} ${archivoBlack.variable}`}
       data-theme="dark"
       suppressHydrationWarning
     >
