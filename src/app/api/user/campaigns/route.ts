@@ -13,6 +13,8 @@ import {
 import { getUserCreditBalance } from '@/lib/credits';
 import { FALLBACK_CAMPAIGNS, FALLBACK_USER } from '@/lib/fallback-data';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   const user = (await getCurrentUser()) ?? FALLBACK_USER;
   const { searchParams } = new URL(request.url);
@@ -22,11 +24,29 @@ export async function GET(request: NextRequest) {
   const genre = searchParams.get('genre') || '';
   const trackType = searchParams.get('trackType') || 'all'; // 'all' | 'track' | 'playlist'
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
-  const perPage = Math.min(50, Math.max(1, parseInt(searchParams.get('perPage') || '12', 10)));
+  const defaultPerPage = tab === 'mine' ? 50 : 12;
+  const perPage = Math.min(50, Math.max(1, parseInt(searchParams.get('perPage') || String(defaultPerPage), 10)));
 
   try {
     const baseWhere: Record<string, any> = {
       deleted_at: null,
+    };
+
+    const proUserCondition = {
+      OR: [
+        { pro_feature: true },
+        {
+          user: {
+            userPlans: {
+              some: {
+                status: 1,
+                price: { gt: 0 },
+                deleted_at: null,
+              },
+            },
+          },
+        },
+      ],
     };
 
     if (tab === 'mine') {
@@ -35,12 +55,12 @@ export async function GET(request: NextRequest) {
       baseWhere.status = CAMPAIGN_STATUS.OPEN;
       baseWhere.user_urn = { not: user.urn };
       if (tab === 'recommendedPro') {
-        baseWhere.pro_feature = true;
+        Object.assign(baseWhere, proUserCondition);
       }
     }
 
-    if (genre && genre !== 'all') {
-      baseWhere.target_genre = genre;
+    if (genre && genre !== 'all' && genre !== 'All Genres') {
+      baseWhere.target_genre = { contains: genre };
     }
 
     if (trackType === 'track') {
@@ -50,15 +70,20 @@ export async function GET(request: NextRequest) {
     }
 
     if (search) {
-      baseWhere.OR = [
-        { title: { contains: search } },
-        { description: { contains: search } },
-        { target_genre: { contains: search } },
+      baseWhere.AND = [
+        ...(baseWhere.AND || []),
+        {
+          OR: [
+            { title: { contains: search } },
+            { description: { contains: search } },
+            { target_genre: { contains: search } },
+          ],
+        },
       ];
     }
 
-    // Fetch paginated campaigns and tab counts concurrently
-    const [campaigns, total, proCount, allOpenCount, myRepostedCampaigns] = await Promise.all([
+    // Fetch paginated campaigns, counts, and user's reposted campaign IDs concurrently
+    const [campaigns, total, countRows, myRepostedCampaigns] = await Promise.all([
       prisma.campaign.findMany({
         where: baseWhere,
         include: {
@@ -77,21 +102,17 @@ export async function GET(request: NextRequest) {
         take: perPage,
       }),
       prisma.campaign.count({ where: baseWhere }),
-      prisma.campaign.count({
-        where: {
-          deleted_at: null,
-          status: CAMPAIGN_STATUS.OPEN,
-          user_urn: { not: user.urn },
-          pro_feature: true,
-        },
-      }),
-      prisma.campaign.count({
-        where: {
-          deleted_at: null,
-          status: CAMPAIGN_STATUS.OPEN,
-          user_urn: { not: user.urn },
-        },
-      }),
+      prisma.$queryRaw<Array<Record<string, any>>>`
+        SELECT
+          (SELECT COUNT(*) FROM campaigns c
+           WHERE c.deleted_at IS NULL AND c.status = 1 AND c.user_urn != ${user.urn}
+             AND (c.pro_feature = 1 OR EXISTS (
+               SELECT 1 FROM user_plans up
+               WHERE up.user_urn = c.user_urn AND up.status = 1 AND up.price > 0 AND up.deleted_at IS NULL
+             ))) AS proCount,
+          (SELECT COUNT(*) FROM campaigns c
+           WHERE c.deleted_at IS NULL AND c.status = 1 AND c.user_urn != ${user.urn}) AS allOpenCount
+      `,
       prisma.repost.findMany({
         where: {
           reposter_urn: user.urn,
@@ -101,6 +122,9 @@ export async function GET(request: NextRequest) {
         select: { campaign_id: true },
       }),
     ]);
+
+    const proCount = Number(countRows[0]?.proCount ?? 0);
+    const allOpenCount = Number(countRows[0]?.allOpenCount ?? 0);
 
     const repostedSet = new Set(myRepostedCampaigns.map((r) => String(r.campaign_id)));
 

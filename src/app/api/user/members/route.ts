@@ -67,19 +67,16 @@ const FALLBACK_MEMBERS = [
   },
 ];
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   const user = (await getCurrentUser()) ?? FALLBACK_USER;
   const { searchParams } = new URL(request.url);
   const filter = searchParams.get('filter') || 'all'; // 'all' | 'starred'
   const search = (searchParams.get('search') || '').trim();
+  const genre = (searchParams.get('genre') || '').trim();
 
   try {
-    const starredRows = await prisma.starredUser.findMany({
-      where: { follower_urn: user.urn, deleted_at: null },
-      select: { starred_user_urn: true },
-    });
-    const starredSet = new Set(starredRows.map((s) => s.starred_user_urn));
-
     const where: Record<string, any> = {
       deleted_at: null,
       banned_at: null,
@@ -87,51 +84,79 @@ export async function GET(request: NextRequest) {
       urn: { not: user.urn },
     };
 
-    if (filter === 'starred') {
-      where.urn = { in: Array.from(starredSet) };
-    }
-
     if (search) {
       where.OR = [
         { name: { contains: search } },
         { nickname: { contains: search } },
+        { soundcloud_permalink_url: { contains: search } },
       ];
     }
 
-    const users = await prisma.user.findMany({
-      where,
-      include: {
-        userInfo: {
-          select: {
-            followers_count: true,
-            track_count: true,
-            country: true,
+    if (genre && genre !== 'All Genres' && genre !== 'all') {
+      where.genres = {
+        some: {
+          genre: { contains: genre },
+          deleted_at: null,
+        },
+      };
+    }
+
+    const [starredRows, users] = await Promise.all([
+      prisma.starredUser.findMany({
+        where: { follower_urn: user.urn, deleted_at: null },
+        select: { starred_user_urn: true },
+      }),
+      prisma.user.findMany({
+        where,
+        include: {
+          userInfo: {
+            select: {
+              followers_count: true,
+              track_count: true,
+              country: true,
+            },
+          },
+          genres: {
+            where: { deleted_at: null },
+            select: { genre: true },
+          },
+          userPlans: {
+            where: { status: 1, price: { gt: 0 }, deleted_at: null },
+            select: { id: true },
           },
         },
-        genres: {
-          where: { deleted_at: null },
-          select: { genre: true },
-        },
-      },
-      orderBy: { id: 'desc' },
-      take: 24,
-    });
+        orderBy: { id: 'desc' },
+        take: 30,
+      }),
+    ]);
 
-    const members = users.map((u) => {
-      const followers = Number(u.userInfo?.followers_count ?? 0);
-      return {
-        urn: u.urn,
-        name: u.name,
-        nickname: u.nickname,
-        avatar: u.avatar,
-        followers_count: followers,
-        track_count: Number(u.userInfo?.track_count ?? 0),
-        country: u.userInfo?.country ?? null,
-        genres: u.genres.map((g) => g.genre),
-        repost_price: Math.max(1, Math.min(50, Math.ceil(followers / 100) || 5)),
-        isStarred: starredSet.has(u.urn),
-      };
-    });
+    const starredSet = new Set(starredRows.map((s) => s.starred_user_urn));
+
+    const members = users
+      .filter((u) => (filter === 'starred' ? starredSet.has(u.urn) : true))
+      .map((u) => {
+        const followers = Number(u.userInfo?.followers_count ?? 0);
+        const repostPrice =
+          followers >= 10000
+            ? 100
+            : followers >= 1000
+            ? Math.floor(followers / 100)
+            : 10;
+        return {
+          urn: u.urn,
+          name: u.name || u.nickname || 'SoundCloud Artist',
+          nickname: u.nickname,
+          avatar: u.avatar,
+          created_at: u.created_at,
+          followers_count: followers,
+          track_count: Number(u.userInfo?.track_count ?? 0),
+          country: u.userInfo?.country ?? null,
+          genres: u.genres.length > 0 ? u.genres.map((g) => g.genre) : ['Electronic', 'Music'],
+          repost_price: repostPrice,
+          isPro: u.userPlans.length > 0,
+          isStarred: starredSet.has(u.urn),
+        };
+      });
 
     return NextResponse.json(
       serializePrisma({

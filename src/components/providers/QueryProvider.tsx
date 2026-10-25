@@ -9,8 +9,8 @@ export function QueryProvider({ children }: { children: ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 30 * 1000, // 30s client-side cache for instant tab/route switches
-            refetchOnWindowFocus: false,
+            staleTime: 10 * 1000, // 10s fresh cache + real-time window focus sync
+            refetchOnWindowFocus: true,
             retry: 1,
           },
         },

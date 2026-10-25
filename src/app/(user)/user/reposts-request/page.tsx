@@ -20,14 +20,16 @@ export default function RepostRequestsPage() {
     queryFn: async () => {
       const direction =
         activeMainTab === 'outgoing_request' ? 'outgoing' : 'incoming';
-      const res = await fetch(`/api/user/repost-requests?direction=${direction}`);
+      const res = await fetch(
+        `/api/user/repost-requests?direction=${direction}&tab=${activeMainTab}`
+      );
       if (!res.ok) throw new Error('Failed to load requests');
       return res.json();
     },
   });
 
   const { data: dashData } = useQuery({
-    queryKey: ['user-dashboard-summary'],
+    queryKey: ['user-dashboard'],
     queryFn: async () => {
       const res = await fetch('/api/user/dashboard');
       if (!res.ok) return null;

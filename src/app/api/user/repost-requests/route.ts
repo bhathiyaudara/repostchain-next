@@ -10,10 +10,13 @@ import {
 } from '@/lib/constants';
 import { FALLBACK_REPOST_REQUESTS, FALLBACK_USER } from '@/lib/fallback-data';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   const user = (await getCurrentUser()) ?? FALLBACK_USER;
   const { searchParams } = new URL(request.url);
   const direction = searchParams.get('direction') || 'incoming'; // 'incoming' | 'outgoing'
+  const tab = searchParams.get('tab') || '';
   const statusFilter = searchParams.get('status');
 
   try {
@@ -21,7 +24,10 @@ export async function GET(request: NextRequest) {
       deleted_at: null,
     };
 
-    if (direction === 'outgoing') {
+    if (tab === 'previously_reposted') {
+      where.target_user_urn = user.urn;
+      where.status = REPOST_REQUEST_STATUS.APPROVED;
+    } else if (direction === 'outgoing' || tab === 'outgoing_request') {
       where.requester_urn = user.urn;
     } else {
       where.target_user_urn = user.urn;
@@ -41,7 +47,7 @@ export async function GET(request: NextRequest) {
           select: { urn: true, name: true, nickname: true, avatar: true },
         },
       },
-      orderBy: { created_at: 'desc' },
+      orderBy: [{ status: 'asc' }, { created_at: 'desc' }],
       take: 30,
     });
 

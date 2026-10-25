@@ -4,23 +4,32 @@ import { prisma, serializePrisma } from '@/lib/prisma';
 import { USER_ANALYTICS_TYPE } from '@/lib/constants';
 import { FALLBACK_TRACKS, FALLBACK_USER } from '@/lib/fallback-data';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   const user = (await getCurrentUser()) ?? FALLBACK_USER;
   const { searchParams } = new URL(request.url);
-  const range = searchParams.get('range') || '30d'; // '7d' | '30d' | '90d'
-
-  const days = range === '7d' ? 7 : range === '90d' ? 90 : 30;
-  const now = new Date();
-  const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
-  const prevStartDate = new Date(startDate.getTime() - days * 24 * 60 * 60 * 1000);
+  const range = searchParams.get('range') || 'all'; // '7d' | '30d' | '90d' | 'all'
 
   try {
+    // Anchor time ranges relative to the latest analytics timestamp in the DB so historical data renders accurately
+    const latestRow = await prisma.userAnalytics.findFirst({
+      where: { owner_user_urn: user.urn, deleted_at: null },
+      orderBy: { created_at: 'desc' },
+      select: { created_at: true },
+    });
+
+    const anchorDate = latestRow?.created_at ? new Date(latestRow.created_at) : new Date();
+    const days = range === '7d' ? 7 : range === '30d' ? 30 : range === '90d' ? 90 : 3650;
+    const startDate = new Date(anchorDate.getTime() - days * 24 * 60 * 60 * 1000);
+    const prevStartDate = new Date(startDate.getTime() - days * 24 * 60 * 60 * 1000);
+
     const [currentCounts, prevCounts, genreStats, topTracks] = await Promise.all([
       prisma.userAnalytics.groupBy({
         by: ['type'],
         where: {
           owner_user_urn: user.urn,
-          created_at: { gte: startDate, lte: now },
+          ...(range !== 'all' ? { created_at: { gte: startDate, lte: anchorDate } } : {}),
           deleted_at: null,
         },
         _count: { id: true },
@@ -38,7 +47,6 @@ export async function GET(request: NextRequest) {
         by: ['genre'],
         where: {
           owner_user_urn: user.urn,
-          created_at: { gte: startDate, lte: now },
           genre: { not: null },
           deleted_at: null,
         },

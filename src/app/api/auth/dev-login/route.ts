@@ -12,18 +12,26 @@ export async function GET(request: NextRequest) {
   const appUrl = new URL(request.url).origin;
 
   try {
-    const firstUser = await prisma.user.findFirst({
-      where: {
-        deleted_at: null,
-        banned_at: null,
-        status: 1,
-      },
-      include: {
-        userInfo: true,
-        genres: { where: { deleted_at: null } },
-      },
-      orderBy: { tracks: { _count: 'desc' } },
-    });
+    const firstUser =
+      (await prisma.user.findUnique({
+        where: { urn: FALLBACK_USER.urn },
+        include: {
+          userInfo: true,
+          genres: { where: { deleted_at: null } },
+        },
+      })) ??
+      (await prisma.user.findFirst({
+        where: {
+          deleted_at: null,
+          banned_at: null,
+          status: 1,
+        },
+        include: {
+          userInfo: true,
+          genres: { where: { deleted_at: null } },
+        },
+        orderBy: { id: 'desc' },
+      }));
 
     if (firstUser) {
       const serialized = serializePrisma(firstUser);

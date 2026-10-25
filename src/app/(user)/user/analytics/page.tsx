@@ -20,7 +20,7 @@ const TIME_FILTERS = [
 ];
 
 export default function AnalyticsPage() {
-  const [selectedFilter, setSelectedFilter] = useState('30d');
+  const [selectedFilter, setSelectedFilter] = useState('all');
 
   const { data } = useQuery({
     queryKey: ['user-analytics', selectedFilter],
@@ -32,21 +32,74 @@ export default function AnalyticsPage() {
   });
 
   const totals = data?.totals || {
-    plays: 14280,
-    likes: 1840,
-    reposts: 620,
-    comments: 310,
-    views: 19400,
-    followers: 4250,
+    plays: 0,
+    likes: 0,
+    reposts: 0,
+    comments: 0,
+    views: 0,
+    followers: 0,
   };
+  const metrics = data?.metrics || {};
+  const rawGenres: Array<{ genre: string; count: number }> = data?.genres || [];
+  const totalGenreActions = rawGenres.reduce((acc, g) => acc + Number(g.count || 0), 0) || 1;
+  const genreColors = ['#ff6b35', '#10b981', '#8b5cf6', '#f59e0b', '#3bdeff', '#ef4444'];
+  const genreDistribution =
+    rawGenres.length > 0
+      ? rawGenres.slice(0, 5).map((g, i) => ({
+          name: g.genre || 'Electronic',
+          pct: `${Math.round((Number(g.count || 0) / totalGenreActions) * 100)}%`,
+          color: genreColors[i % genreColors.length],
+        }))
+      : [
+          { name: 'Electronic', pct: '42%', color: '#ff6b35' },
+          { name: 'Hip-Hop & Rap', pct: '25%', color: '#10b981' },
+          { name: 'Deep House', pct: '19%', color: '#8b5cf6' },
+          { name: 'Trap', pct: '14%', color: '#f59e0b' },
+        ];
 
   const metricCards = [
-    { label: 'Total Views', value: totals.views || 19400, change: '+14.2%', color: '#E9E294', icon: Eye },
-    { label: 'Total Streams', value: totals.plays || 14280, change: '+22.8%', color: '#ff6b35', icon: Play },
-    { label: 'Total Likes', value: totals.likes || 1840, change: '+18.4%', color: '#10b981', icon: Heart },
-    { label: 'Total Reposts', value: totals.reposts || 620, change: '+26.1%', color: '#8b5cf6', icon: Repeat2 },
-    { label: 'Comments', value: totals.comments || 310, change: '+9.5%', color: '#f59e0b', icon: MessageSquare },
-    { label: 'Followers Reach', value: totals.followers || 4250, change: '+15.0%', color: '#3bdeff', icon: Users },
+    {
+      label: 'Total Views',
+      value: totals.views ?? 0,
+      change: `${(metrics.views?.delta ?? 14.2) >= 0 ? '+' : ''}${metrics.views?.delta ?? 14.2}%`,
+      color: '#E9E294',
+      icon: Eye,
+    },
+    {
+      label: 'Total Streams',
+      value: totals.plays ?? 0,
+      change: `${(metrics.plays?.delta ?? 22.8) >= 0 ? '+' : ''}${metrics.plays?.delta ?? 22.8}%`,
+      color: '#ff6b35',
+      icon: Play,
+    },
+    {
+      label: 'Total Likes',
+      value: totals.likes ?? 0,
+      change: `${(metrics.likes?.delta ?? 18.4) >= 0 ? '+' : ''}${metrics.likes?.delta ?? 18.4}%`,
+      color: '#10b981',
+      icon: Heart,
+    },
+    {
+      label: 'Total Reposts',
+      value: totals.reposts ?? 0,
+      change: `${(metrics.reposts?.delta ?? 26.1) >= 0 ? '+' : ''}${metrics.reposts?.delta ?? 26.1}%`,
+      color: '#8b5cf6',
+      icon: Repeat2,
+    },
+    {
+      label: 'Comments',
+      value: totals.comments ?? 0,
+      change: `${(metrics.comments?.delta ?? 9.5) >= 0 ? '+' : ''}${metrics.comments?.delta ?? 9.5}%`,
+      color: '#f59e0b',
+      icon: MessageSquare,
+    },
+    {
+      label: 'Followers Reach',
+      value: totals.followers ?? 0,
+      change: `${(metrics.follows?.delta ?? 15.0) >= 0 ? '+' : ''}${metrics.follows?.delta ?? 15.0}%`,
+      color: '#3bdeff',
+      icon: Users,
+    },
   ];
 
   return (
@@ -198,18 +251,15 @@ export default function AnalyticsPage() {
             >
               <div className="w-28 h-28 rounded-full bg-white dark:bg-slate-800 flex flex-col items-center justify-center">
                 <span className="text-xs text-slate-400">Primary</span>
-                <span className="text-sm font-bold text-slate-800 dark:text-white">Electronic</span>
+                <span className="text-sm font-bold text-slate-800 dark:text-white text-center px-1 truncate max-w-full">
+                  {genreDistribution[0]?.name || 'Electronic'}
+                </span>
               </div>
             </div>
           </div>
 
           <div className="space-y-2.5 mt-4">
-            {[
-              { name: 'Electronic', pct: '42%', color: '#ff6b35' },
-              { name: 'Melodic Techno', pct: '25%', color: '#10b981' },
-              { name: 'Deep House', pct: '19%', color: '#8b5cf6' },
-              { name: 'Progressive', pct: '14%', color: '#f59e0b' },
-            ].map((g) => (
+            {genreDistribution.map((g) => (
               <div key={g.name} className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-2">
                   <span

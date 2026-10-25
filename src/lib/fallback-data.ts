@@ -4,19 +4,19 @@
  */
 
 export const FALLBACK_USER = {
-  id: 1,
-  urn: 'soundcloud:users:98421034',
-  name: 'NovaSynth Audio',
-  nickname: 'novasynth',
-  email: 'artist@repostchain.com',
-  avatar: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=200&auto=format&fit=crop&q=80',
-  soundcloud_id: 98421034,
-  soundcloud_permalink_url: 'https://soundcloud.com/discover',
+  id: 1103,
+  urn: 'soundcloud:users:387603023',
+  name: 'Flute Network',
+  nickname: 'Flute Network',
+  email: 'soundonheat.co@gmail.com',
+  avatar: 'https://i1.sndcdn.com/avatars-000425670171-kcte8f-large.jpg',
+  soundcloud_id: 387603023,
+  soundcloud_permalink_url: 'https://soundcloud.com/user-699292140',
   email_verified_at: '2026-01-15T10:00:00.000Z',
   isPro: true,
-  repost_price: 5,
-  followers_count: 14850,
-  genres: ['Electronic', 'Melodic Techno', 'Progressive House', 'Deep House'],
+  repost_price: 10,
+  followers_count: 547,
+  genres: ['Electronic', 'Hip-Hop & Rap', 'Trap', 'Dance & EDM'],
   guard: 'web' as const,
 };
 

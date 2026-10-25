@@ -81,15 +81,19 @@ export async function POST(request: NextRequest) {
       instant || email.toLowerCase() === 'artist@repostchain.com' || !email;
 
     const dbUser = isDefaultDemoEmail
-      ? await prisma.user.findFirst({
+      ? (await prisma.user.findUnique({
+          where: { urn: FALLBACK_USER.urn },
+          include: { userInfo: true },
+        })) ??
+        (await prisma.user.findFirst({
           where: {
             deleted_at: null,
             banned_at: null,
             status: 1,
           },
           include: { userInfo: true },
-          orderBy: { tracks: { _count: 'desc' } },
-        })
+          orderBy: { id: 'desc' },
+        }))
       : await prisma.user.findFirst({
           where: {
             deleted_at: null,

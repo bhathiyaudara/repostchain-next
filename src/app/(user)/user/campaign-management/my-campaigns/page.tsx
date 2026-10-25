@@ -22,16 +22,16 @@ export default function MyCampaignsPage() {
   const [activeMainTab, setActiveMainTab] = useState<'all' | 'active' | 'completed'>('all');
 
   const { data, isLoading } = useQuery({
-    queryKey: ['my-campaigns', activeMainTab],
+    queryKey: ['my-campaigns'],
     queryFn: async () => {
-      const res = await fetch('/api/user/campaigns');
+      const res = await fetch('/api/user/campaigns?tab=mine&perPage=50');
       if (!res.ok) throw new Error('Failed to load campaigns');
       return res.json();
     },
   });
 
   const { data: dashData } = useQuery({
-    queryKey: ['user-dashboard-summary'],
+    queryKey: ['user-dashboard'],
     queryFn: async () => {
       const res = await fetch('/api/user/dashboard');
       if (!res.ok) return null;
@@ -42,7 +42,7 @@ export default function MyCampaignsPage() {
   const allCampaigns = data?.campaigns || [];
   const campaigns = allCampaigns.filter((c: { status?: number }) => {
     if (activeMainTab === 'active') return c.status === 1 || c.status === undefined;
-    if (activeMainTab === 'completed') return c.status === 2;
+    if (activeMainTab === 'completed') return c.status !== 1;
     return true;
   });
 

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Play, Pause, Volume2 } from 'lucide-react';
 
 interface SoundCloudPlayerProps {
@@ -29,6 +30,8 @@ export function SoundCloudPlayer({
   playSeconds = 0,
   onTogglePlay,
 }: SoundCloudPlayerProps) {
+  const [embedActive, setEmbedActive] = useState(false);
+
   if (!track) {
     return (
       <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
@@ -45,10 +48,18 @@ export function SoundCloudPlayer({
   const embedUrl = hasValidRealSoundcloudUrl
     ? `https://w.soundcloud.com/player/?url=${encodeURIComponent(
         track.permalink_url!
-      )}&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=${
+      )}&color=%23ff5500&auto_play=true&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=${
         visual ? 'true' : 'false'
       }`
     : null;
+
+  const handlePlayClick = () => {
+    if (onTogglePlay) {
+      onTogglePlay();
+    } else if (embedUrl) {
+      setEmbedActive(true);
+    }
+  };
 
   // Deterministic waveform bars for interactive SoundCloud-styled player
   const waveformBars = [
@@ -62,12 +73,13 @@ export function SoundCloudPlayer({
       className="soundcloud-embed-container w-full max-w-full overflow-hidden bg-white dark:bg-slate-800"
       style={{ borderTop: '2px solid #ff5500' }}
     >
-      {embedUrl && !onTogglePlay ? (
+      {embedUrl && embedActive && !onTogglePlay ? (
         <iframe
           width="100%"
           height={height}
           scrolling="no"
           frameBorder="no"
+          loading="lazy"
           allow="autoplay; encrypted-media"
           src={embedUrl}
           title={track.title || 'SoundCloud Player'}
@@ -83,6 +95,7 @@ export function SoundCloudPlayer({
             <img
               src={track.artwork_url || '/default_img/no_img.jpg'}
               alt={track.title || 'Track'}
+              loading="lazy"
               className="w-full h-full object-cover"
               onError={(e) => {
                 (e.currentTarget as HTMLImageElement).src = '/default_img/no_img.jpg';
@@ -96,9 +109,9 @@ export function SoundCloudPlayer({
               <div className="flex items-center gap-3 min-w-0">
                 <button
                   type="button"
-                  onClick={onTogglePlay}
+                  onClick={handlePlayClick}
                   className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#ff5500] hover:bg-[#e64d00] text-white flex items-center justify-center shadow transition-transform active:scale-95 shrink-0 cursor-pointer"
-                  title={isPlaying ? 'Pause track' : 'Play track (15s required to repost)'}
+                  title={isPlaying ? 'Pause track' : 'Play track'}
                 >
                   {isPlaying ? (
                     <Pause className="w-5 h-5 fill-white" />
@@ -128,7 +141,7 @@ export function SoundCloudPlayer({
 
             {/* Interactive SoundCloud Waveform */}
             <div
-              onClick={onTogglePlay}
+              onClick={handlePlayClick}
               className="flex items-end gap-[2px] h-10 mt-2 cursor-pointer"
               title="Click to play/pause"
             >

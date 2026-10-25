@@ -42,6 +42,11 @@ export default function CampaignsFeedPage() {
     queryKey: ['campaigns-feed', activeMainTab, trackType, selectedGenre, search],
     queryFn: async () => {
       const params = new URLSearchParams();
+      params.set(
+        'tab',
+        activeMainTab === 'recommended_pro' ? 'recommendedPro' : activeMainTab
+      );
+      if (trackType !== 'all') params.set('trackType', trackType);
       if (selectedGenre !== 'All Genres') params.set('genre', selectedGenre);
       if (search) params.set('search', search);
       const res = await fetch(`/api/user/campaigns?${params.toString()}`);
@@ -51,7 +56,7 @@ export default function CampaignsFeedPage() {
   });
 
   const { data: dashData } = useQuery({
-    queryKey: ['user-dashboard-summary'],
+    queryKey: ['user-dashboard'],
     queryFn: async () => {
       const res = await fetch('/api/user/dashboard');
       if (!res.ok) return null;
@@ -87,17 +92,16 @@ export default function CampaignsFeedPage() {
     onSuccess: (campaignId) => {
       setRepostedIds((prev) => ({ ...prev, [campaignId]: true }));
       queryClient.invalidateQueries({ queryKey: ['campaigns-feed'] });
-      queryClient.invalidateQueries({ queryKey: ['user-dashboard-summary'] });
+      queryClient.invalidateQueries({ queryKey: ['user-dashboard'] });
     },
   });
 
-  const rawCampaigns = data?.campaigns || [];
-  const campaigns = rawCampaigns.filter((c: { music_type?: string; is_featured?: number; is_boost?: number }) => {
-    if (trackType === 'track' && c.music_type && !c.music_type.includes('Track')) return false;
-    if (trackType === 'playlist' && c.music_type && !c.music_type.includes('Playlist')) return false;
-    if (activeMainTab === 'recommended_pro' && !c.is_featured && !c.is_boost) return true;
-    return true;
-  });
+  const campaigns = data?.campaigns || [];
+  const counts = data?.counts || {
+    recommendedPro: campaigns.length,
+    recommended: campaigns.length,
+    all: campaigns.length,
+  };
 
   const togglePlay = (campaignId: string) => {
     setPlayingCampaignId((prev) => (prev === campaignId ? null : campaignId));
@@ -121,7 +125,7 @@ export default function CampaignsFeedPage() {
                       : 'border-transparent text-gray-500 dark:text-gray-200 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
-                  Recommended Pro ({campaigns.length})
+                  Recommended Pro ({counts.recommendedPro})
                 </button>
                 <button
                   type="button"
@@ -132,7 +136,7 @@ export default function CampaignsFeedPage() {
                       : 'border-transparent text-gray-500 dark:text-gray-200 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
-                  Recommended ({campaigns.length})
+                  Recommended ({counts.recommended})
                 </button>
                 <button
                   type="button"
@@ -143,7 +147,7 @@ export default function CampaignsFeedPage() {
                       : 'border-transparent text-gray-500 dark:text-gray-200 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
-                  All ({campaigns.length})
+                  All ({counts.all})
                 </button>
               </nav>
 

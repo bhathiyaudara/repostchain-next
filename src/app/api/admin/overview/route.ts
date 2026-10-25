@@ -10,58 +10,33 @@ import {
 } from '@/lib/constants';
 import { FALLBACK_CAMPAIGNS } from '@/lib/fallback-data';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
-    const [
-      totalAdmins,
-      activeAdmins,
-      totalUsers,
-      activeUsers,
-      bannedUsers,
-      totalUserPlans,
-      totalTracks,
-      totalPlaylists,
-      totalCampaigns,
-      openCampaigns,
-      completedCampaigns,
-      activePlansCount,
-      activeCreditsCount,
-      totalReposts,
-      totalRepostRequests,
-      totalOrders,
-      completedOrdersAgg,
-      totalCreditTransactions,
-      recentUsers,
-      recentOrders,
-    ] = await Promise.all([
-      prisma.admin.count({ where: { deleted_at: null } }),
-      prisma.admin.count({ where: { deleted_at: null, status: 1 } }),
-      prisma.user.count({ where: { deleted_at: null } }),
-      prisma.user.count({
-        where: { deleted_at: null, status: USER_STATUS.ACTIVE, banned_at: null },
-      }),
-      prisma.user.count({ where: { deleted_at: null, banned_at: { not: null } } }),
-      prisma.userPlan.count({ where: { deleted_at: null } }),
-      prisma.track.count({ where: { deleted_at: null } }),
-      prisma.playlist.count({ where: { deleted_at: null } }),
-      prisma.campaign.count({ where: { deleted_at: null } }),
-      prisma.campaign.count({
-        where: { deleted_at: null, status: CAMPAIGN_STATUS.OPEN },
-      }),
-      prisma.campaign.count({
-        where: { deleted_at: null, status: CAMPAIGN_STATUS.COMPLETED },
-      }),
-      prisma.plan.count({ where: { deleted_at: null, status: 1 } }),
-      prisma.credit.count({ where: { deleted_at: null, status: 1 } }),
-      prisma.repost.count({ where: { deleted_at: null } }),
-      prisma.repostRequest.count({ where: { deleted_at: null } }),
-      prisma.order.count({ where: { deleted_at: null } }),
-      prisma.order.aggregate({
-        where: { deleted_at: null, status: ORDER_STATUS.COMPLETED },
-        _sum: { amount: true },
-        _count: { id: true },
-      }),
-      prisma.creditTransaction.count({ where: { deleted_at: null } }),
+    const [kpiRows, recentUsers, recentOrders] = await Promise.all([
+      prisma.$queryRaw<Array<Record<string, any>>>`
+        SELECT
+          (SELECT COUNT(*) FROM admins WHERE deleted_at IS NULL) AS totalAdmins,
+          (SELECT COUNT(*) FROM admins WHERE deleted_at IS NULL AND status = 1) AS activeAdmins,
+          (SELECT COUNT(*) FROM users WHERE deleted_at IS NULL) AS totalUsers,
+          (SELECT COUNT(*) FROM users WHERE deleted_at IS NULL AND status = 1 AND banned_at IS NULL) AS activeUsers,
+          (SELECT COUNT(*) FROM users WHERE deleted_at IS NULL AND banned_at IS NOT NULL) AS bannedUsers,
+          (SELECT COUNT(*) FROM user_plans WHERE deleted_at IS NULL) AS totalUserPlans,
+          (SELECT COUNT(*) FROM tracks WHERE deleted_at IS NULL) AS totalTracks,
+          (SELECT COUNT(*) FROM playlists WHERE deleted_at IS NULL) AS totalPlaylists,
+          (SELECT COUNT(*) FROM campaigns WHERE deleted_at IS NULL) AS totalCampaigns,
+          (SELECT COUNT(*) FROM campaigns WHERE deleted_at IS NULL AND status = 1) AS openCampaigns,
+          (SELECT COUNT(*) FROM campaigns WHERE deleted_at IS NULL AND status = 2) AS completedCampaigns,
+          (SELECT COUNT(*) FROM plans WHERE deleted_at IS NULL AND status = 1) AS activePlansCount,
+          (SELECT COUNT(*) FROM credits WHERE deleted_at IS NULL AND status = 1) AS activeCreditsCount,
+          (SELECT COUNT(*) FROM reposts WHERE deleted_at IS NULL) AS totalReposts,
+          (SELECT COUNT(*) FROM repost_requests WHERE deleted_at IS NULL) AS totalRepostRequests,
+          (SELECT COUNT(*) FROM orders WHERE deleted_at IS NULL) AS totalOrders,
+          (SELECT COUNT(*) FROM orders WHERE deleted_at IS NULL AND status = 1) AS completedOrders,
+          (SELECT COALESCE(SUM(amount), 0) FROM orders WHERE deleted_at IS NULL AND status = 1) AS totalRevenue,
+          (SELECT COUNT(*) FROM credit_transactions WHERE deleted_at IS NULL) AS totalCreditTransactions
+      `,
       prisma.user.findMany({
         where: { deleted_at: null },
         include: {
@@ -77,30 +52,32 @@ export async function GET() {
       }),
     ]);
 
+    const row = kpiRows[0] || {};
+
     return NextResponse.json(
       serializePrisma({
         dbConnected: true,
         kpis: {
-          totalAdmins,
-          activeAdmins,
-          totalUsers,
-          activeUsers,
-          bannedUsers,
-          totalUserPlans,
-          totalTracks,
-          totalPlaylists,
-          totalCampaigns,
-          openCampaigns,
-          completedCampaigns,
-          activePlansCount,
-          activeCreditsCount,
-          totalReposts,
-          totalRepostRequests,
-          totalOrders,
-          completedOrders: completedOrdersAgg._count.id,
-          completedOrdersCount: completedOrdersAgg._count.id,
-          totalRevenue: Number(completedOrdersAgg._sum.amount ?? 0),
-          totalCreditTransactions,
+          totalAdmins: Number(row.totalAdmins ?? 0),
+          activeAdmins: Number(row.activeAdmins ?? 0),
+          totalUsers: Number(row.totalUsers ?? 0),
+          activeUsers: Number(row.activeUsers ?? 0),
+          bannedUsers: Number(row.bannedUsers ?? 0),
+          totalUserPlans: Number(row.totalUserPlans ?? 0),
+          totalTracks: Number(row.totalTracks ?? 0),
+          totalPlaylists: Number(row.totalPlaylists ?? 0),
+          totalCampaigns: Number(row.totalCampaigns ?? 0),
+          openCampaigns: Number(row.openCampaigns ?? 0),
+          completedCampaigns: Number(row.completedCampaigns ?? 0),
+          activePlansCount: Number(row.activePlansCount ?? 0),
+          activeCreditsCount: Number(row.activeCreditsCount ?? 0),
+          totalReposts: Number(row.totalReposts ?? 0),
+          totalRepostRequests: Number(row.totalRepostRequests ?? 0),
+          totalOrders: Number(row.totalOrders ?? 0),
+          completedOrders: Number(row.completedOrders ?? 0),
+          completedOrdersCount: Number(row.completedOrders ?? 0),
+          totalRevenue: Number(row.totalRevenue ?? 0),
+          totalCreditTransactions: Number(row.totalCreditTransactions ?? 0),
         },
         recentUsers: recentUsers.map((u) => ({
           ...u,

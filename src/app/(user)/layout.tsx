@@ -55,16 +55,8 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
-  const { data: sessionData } = useQuery({
-    queryKey: ['session'],
-    queryFn: async () => {
-      const res = await fetch('/api/auth/session');
-      return res.json();
-    },
-  });
-
   const { data: dashboardData } = useQuery({
-    queryKey: ['user-dashboard-summary'],
+    queryKey: ['user-dashboard'],
     queryFn: async () => {
       const res = await fetch('/api/user/dashboard');
       if (!res.ok) return null;
@@ -93,15 +85,15 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
     router.refresh();
   };
 
-  const user = sessionData?.user || dashboardData?.user || {
-    name: 'Demo SoundCloud Artist',
-    urn: 'soundcloud:users:999001',
+  const user = dashboardData?.user || {
+    name: 'Flute Network',
+    urn: 'soundcloud:users:387603023',
     avatar: '/default_img/no_img.jpg',
     planName: 'Free Plan',
   };
 
-  const credits = dashboardData?.kpis?.availableCredits ?? user.credits ?? 250;
-  const pendingRequestsCount = dashboardData?.pendingRequests?.length ?? 2;
+  const credits = dashboardData?.kpis?.availableCredits ?? user.credits ?? 0;
+  const pendingRequestsCount = dashboardData?.pendingRequests?.length ?? 0;
 
   const filteredSuggestions = SEARCH_SUGGESTIONS.filter(
     (s) =>

@@ -9,7 +9,7 @@ export default function MyAccountPage() {
   const [activeTab, setActiveTab] = useState<'tracks' | 'playlists' | 'starred'>('tracks');
 
   const { data } = useQuery({
-    queryKey: ['user-dashboard-account'],
+    queryKey: ['user-dashboard'],
     queryFn: async () => {
       const res = await fetch('/api/user/dashboard');
       if (!res.ok) return null;
@@ -18,12 +18,14 @@ export default function MyAccountPage() {
   });
 
   const user = data?.user || {
-    name: 'Demo SoundCloud Artist',
-    urn: 'soundcloud:users:999001',
+    name: 'Flute Network',
+    urn: 'soundcloud:users:387603023',
     avatar: '/default_img/no_img.jpg',
-    followers_count: 4250,
+    followers_count: 547,
   };
   const recentTracks = data?.recentTracks || [];
+  const recentPlaylists = data?.recentPlaylists || [];
+  const starredUsers = data?.starredUsers || [];
 
   return (
     <div className="p-2 space-y-6">
@@ -92,7 +94,7 @@ export default function MyAccountPage() {
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
-            <ListMusic className="w-4 h-4" /> Playlists
+            <ListMusic className="w-4 h-4" /> Playlists ({recentPlaylists.length})
           </button>
           <button
             type="button"
@@ -103,32 +105,87 @@ export default function MyAccountPage() {
                 : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
-            <Star className="w-4 h-4" /> Starred Artists
+            <Star className="w-4 h-4" /> Starred Artists ({starredUsers.length})
           </button>
         </nav>
       </div>
 
       {activeTab === 'tracks' && (
         <div className="space-y-4">
-          {recentTracks.map(
-            (t: {
-              id: string;
-              urn: string;
-              title: string;
-              genre?: string;
-              artwork_url?: string;
-              permalink_url?: string;
-            }) => (
-              <SoundCloudPlayer key={t.id || t.urn} track={t} />
+          {recentTracks.length > 0 ? (
+            recentTracks.map(
+              (t: {
+                id: string;
+                urn: string;
+                title: string;
+                genre?: string;
+                artwork_url?: string;
+                permalink_url?: string;
+              }) => <SoundCloudPlayer key={t.id || t.urn} track={t} />
             )
+          ) : (
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-12 text-center border border-gray-200 dark:border-slate-700 text-slate-500 dark:text-slate-400">
+              <Music className="w-10 h-10 mx-auto mb-3 text-orange-500" />
+              <p>No tracks synced yet.</p>
+            </div>
           )}
         </div>
       )}
 
-      {activeTab !== 'tracks' && (
-        <div className="bg-white dark:bg-slate-800 rounded-xl p-12 text-center border border-gray-200 dark:border-slate-700 text-slate-500 dark:text-slate-400">
-          <Users className="w-10 h-10 mx-auto mb-3 text-orange-500" />
-          <p>Synced with your SoundCloud account.</p>
+      {activeTab === 'playlists' && (
+        <div className="space-y-4">
+          {recentPlaylists.length > 0 ? (
+            recentPlaylists.map(
+              (p: {
+                id: string;
+                soundcloud_urn?: string;
+                title: string;
+                genre?: string;
+                artwork_url?: string;
+                permalink_url?: string;
+              }) => <SoundCloudPlayer key={p.id || p.soundcloud_urn} track={p} />
+            )
+          ) : (
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-12 text-center border border-gray-200 dark:border-slate-700 text-slate-500 dark:text-slate-400">
+              <ListMusic className="w-10 h-10 mx-auto mb-3 text-orange-500" />
+              <p>No playlists found for this SoundCloud account.</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'starred' && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {starredUsers.length > 0 ? (
+            starredUsers.map(
+              (s: { urn: string; name?: string; nickname?: string; avatar?: string }) => (
+                <div
+                  key={s.urn}
+                  className="bg-white dark:bg-slate-800 rounded-xl p-4 border border-gray-200 dark:border-slate-700 flex items-center gap-3 shadow-sm"
+                >
+                  <img
+                    src={s.avatar || '/default_img/no_img.jpg'}
+                    alt={s.name || 'Artist'}
+                    className="w-12 h-12 rounded-full object-cover shrink-0"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = '/default_img/no_img.jpg';
+                    }}
+                  />
+                  <div className="min-w-0">
+                    <h4 className="font-semibold text-sm text-slate-900 dark:text-white truncate">
+                      {s.name || s.nickname || 'Artist'}
+                    </h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{s.urn}</p>
+                  </div>
+                </div>
+              )
+            )
+          ) : (
+            <div className="col-span-full bg-white dark:bg-slate-800 rounded-xl p-12 text-center border border-gray-200 dark:border-slate-700 text-slate-500 dark:text-slate-400">
+              <Users className="w-10 h-10 mx-auto mb-3 text-orange-500" />
+              <p>You haven&apos;t starred any artists yet.</p>
+            </div>
+          )}
         </div>
       )}
     </div>

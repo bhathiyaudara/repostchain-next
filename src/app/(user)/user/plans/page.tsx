@@ -2,16 +2,17 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useQuery } from '@tanstack/react-query';
 import { Check, X } from 'lucide-react';
 
-const PLANS = [
+const DEFAULT_PLANS = [
   {
     id: 'free',
     name: 'Free Plan',
     notes: 'Essential tools to start promoting your music organically on RepostChain.',
     monthly_price: 0,
     yearly_price: 0,
-    isCurrent: true,
+    isCurrent: false,
     features: [
       { name: 'Active Campaigns Limit', value: '2 Campaigns', included: true, note: 'Run up to 2 active campaigns simultaneously' },
       { name: 'Daily Direct Requests', value: '20 / day', included: true, note: 'Send up to 20 direct repost requests daily' },
@@ -22,11 +23,11 @@ const PLANS = [
   },
   {
     id: 'pro',
-    name: 'Pro Plan',
+    name: 'Premium Plan',
     notes: 'Supercharge your reach with priority campaign placement, higher limits, and Pro badges.',
-    monthly_price: 9.99,
-    yearly_price: 89.99,
-    isCurrent: false,
+    monthly_price: 25,
+    yearly_price: 225,
+    isCurrent: true,
     features: [
       { name: 'Active Campaigns Limit', value: '10 Campaigns', included: true, note: 'Run up to 10 active campaigns simultaneously' },
       { name: 'Daily Direct Requests', value: '100 / day', included: true, note: 'Send up to 100 direct repost requests daily' },
@@ -39,6 +40,33 @@ const PLANS = [
 
 export default function PlansPage() {
   const [isYearly, setIsYearly] = useState(false);
+
+  const { data: billingData } = useQuery({
+    queryKey: ['user-billing'],
+    queryFn: async () => {
+      const res = await fetch('/api/user/billing');
+      if (!res.ok) return null;
+      return res.json();
+    },
+  });
+
+  const dbPlans = billingData?.plans || [];
+  const activePlanId = billingData?.activePlan?.plan_id;
+  const PLANS = DEFAULT_PLANS.map((tpl, idx) => {
+    const dbMatch = dbPlans[idx];
+    const monthly = dbMatch ? Number(dbMatch.monthly_price ?? tpl.monthly_price) : tpl.monthly_price;
+    const yearly = dbMatch?.yearly_price
+      ? Number(dbMatch.yearly_price)
+      : Math.round(monthly * 12 * 0.75 * 100) / 100;
+    return {
+      ...tpl,
+      name: dbMatch?.name || tpl.name,
+      notes: dbMatch?.notes || tpl.notes,
+      monthly_price: monthly,
+      yearly_price: yearly,
+      isCurrent: activePlanId ? String(dbMatch?.id) === String(activePlanId) : idx === 0,
+    };
+  });
 
   return (
     <section>

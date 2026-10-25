@@ -13,7 +13,9 @@ export default function ChartsPage() {
   const { data } = useQuery({
     queryKey: ['charts-tracks', selectedGenre],
     queryFn: async () => {
-      const res = await fetch('/api/user/campaigns');
+      const params = new URLSearchParams({ tab: 'all' });
+      if (selectedGenre !== 'All Genres') params.set('genre', selectedGenre);
+      const res = await fetch(`/api/user/campaigns?${params.toString()}`);
       if (!res.ok) return { campaigns: [] };
       return res.json();
     },
