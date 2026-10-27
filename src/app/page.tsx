@@ -163,41 +163,47 @@ export default function LandingPage() {
 
       <main>
         {/* ========================================================= */}
-        {/* HERO SECTION — Full Fitted Background Hero Image */}
+        {/* HERO SECTION — Adjusted & Crisp Background Hero Visual */}
         {/* ========================================================= */}
         <section
           id="home"
-          className="relative min-h-[680px] sm:min-h-[760px] lg:min-h-[840px] flex items-center pt-28 pb-16 sm:pt-36 sm:pb-24 lg:pt-40 lg:pb-28 overflow-hidden bg-[#0A0A0A]"
+          className="relative min-h-[580px] sm:min-h-[640px] lg:min-h-[720px] flex items-center pt-24 pb-16 sm:pt-32 sm:pb-20 lg:pt-36 lg:pb-24 overflow-hidden bg-[#0A0A0A]"
         >
-          {/* Full Fitted Background Hero Image */}
-          <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none select-none z-0">
-            <img
-              src="/assets/images/hero-artist.webp"
-              alt="Independent SoundCloud artist recording in studio"
-              width={1024}
-              height={500}
-              fetchPriority="high"
-              decoding="async"
-              className="w-full h-full object-cover object-[75%_center] lg:object-right opacity-45 sm:opacity-55 lg:opacity-65"
-            />
-            {/* Cinematic Directional Overlays for Pristine Text Readability */}
-            {/* Left-to-right fade: Deep dark backing behind headline, revealing the studio artist on the right */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A] via-[#0A0A0A]/90 sm:via-[#0A0A0A]/70 lg:via-[#0A0A0A]/45 to-transparent" />
-            {/* Top-to-bottom fade: Seamless blending with top header and bottom metrics strip */}
-            <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/90 via-transparent to-[#0A0A0A]" />
-            {/* Ambient Warm Orange Accents */}
-            <div
-              className="absolute -top-32 -left-32 w-[560px] h-[560px] bg-[#FF5500]/15 rounded-full blur-[140px]"
-              aria-hidden="true"
-            />
-            <div
-              className="absolute top-1/2 -right-32 w-[520px] h-[520px] bg-[#FF5500]/10 rounded-full blur-[160px]"
-              aria-hidden="true"
-            />
+          {/* Ambient Warm Orange Accents */}
+          <div
+            className="absolute -top-32 -left-32 w-[520px] h-[520px] bg-[#FF5500]/15 rounded-full blur-[140px] pointer-events-none"
+            aria-hidden="true"
+          />
+          <div
+            className="absolute top-1/2 right-0 w-[480px] h-[480px] bg-[#FF5500]/10 rounded-full blur-[150px] pointer-events-none"
+            aria-hidden="true"
+          />
+
+          {/* Crisp Fitted Hero Background Image — Decreased & constrained to native resolution */}
+          <div
+            className="absolute right-0 lg:right-6 xl:right-12 top-1/2 -translate-y-1/2 w-full lg:w-[52%] xl:w-[48%] max-w-[620px] pointer-events-none select-none z-0 opacity-30 sm:opacity-45 lg:opacity-90"
+            aria-hidden="true"
+          >
+            <div className="relative w-full aspect-[16/10] sm:aspect-[2/1] overflow-hidden rounded-2xl">
+              <img
+                src="/assets/images/hero-artist.webp"
+                alt="SoundCloud music artist recording in studio"
+                width={1024}
+                height={500}
+                fetchPriority="high"
+                decoding="async"
+                className="w-full h-full object-cover object-[75%_center] lg:object-right"
+              />
+              {/* Directional Feathered Gradients for Seamless Canvas Integration */}
+              <div className="absolute inset-y-0 left-0 w-2/5 bg-gradient-to-r from-[#0A0A0A] via-[#0A0A0A]/80 to-transparent" />
+              <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#0A0A0A] to-transparent" />
+              <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#0A0A0A] to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#0A0A0A] to-transparent" />
+            </div>
           </div>
 
           <div className="max-w-[1360px] mx-auto px-4 sm:px-6 relative z-10 w-full">
-            <div className="max-w-2xl lg:max-w-3xl text-left">
+            <div className="max-w-xl lg:max-w-2xl text-left">
               {/* Official Tagline Badge with RepostChain favicon-dark SVG */}
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.08] border border-white/15 mb-6 backdrop-blur-md shadow-sm">
                 <RepostChainMark className="w-4 h-4 shrink-0 drop-shadow-[0_0_8px_rgba(255,85,0,0.4)]" />
@@ -207,7 +213,7 @@ export default function LandingPage() {
               </div>
 
               {/* Ultra-bold All-Caps Display Headline */}
-              <h1 className="sc-display text-4xl sm:text-6xl md:text-7xl lg:text-[80px] xl:text-[88px] font-black tracking-tight leading-[0.93] mb-6">
+              <h1 className="sc-display text-4xl sm:text-6xl md:text-7xl lg:text-[76px] xl:text-[84px] font-black tracking-tight leading-[0.93] mb-6">
                 <span className="block text-white drop-shadow-md">YOUR SOUND.</span>
                 <span className="block text-[#FF5500] drop-shadow-[0_0_24px_rgba(255,85,0,0.35)]">
                   YOUR CHAIN.
