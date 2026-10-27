@@ -22,11 +22,14 @@ import {
   Sliders,
   CheckCircle2,
   ExternalLink,
+  UploadCloud,
 } from 'lucide-react';
 import { SoundCloudPlayer } from '@/components/soundcloud-player';
 import { RepostChainMark, SoundCloudMark } from '@/components/public-layout';
 
 const GENRE_COLORS = ['#FF5500', '#10B981', '#8B5CF6', '#F59E0B', '#EC4899', '#3B82F6'];
+const SOUNDCLOUD_REFERRAL_URL =
+  process.env.NEXT_PUBLIC_SOUNDCLOUD_REFERRAL_URL || 'https://invite.soundcloud.com/pjoy4';
 
 export default function UserDashboardPage() {
   const queryClient = useQueryClient();
@@ -189,56 +192,171 @@ export default function UserDashboardPage() {
   return (
     <div className="sc-dash space-y-8 max-w-7xl mx-auto pb-12">
       {/* ========================================================= */}
-      {/* 1. EDITORIAL HEADER & WELCOME STRIP */}
+      {/* 1. WELCOME HUB & SOUNDCLOUD REFERRAL PROGRAM CARD */}
       {/* ========================================================= */}
-      <div className="relative rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] p-[1px] shadow-2xl">
-        <div className="rounded-[23px] bg-[#121212] p-6 sm:p-8 relative overflow-hidden">
-          {/* Subtle Ambient Radial Glow */}
-          <div
-            className="absolute -top-24 -right-24 w-80 h-80 bg-[#FF5500]/15 rounded-full blur-[100px] pointer-events-none"
-            aria-hidden="true"
-          />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+        {/* Left Side (2 cols): Welcome & 4 Quick Action Cards */}
+        <div className="lg:col-span-2 relative rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] p-[1px] shadow-xl flex flex-col justify-between">
+          <div className="rounded-[23px] bg-white dark:bg-[#121212] p-6 sm:p-7 h-full flex flex-col justify-between border border-black/[0.06] dark:border-white/[0.06] relative overflow-hidden">
+            {/* Ambient Radial Glow */}
+            <div
+              className="absolute -top-24 -right-24 w-80 h-80 bg-[#FF5500]/10 rounded-full blur-[100px] pointer-events-none"
+              aria-hidden="true"
+            />
 
-          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div>
-              {/* Official Rounded Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 mb-3.5 backdrop-blur-sm">
-                <RepostChainMark className="w-3.5 h-3.5 drop-shadow-[0_0_6px_rgba(255,85,0,0.4)]" />
-                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-300">
-                  CREATOR HUB
+            <div className="relative z-10">
+              <div className="flex items-center justify-between gap-3 mb-2.5">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/[0.04] dark:bg-white/[0.06] border border-black/[0.08] dark:border-white/10 backdrop-blur-sm">
+                  <RepostChainMark className="w-3.5 h-3.5 drop-shadow-[0_0_6px_rgba(255,85,0,0.4)]" />
+                  <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-600 dark:text-zinc-300">
+                    CREATOR HUB
+                  </span>
+                  <span className="w-1 h-1 rounded-full bg-black/20 dark:bg-white/20" />
+                  <span className="text-[10px] font-mono text-[#FF5500] font-bold">LIVE METRICS</span>
+                </div>
+
+                <span className="text-xs font-mono text-zinc-500 dark:text-zinc-400 hidden sm:inline-block">
+                  Verified SoundCloud Artist
                 </span>
-                <span className="w-1 h-1 rounded-full bg-white/20" />
-                <span className="text-[10px] font-mono text-[#FF5500] font-bold">LIVE METRICS</span>
               </div>
 
-              {/* Bold All-Caps Display Headline */}
-              <h1 className="sc-display text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-[0.95]">
-                WELCOME BACK, <span className="text-[#FF5500]">{user.name?.toUpperCase()}</span>
+              <h1 className="sc-display text-2xl sm:text-3xl lg:text-4xl font-black text-[#121212] dark:text-white tracking-tight leading-tight">
+                Welcome <span className="text-[#FF5500]">{user.name}</span>, what would you like to do today?
               </h1>
-              <p className="text-zinc-400 text-sm sm:text-base mt-2 max-w-2xl font-normal leading-relaxed">
-                Monitor your live repost campaigns, track listener velocity, and circulation across
-                5,000+ verified SoundCloud artists.
+              <p className="text-zinc-500 dark:text-zinc-400 text-xs sm:text-sm mt-1.5 font-normal leading-relaxed">
+                Circulate your music, manage active campaigns, and gain real listener reposts across 5,000+ artists.
               </p>
             </div>
 
-            {/* Quick Action Buttons */}
-            <div className="flex flex-wrap items-center gap-3 shrink-0">
-              <Link
-                href="/user/campaign-management/campaigns"
-                className="sc-pill-dark px-5 py-3 text-xs sm:text-sm font-bold border border-white/15 hover:border-white/40 transition-all"
-              >
-                <Coins className="w-4 h-4 text-[#FF5500]" />
-                <span>Earn Credits</span>
-              </Link>
-
+            {/* 4 Quick Action Cards (Matching Re-Ex Action Grid) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-black/[0.06] dark:border-white/[0.06] relative z-10">
+              {/* 1. Promote a Track */}
               <button
                 type="button"
                 onClick={() => setShowCampaignsModal(true)}
-                className="sc-pill-white px-6 py-3 text-xs sm:text-sm font-bold shadow-xl shadow-white/5 cursor-pointer"
+                className="group p-3 sm:p-3.5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.02] hover:bg-black/[0.05] dark:hover:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#FF5500]/40 transition-all text-left flex flex-col justify-between cursor-pointer"
               >
-                <Plus className="w-4 h-4" />
-                <span>Start New Campaign</span>
+                <div className="w-9 h-9 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 mb-3 group-hover:scale-110 transition-transform">
+                  <Radio className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs sm:text-sm font-bold text-[#121212] dark:text-white group-hover:text-[#FF5500] transition-colors leading-tight">
+                    Promote a Track
+                  </h3>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1 leading-snug line-clamp-2">
+                    Create a campaign &amp; send direct requests
+                  </p>
+                </div>
               </button>
+
+              {/* 2. Earn Credits */}
+              <Link
+                href="/user/campaign-management/campaigns"
+                className="group p-3 sm:p-3.5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.02] hover:bg-black/[0.05] dark:hover:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#10B981]/40 transition-all text-left flex flex-col justify-between"
+              >
+                <div className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 mb-3 group-hover:scale-110 transition-transform">
+                  <Coins className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs sm:text-sm font-bold text-[#121212] dark:text-white group-hover:text-emerald-500 transition-colors leading-tight">
+                    Earn Credits
+                  </h3>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1 leading-snug line-clamp-2">
+                    Repost tracks &amp; grow credit balance
+                  </p>
+                </div>
+              </Link>
+
+              {/* 3. Monitor Campaigns */}
+              <Link
+                href="/user/campaign-management/my-campaigns"
+                className="group p-3 sm:p-3.5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.02] hover:bg-black/[0.05] dark:hover:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#8B5CF6]/40 transition-all text-left flex flex-col justify-between"
+              >
+                <div className="w-9 h-9 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-500 mb-3 group-hover:scale-110 transition-transform">
+                  <TrendingUp className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs sm:text-sm font-bold text-[#121212] dark:text-white group-hover:text-purple-400 transition-colors leading-tight">
+                    Monitor Campaigns
+                  </h3>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1 leading-snug line-clamp-2">
+                    View active status &amp; reach velocity
+                  </p>
+                </div>
+              </Link>
+
+              {/* 4. Repost Requests Queue */}
+              <Link
+                href="/user/reposts-request"
+                className="group p-3 sm:p-3.5 rounded-2xl bg-black/[0.02] dark:bg-white/[0.02] hover:bg-black/[0.05] dark:hover:bg-white/[0.06] border border-black/[0.06] dark:border-white/[0.08] hover:border-[#3B82F6]/40 transition-all text-left flex flex-col justify-between"
+              >
+                <div className="w-9 h-9 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-500 mb-3 group-hover:scale-110 transition-transform">
+                  <Repeat2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs sm:text-sm font-bold text-[#121212] dark:text-white group-hover:text-blue-400 transition-colors leading-tight">
+                    Repost Queue
+                  </h3>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1 leading-snug line-clamp-2">
+                    Review incoming direct submissions
+                  </p>
+                </div>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side (1 col): The SoundCloud Referral Program Card */}
+        <div className="lg:col-span-1 relative rounded-3xl overflow-hidden p-[1px] bg-gradient-to-b from-[#FF5500]/40 via-white/10 to-white/5 shadow-2xl group flex flex-col justify-between">
+          <div className="rounded-[23px] relative h-full min-h-[260px] p-6 sm:p-7 flex flex-col justify-between overflow-hidden bg-black text-white">
+            {/* Background Studio Photography */}
+            <div
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-105"
+              style={{
+                backgroundImage: `url('/assets/images/soundcloud-referral-banner.jpg')`,
+              }}
+            />
+            {/* Dark Vignette & Gradient Overlays for High Contrast Text */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/60" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/65 to-transparent" />
+
+            {/* Top Content: Headline & Badge */}
+            <div className="relative z-10">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FF5500]/25 border border-[#FF5500]/40 text-[#FF5500] text-[10px] font-black uppercase tracking-wider mb-2.5 backdrop-blur-sm">
+                <Sparkles className="w-3 h-3" />
+                <span>OFFICIAL PARTNER OFFER</span>
+              </div>
+              <h2 className="sc-display text-xl sm:text-2xl font-black text-white tracking-tight leading-snug">
+                RepostChain is better with a SoundCloud Plan!
+              </h2>
+
+              {/* Feature highlight */}
+              <div className="flex items-start gap-3 mt-3.5">
+                <div className="w-9 h-9 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shrink-0 text-white">
+                  <UploadCloud className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h4 className="text-xs sm:text-sm font-bold text-white leading-tight">
+                    Unlimited Uploads
+                  </h4>
+                  <p className="text-[11px] text-zinc-300 mt-0.5 leading-snug">
+                    No limit on public and private track storage.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Content: CTA Button with Referral Link */}
+            <div className="relative z-10 mt-5 pt-3">
+              <a
+                href={SOUNDCLOUD_REFERRAL_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-full bg-[#FF7733] hover:bg-[#FF5500] text-black hover:text-white font-extrabold text-xs sm:text-sm tracking-tight transition-all duration-200 shadow-xl shadow-black/40 hover:scale-[1.02] cursor-pointer"
+              >
+                <span>Claim 30% off your SoundCloud annual plan</span>
+                <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+              </a>
             </div>
           </div>
         </div>
