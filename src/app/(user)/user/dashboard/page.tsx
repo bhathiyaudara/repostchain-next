@@ -658,7 +658,7 @@ export default function UserDashboardPage() {
       {/* ========================================================= */}
       {/* 4. RECENT TRACKS & REPOST REQUESTS QUEUE */}
       {/* ========================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Recent Track Campaigns (2 Cols) */}
         <div className="lg:col-span-2 relative rounded-2xl bg-gradient-to-b from-white/[0.12] to-white/[0.02] p-[1px] shadow-xl">
           <div className="rounded-[15px] bg-[#121212] p-6 sm:p-7">
