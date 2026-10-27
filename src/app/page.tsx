@@ -246,97 +246,37 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* Right Column: Sleek Modern Artist Showcase Card */}
+              {/* Right Column: High-Impact Monochrome Studio Artist Visual */}
               <div className="lg:col-span-5 flex justify-center lg:justify-end">
-                <div className="relative w-full max-w-md">
-                  {/* Outer Framed Glow Canvas */}
-                  <div className="relative rounded-3xl bg-gradient-to-b from-white/[0.12] to-white/[0.02] p-[1px] shadow-2xl">
-                    <div className="rounded-[23px] bg-[#121212] overflow-hidden p-5 sm:p-6">
-                      {/* Top Bar with SoundCloud Audio Indicator */}
-                      <div className="flex items-center justify-between gap-3 pb-4 mb-4 border-b border-white/[0.08]">
-                        <div className="flex items-center gap-2">
-                          <SoundCloudMark className="w-4 h-3 text-[#FF5500]" />
-                          <span className="text-xs font-bold uppercase tracking-wider text-zinc-300">
-                            Now In Repost Loop
-                          </span>
-                        </div>
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FF5500]/15 text-[#FF5500] text-[11px] font-bold">
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#FF5500] animate-pulse" />
-                          LIVE
-                        </span>
-                      </div>
+                <div className="relative w-full max-w-lg lg:max-w-none">
+                  {/* Subtle Ambient Radial Glow */}
+                  <div
+                    className="absolute -inset-2 bg-gradient-to-tr from-[#FF5500]/20 via-[#FF5500]/5 to-transparent rounded-3xl blur-2xl opacity-60 pointer-events-none"
+                    aria-hidden="true"
+                  />
 
-                      {/* Featured Artist Artwork */}
-                      <div className="relative rounded-2xl overflow-hidden aspect-[4/3] bg-zinc-900 mb-5">
-                        <img
-                          src="/frontend/user/image/FeaturedArtist.png"
-                          alt="SoundCloud artist featured on RepostChain"
-                          width={600}
-                          height={450}
-                          fetchPriority="high"
-                          decoding="async"
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                        <div className="absolute bottom-3.5 left-4 right-4 flex items-end justify-between">
-                          <div>
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-[#FF5500] bg-black/60 px-2 py-0.5 rounded">
-                              ELECTRONIC / FUTURE BASS
-                            </span>
-                            <h2 className="text-white font-bold text-lg leading-tight mt-1">
-                              Midnight Odyssey
-                            </h2>
-                          </div>
-                          <span className="text-xs font-mono text-zinc-300 bg-black/70 px-2 py-1 rounded">
-                            03:42
-                          </span>
-                        </div>
-                      </div>
+                  {/* Framed Canvas Container */}
+                  <div className="relative rounded-2xl sm:rounded-3xl bg-gradient-to-b from-white/[0.14] via-white/[0.04] to-transparent p-[1px] shadow-2xl">
+                    <div className="relative rounded-[23px] overflow-hidden bg-[#0A0A0A]">
+                      <img
+                        src="/assets/images/hero-artist.webp"
+                        alt="SoundCloud music artist recording in studio"
+                        width={1024}
+                        height={500}
+                        fetchPriority="high"
+                        decoding="async"
+                        className="w-full h-auto object-cover aspect-[16/10] sm:aspect-[16/10] lg:aspect-[16/11] xl:aspect-[16/10] object-right"
+                      />
 
-                      {/* SoundCloud Signature Simulated Waveform */}
-                      <div className="mb-4">
-                        <div className="flex items-center justify-between text-[11px] font-mono text-zinc-500 mb-1.5">
-                          <span>01:14</span>
-                          <span className="text-[#FF5500] font-semibold">1,480 Reposts</span>
-                          <span>03:42</span>
-                        </div>
-                        <div className="h-9 flex items-end gap-[3px] py-1">
-                          {[
-                            25, 40, 65, 85, 45, 30, 70, 95, 60, 40, 80, 100, 75, 50, 88, 92, 60, 45,
-                            70, 85, 100, 80, 55, 35, 65, 90, 75, 45, 60, 80, 95, 70, 40, 60, 85, 65,
-                            45, 30, 50, 70, 85, 60, 40, 25,
-                          ].map((height, i) => (
-                            <div
-                              key={i}
-                              className="flex-1 rounded-full transition-all duration-300"
-                              style={{
-                                height: `${height}%`,
-                                backgroundColor: i < 18 ? '#FF5500' : 'rgba(255, 255, 255, 0.2)',
-                              }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Live Network Feedback Notification */}
-                      <div className="rounded-xl bg-white/[0.04] border border-white/[0.06] p-3 flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2.5">
-                          <img
-                            src="/frontend/images/testimonial/singh.png"
-                            alt="Artist"
-                            width={32}
-                            height={32}
-                            className="w-8 h-8 rounded-full object-cover border border-[#FF5500]"
-                          />
-                          <div>
-                            <p className="text-xs font-bold text-white leading-tight">
-                              Kai Rivers reposted track
-                            </p>
-                            <p className="text-[11px] text-zinc-400">Reached 18,200 followers</p>
-                          </div>
-                        </div>
-                        <span className="text-[11px] font-mono text-[#FF5500] font-bold">+120 Plays</span>
-                      </div>
+                      {/* Subtle Ambient Vignette to integrate seamlessly into dark canvas */}
+                      <div
+                        className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A]/70 via-transparent to-transparent pointer-events-none"
+                        aria-hidden="true"
+                      />
+                      <div
+                        className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/40 via-transparent to-transparent pointer-events-none"
+                        aria-hidden="true"
+                      />
                     </div>
                   </div>
                 </div>

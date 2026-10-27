@@ -79,9 +79,9 @@ export const metadata: Metadata = {
       'Join 5,000+ music creators growing their fanbase through authentic SoundCloud repost exchanges, real artist feedback, and smart genre matching.',
     images: [
       {
-        url: '/frontend/user/image/FeaturedArtist.png',
-        width: 1200,
-        height: 630,
+        url: '/assets/images/hero-artist.webp',
+        width: 1024,
+        height: 500,
         alt: 'RepostChain — Collaborative SoundCloud Music Promotion Platform',
       },
     ],
@@ -91,7 +91,7 @@ export const metadata: Metadata = {
     title: 'RepostChain — Grow Your SoundCloud Music Reach',
     description:
       'Connect with 5,000+ SoundCloud artists, exchange organic reposts, and grow your real fanbase for free.',
-    images: ['/frontend/user/image/FeaturedArtist.png'],
+    images: ['/assets/images/hero-artist.webp'],
   },
   robots: {
     index: true,
