@@ -80,8 +80,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: '/assets/images/hero-artist.webp',
-        width: 1024,
-        height: 500,
+        width: 3168,
+        height: 1344,
         alt: 'RepostChain — Collaborative SoundCloud Music Promotion Platform',
       },
     ],

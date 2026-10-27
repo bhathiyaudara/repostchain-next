@@ -163,57 +163,50 @@ export default function LandingPage() {
 
       <main>
         {/* ========================================================= */}
-        {/* HERO SECTION — Adjusted & Crisp Background Hero Visual */}
+        {/* HERO SECTION — Cinematic Full-Bleed 3K Studio Background */}
+        {/* Matches design mockup: WhatsApp Image 2026-10-27 at 10.56.05 AM */}
         {/* ========================================================= */}
         <section
           id="home"
-          className="relative min-h-[580px] sm:min-h-[640px] lg:min-h-[720px] flex items-center pt-24 pb-16 sm:pt-32 sm:pb-20 lg:pt-36 lg:pb-24 overflow-hidden bg-[#0A0A0A]"
+          className="relative min-h-[700px] sm:min-h-[780px] lg:min-h-[840px] flex items-center pt-28 pb-16 sm:pt-36 sm:pb-24 lg:pt-40 lg:pb-28 overflow-hidden bg-[#0A0A0A]"
         >
-          {/* Ambient Warm Orange Accents */}
-          <div
-            className="absolute -top-32 -left-32 w-[520px] h-[520px] bg-[#FF5500]/15 rounded-full blur-[140px] pointer-events-none"
-            aria-hidden="true"
-          />
-          <div
-            className="absolute top-1/2 right-0 w-[480px] h-[480px] bg-[#FF5500]/10 rounded-full blur-[150px] pointer-events-none"
-            aria-hidden="true"
-          />
-
-          {/* Crisp Fitted Hero Background Image — Decreased & constrained to native resolution */}
-          <div
-            className="absolute right-0 lg:right-6 xl:right-12 top-1/2 -translate-y-1/2 w-full lg:w-[52%] xl:w-[48%] max-w-[620px] pointer-events-none select-none z-0 opacity-30 sm:opacity-45 lg:opacity-90"
-            aria-hidden="true"
-          >
-            <div className="relative w-full aspect-[16/10] sm:aspect-[2/1] overflow-hidden rounded-2xl">
-              <img
-                src="/assets/images/hero-artist.webp"
-                alt="SoundCloud music artist recording in studio"
-                width={1024}
-                height={500}
-                fetchPriority="high"
-                decoding="async"
-                className="w-full h-full object-cover object-[75%_center] lg:object-right"
-              />
-              {/* Directional Feathered Gradients for Seamless Canvas Integration */}
-              <div className="absolute inset-y-0 left-0 w-2/5 bg-gradient-to-r from-[#0A0A0A] via-[#0A0A0A]/80 to-transparent" />
-              <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#0A0A0A] to-transparent" />
-              <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-[#0A0A0A] to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#0A0A0A] to-transparent" />
-            </div>
+          {/* Full-Bleed High-Definition Hero Background Image (3168x1344) */}
+          <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none select-none z-0">
+            <img
+              src="/assets/images/hero-artist.webp"
+              alt="Independent SoundCloud artist recording in studio"
+              width={3168}
+              height={1344}
+              fetchPriority="high"
+              decoding="async"
+              className="w-full h-full object-cover object-[70%_center] lg:object-right opacity-80 sm:opacity-85 lg:opacity-95"
+            />
+            {/* Directional Overlay Gradients matching mockup: dark behind text on left, translucent reveal on right */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A] via-[#0A0A0A]/85 sm:via-[#0A0A0A]/60 lg:via-[#0A0A0A]/35 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/80 via-transparent to-[#0A0A0A]" />
+            {/* Ambient Warm Orange Accents */}
+            <div
+              className="absolute -top-32 -left-32 w-[560px] h-[560px] bg-[#FF5500]/15 rounded-full blur-[140px]"
+              aria-hidden="true"
+            />
+            <div
+              className="absolute top-1/2 -right-32 w-[520px] h-[520px] bg-[#FF5500]/10 rounded-full blur-[160px]"
+              aria-hidden="true"
+            />
           </div>
 
           <div className="max-w-[1360px] mx-auto px-4 sm:px-6 relative z-10 w-full">
-            <div className="max-w-xl lg:max-w-2xl text-left">
+            <div className="max-w-2xl lg:max-w-3xl text-left">
               {/* Official Tagline Badge with RepostChain favicon-dark SVG */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.08] border border-white/15 mb-6 backdrop-blur-md shadow-sm">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-black/60 border border-white/10 mb-6 backdrop-blur-md shadow-sm">
                 <RepostChainMark className="w-4 h-4 shrink-0 drop-shadow-[0_0_8px_rgba(255,85,0,0.4)]" />
-                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-200">
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-300">
                   BUILT FOR SOUNDCLOUD CREATORS
                 </span>
               </div>
 
               {/* Ultra-bold All-Caps Display Headline */}
-              <h1 className="sc-display text-4xl sm:text-6xl md:text-7xl lg:text-[76px] xl:text-[84px] font-black tracking-tight leading-[0.93] mb-6">
+              <h1 className="sc-display text-5xl sm:text-6xl md:text-7xl lg:text-[78px] xl:text-[84px] font-black tracking-tight leading-[0.94] mb-6">
                 <span className="block text-white drop-shadow-md">YOUR SOUND.</span>
                 <span className="block text-[#FF5500] drop-shadow-[0_0_24px_rgba(255,85,0,0.35)]">
                   YOUR CHAIN.
@@ -243,15 +236,7 @@ export default function LandingPage() {
                   className="sc-pill-dark px-7 sm:px-8 py-3.5 text-sm sm:text-base font-semibold backdrop-blur-md bg-black/60 border border-white/15 hover:bg-black/80"
                 >
                   <span>How It Works</span>
-                  <svg
-                    className="w-4 h-4 text-zinc-400"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                  >
-                    <path d="M5 12h14M12 5l7 7-7 7" />
-                  </svg>
+                  <span className="text-zinc-400">→</span>
                 </a>
               </div>
 
