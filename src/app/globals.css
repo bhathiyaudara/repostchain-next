@@ -378,3 +378,56 @@ details summary::-webkit-details-marker {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ========================================================= */
+/* Creator Dashboard — Light mode overrides (dark is default) */
+/* Scoped to .sc-dash so no other page is affected            */
+/* ========================================================= */
+html:not(.dark) .sc-dash .bg-\[\#121212\] { background-color: #FFFFFF; }
+html:not(.dark) .sc-dash .text-white { color: #121212; }
+html:not(.dark) .sc-dash .text-zinc-200 { color: #27272A; }
+html:not(.dark) .sc-dash .text-zinc-300 { color: #3F3F46; }
+html:not(.dark) .sc-dash .text-zinc-400 { color: #52525B; }
+html:not(.dark) .sc-dash .text-zinc-500 { color: #71717A; }
+html:not(.dark) .sc-dash .text-zinc-600 { color: #71717A; }
+html:not(.dark) .sc-dash .fill-zinc-500,
+html:not(.dark) .sc-dash .fill-zinc-600 { fill: #71717A; }
+
+/* Translucent white surfaces / borders become translucent black */
+html:not(.dark) .sc-dash [class*="bg-white/["] { background-color: rgba(0, 0, 0, 0.035); }
+html:not(.dark) .sc-dash [class*="border-white/"] { border-color: rgba(0, 0, 0, 0.1); }
+html:not(.dark) .sc-dash [class*="from-white/"] {
+  --tw-gradient-from: rgba(0, 0, 0, 0.1);
+  --tw-gradient-to: rgba(0, 0, 0, 0.02);
+}
+html:not(.dark) .sc-dash svg line[stroke^="rgba(255"] { stroke: rgba(0, 0, 0, 0.1); }
+html:not(.dark) .sc-dash circle[stroke="#121212"] { stroke: #FFFFFF; }
+
+/* Text that must stay white on coloured backgrounds */
+html:not(.dark) .sc-dash .bg-\[\#FF5500\].text-white,
+html:not(.dark) .sc-dash .bg-\[\#3B82F6\].text-white,
+html:not(.dark) .sc-dash .sc-pill-orange,
+html:not(.dark) .sc-dash .sc-pill-orange .text-white { color: #FFFFFF; }
+
+/* High-contrast pills flip to ink-on-light */
+html:not(.dark) .sc-dash .bg-white.text-black,
+html:not(.dark) .sc-dash .sc-pill-white {
+  background-color: #121212;
+  border-color: #121212;
+  color: #FFFFFF;
+}
+html:not(.dark) .sc-dash .sc-pill-white:hover {
+  background-color: #FF5500;
+  border-color: #FF5500;
+}
+html:not(.dark) .sc-dash .sc-pill-dark {
+  background-color: #FFFFFF;
+  color: #121212;
+  border-color: rgba(0, 0, 0, 0.18);
+}
+html:not(.dark) .sc-dash .sc-pill-dark:hover { border-color: #121212; background-color: #F4F4F5; }
+
+/* Campaign modal overlay stays dark; modal card follows theme */
+html:not(.dark) .sc-dash input,
+html:not(.dark) .sc-dash input::placeholder { color: #121212; }
+html:not(.dark) .sc-dash input::placeholder { color: #A1A1AA; }

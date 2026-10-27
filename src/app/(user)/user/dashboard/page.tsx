@@ -187,7 +187,7 @@ export default function UserDashboardPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto pb-12">
+    <div className="sc-dash space-y-8 max-w-7xl mx-auto pb-12">
       {/* ========================================================= */}
       {/* 1. EDITORIAL HEADER & WELCOME STRIP */}
       {/* ========================================================= */}
