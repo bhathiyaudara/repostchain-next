@@ -163,123 +163,103 @@ export default function LandingPage() {
 
       <main>
         {/* ========================================================= */}
-        {/* HERO SECTION — 2026 SoundCloud for Artists Display Canvas */}
+        {/* HERO SECTION — Full Fitted Background Hero Image */}
         {/* ========================================================= */}
         <section
           id="home"
-          className="relative pt-28 pb-16 sm:pt-36 sm:pb-24 lg:pt-44 lg:pb-28 overflow-hidden bg-[#0A0A0A]"
+          className="relative min-h-[680px] sm:min-h-[760px] lg:min-h-[840px] flex items-center pt-28 pb-16 sm:pt-36 sm:pb-24 lg:pt-40 lg:pb-28 overflow-hidden bg-[#0A0A0A]"
         >
-          {/* Subtle Ambient Radial Glows */}
-          <div
-            className="absolute -top-32 -left-32 w-[520px] h-[520px] bg-[#FF5500]/10 rounded-full blur-[140px] pointer-events-none"
-            aria-hidden="true"
-          />
-          <div
-            className="absolute top-1/3 -right-32 w-[460px] h-[460px] bg-[#FF5500]/[0.06] rounded-full blur-[150px] pointer-events-none"
-            aria-hidden="true"
-          />
+          {/* Full Fitted Background Hero Image */}
+          <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none select-none z-0">
+            <img
+              src="/assets/images/hero-artist.webp"
+              alt="Independent SoundCloud artist recording in studio"
+              width={1024}
+              height={500}
+              fetchPriority="high"
+              decoding="async"
+              className="w-full h-full object-cover object-[75%_center] lg:object-right opacity-45 sm:opacity-55 lg:opacity-65"
+            />
+            {/* Cinematic Directional Overlays for Pristine Text Readability */}
+            {/* Left-to-right fade: Deep dark backing behind headline, revealing the studio artist on the right */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A] via-[#0A0A0A]/90 sm:via-[#0A0A0A]/70 lg:via-[#0A0A0A]/45 to-transparent" />
+            {/* Top-to-bottom fade: Seamless blending with top header and bottom metrics strip */}
+            <div className="absolute inset-0 bg-gradient-to-b from-[#0A0A0A]/90 via-transparent to-[#0A0A0A]" />
+            {/* Ambient Warm Orange Accents */}
+            <div
+              className="absolute -top-32 -left-32 w-[560px] h-[560px] bg-[#FF5500]/15 rounded-full blur-[140px]"
+              aria-hidden="true"
+            />
+            <div
+              className="absolute top-1/2 -right-32 w-[520px] h-[520px] bg-[#FF5500]/10 rounded-full blur-[160px]"
+              aria-hidden="true"
+            />
+          </div>
 
-          <div className="max-w-[1360px] mx-auto px-4 sm:px-6 relative z-10">
-            <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-              {/* Left Column: Massive Grotesque Typography & CTAs */}
-              <div className="lg:col-span-7 text-left">
-                {/* Official Tagline Badge with RepostChain favicon-dark SVG */}
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.06] border border-white/10 mb-6 backdrop-blur-sm shadow-sm">
-                  <RepostChainMark className="w-4 h-4 shrink-0 drop-shadow-[0_0_8px_rgba(255,85,0,0.35)]" />
-                  <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-300">
-                    BUILT FOR SOUNDCLOUD CREATORS
-                  </span>
-                </div>
-
-                {/* Ultra-bold All-Caps Display Headline */}
-                <h1 className="sc-display text-4xl sm:text-6xl md:text-7xl lg:text-[80px] xl:text-[88px] font-black tracking-tight leading-[0.93] mb-6">
-                  <span className="block text-white">YOUR SOUND.</span>
-                  <span className="block text-[#FF5500]">YOUR CHAIN.</span>
-                  <span className="block text-white">YOUR MOMENT.</span>
-                </h1>
-
-                {/* Punchy Subheadline */}
-                <p className="text-zinc-400 text-base sm:text-lg lg:text-xl font-normal leading-relaxed max-w-xl mb-9">
-                  The collaborative music promotion platform for independent artists. Exchange real
-                  reposts, collect verified listener feedback, and expand your SoundCloud reach
-                  organically.
-                </p>
-
-                {/* High-Contrast Pill Action Buttons */}
-                <div className="flex flex-wrap items-center gap-3.5 sm:gap-4">
-                  <a
-                    href="/api/auth/soundcloud/redirect"
-                    className="sc-pill-white px-7 sm:px-8 py-3.5 text-sm sm:text-base font-bold shadow-xl shadow-white/5"
-                  >
-                    <SoundCloudMark className="w-5 h-3.5" />
-                    <span>Connect SoundCloud</span>
-                  </a>
-
-                  <a
-                    href="#how-it-works"
-                    className="sc-pill-dark px-7 sm:px-8 py-3.5 text-sm sm:text-base font-semibold"
-                  >
-                    <span>How It Works</span>
-                    <svg
-                      className="w-4 h-4 text-zinc-400"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                    >
-                      <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                  </a>
-                </div>
-
-                {/* Reassurance Checklist */}
-                <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-zinc-500 text-xs sm:text-[13px] font-medium mt-8 pt-6 border-t border-white/[0.08]">
-                  <span className="flex items-center gap-1.5 text-zinc-400">
-                    <span className="text-[#FF5500]">✓</span> 100% Free for Artists
-                  </span>
-                  <span className="flex items-center gap-1.5 text-zinc-400">
-                    <span className="text-[#FF5500]">✓</span> Zero Bot Tolerance
-                  </span>
-                  <span className="flex items-center gap-1.5 text-zinc-400">
-                    <span className="text-[#FF5500]">✓</span> Official SoundCloud API
-                  </span>
-                </div>
+          <div className="max-w-[1360px] mx-auto px-4 sm:px-6 relative z-10 w-full">
+            <div className="max-w-2xl lg:max-w-3xl text-left">
+              {/* Official Tagline Badge with RepostChain favicon-dark SVG */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.08] border border-white/15 mb-6 backdrop-blur-md shadow-sm">
+                <RepostChainMark className="w-4 h-4 shrink-0 drop-shadow-[0_0_8px_rgba(255,85,0,0.4)]" />
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-200">
+                  BUILT FOR SOUNDCLOUD CREATORS
+                </span>
               </div>
 
-              {/* Right Column: High-Impact Monochrome Studio Artist Visual */}
-              <div className="lg:col-span-5 flex justify-center lg:justify-end">
-                <div className="relative w-full max-w-lg lg:max-w-none">
-                  {/* Subtle Ambient Radial Glow */}
-                  <div
-                    className="absolute -inset-2 bg-gradient-to-tr from-[#FF5500]/20 via-[#FF5500]/5 to-transparent rounded-3xl blur-2xl opacity-60 pointer-events-none"
-                    aria-hidden="true"
-                  />
+              {/* Ultra-bold All-Caps Display Headline */}
+              <h1 className="sc-display text-4xl sm:text-6xl md:text-7xl lg:text-[80px] xl:text-[88px] font-black tracking-tight leading-[0.93] mb-6">
+                <span className="block text-white drop-shadow-md">YOUR SOUND.</span>
+                <span className="block text-[#FF5500] drop-shadow-[0_0_24px_rgba(255,85,0,0.35)]">
+                  YOUR CHAIN.
+                </span>
+                <span className="block text-white drop-shadow-md">YOUR MOMENT.</span>
+              </h1>
 
-                  {/* Framed Canvas Container */}
-                  <div className="relative rounded-2xl sm:rounded-3xl bg-gradient-to-b from-white/[0.14] via-white/[0.04] to-transparent p-[1px] shadow-2xl">
-                    <div className="relative rounded-[23px] overflow-hidden bg-[#0A0A0A]">
-                      <img
-                        src="/assets/images/hero-artist.webp"
-                        alt="SoundCloud music artist recording in studio"
-                        width={1024}
-                        height={500}
-                        fetchPriority="high"
-                        decoding="async"
-                        className="w-full h-auto object-cover aspect-[16/10] sm:aspect-[16/10] lg:aspect-[16/11] xl:aspect-[16/10] object-right"
-                      />
+              {/* Punchy Subheadline */}
+              <p className="text-zinc-300 text-base sm:text-lg lg:text-xl font-normal leading-relaxed max-w-xl mb-9 drop-shadow-sm">
+                The collaborative music promotion platform for independent artists. Exchange real
+                reposts, collect verified listener feedback, and expand your SoundCloud reach
+                organically.
+              </p>
 
-                      {/* Subtle Ambient Vignette to integrate seamlessly into dark canvas */}
-                      <div
-                        className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A]/70 via-transparent to-transparent pointer-events-none"
-                        aria-hidden="true"
-                      />
-                      <div
-                        className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/40 via-transparent to-transparent pointer-events-none"
-                        aria-hidden="true"
-                      />
-                    </div>
-                  </div>
-                </div>
+              {/* High-Contrast Pill Action Buttons */}
+              <div className="flex flex-wrap items-center gap-3.5 sm:gap-4">
+                <a
+                  href="/api/auth/soundcloud/redirect"
+                  className="sc-pill-white px-7 sm:px-8 py-3.5 text-sm sm:text-base font-bold shadow-2xl shadow-white/10"
+                >
+                  <SoundCloudMark className="w-5 h-3.5" />
+                  <span>Connect SoundCloud</span>
+                </a>
+
+                <a
+                  href="#how-it-works"
+                  className="sc-pill-dark px-7 sm:px-8 py-3.5 text-sm sm:text-base font-semibold backdrop-blur-md bg-black/60 border border-white/15 hover:bg-black/80"
+                >
+                  <span>How It Works</span>
+                  <svg
+                    className="w-4 h-4 text-zinc-400"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </a>
+              </div>
+
+              {/* Reassurance Checklist */}
+              <div className="flex flex-wrap items-center gap-y-2 gap-x-6 text-zinc-400 text-xs sm:text-[13px] font-medium mt-8 pt-6 border-t border-white/[0.12] max-w-xl">
+                <span className="flex items-center gap-1.5 text-zinc-300">
+                  <span className="text-[#FF5500] font-bold">✓</span> 100% Free for Artists
+                </span>
+                <span className="flex items-center gap-1.5 text-zinc-300">
+                  <span className="text-[#FF5500] font-bold">✓</span> Zero Bot Tolerance
+                </span>
+                <span className="flex items-center gap-1.5 text-zinc-300">
+                  <span className="text-[#FF5500] font-bold">✓</span> Official SoundCloud API
+                </span>
               </div>
             </div>
           </div>
