@@ -41,12 +41,6 @@ export default function UserDashboardPage() {
   const [campaignError, setCampaignError] = useState<string | null>(null);
   const [copiedReferral, setCopiedReferral] = useState(false);
   const [activeChartMetric, setActiveChartMetric] = useState<'both' | 'followers' | 'reach'>('both');
-  const [referralEmail, setReferralEmail] = useState('');
-
-  const handleClaimSoundCloud = (e: React.FormEvent) => {
-    e.preventDefault();
-    window.open(SOUNDCLOUD_REFERRAL_URL, '_blank', 'noopener,noreferrer');
-  };
 
   const { data, isLoading } = useQuery({
     queryKey: ['user-dashboard'],
@@ -595,28 +589,18 @@ export default function UserDashboardPage() {
                   You&apos;ve been given a free month of our best plan for music creators! Enter your email below to get started. If you decide to purchase, the person who referred you will earn a reward.
                 </p>
 
-                {/* Email submission form linking to the referral program */}
-                <form onSubmit={handleClaimSoundCloud} className="mt-5 space-y-3">
-                  <div className="relative">
-                    <input
-                      type="email"
-                      value={referralEmail}
-                      onChange={(e) => setReferralEmail(e.target.value)}
-                      placeholder="Enter your email address"
-                      className="w-full text-xs sm:text-sm bg-white/[0.04] border border-white/10 rounded-xl px-4 py-3 text-white placeholder-zinc-500 focus:outline-none focus:border-[#FF5500] transition-colors"
-                    />
-                  </div>
-
+                {/* Direct CTA button linking to SoundCloud Referral Program */}
+                <div className="mt-5">
                   <a
                     href={SOUNDCLOUD_REFERRAL_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 rounded-full bg-[#FF5500] hover:bg-[#FF6611] text-white font-extrabold text-xs sm:text-sm tracking-tight transition-all duration-200 shadow-lg shadow-[#FF5500]/25 hover:scale-[1.01] cursor-pointer text-center"
+                    className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-4 rounded-full bg-[#FF5500] hover:bg-[#FF6611] text-white font-extrabold text-xs sm:text-sm tracking-tight transition-all duration-200 shadow-lg shadow-[#FF5500]/25 hover:scale-[1.01] cursor-pointer text-center"
                   >
                     <span>Claim Free Month of Artist Pro</span>
                     <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                   </a>
-                </form>
+                </div>
 
                 <p className="text-[11px] text-zinc-500 text-center mt-3">
                   Official SoundCloud referral offer • Free trial terms apply
