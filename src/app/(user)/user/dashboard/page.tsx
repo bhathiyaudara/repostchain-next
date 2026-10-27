@@ -109,6 +109,19 @@ export default function UserDashboardPage() {
     credibilityScore: 96.4,
     credibilityChangePercent: 4.2,
   };
+  const featuredCampaign = data?.featuredCampaign || {
+    id: 501,
+    title: 'Ethereal Pulse (Extended Mix)',
+    genre: 'Melodic Techno',
+    artist_name: 'Kai Rivers',
+    artist_avatar: '/default_img/avatar_2.jpg',
+    artwork_url: '/default_img/track_1.jpg',
+    permalink_url: 'https://soundcloud.com/artist/ethereal-pulse',
+    credits_reward: 2,
+    budget_credits: 250,
+    completed_reposts: 23,
+    is_featured: true,
+  };
   const recentTracks = data?.recentTracks || [];
   const pendingRequests = data?.pendingRequests || [];
   const genreBreakdown = data?.genreBreakdown || [
@@ -190,10 +203,13 @@ export default function UserDashboardPage() {
     return (
       <div className="space-y-6 animate-pulse max-w-7xl mx-auto">
         <div className="h-14 bg-white/[0.04] rounded-2xl w-1/3" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-36 bg-white/[0.04] rounded-2xl" />
-          ))}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-36 bg-white/[0.04] rounded-2xl" />
+            ))}
+          </div>
+          <div className="lg:col-span-1 h-36 bg-white/[0.04] rounded-2xl" />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 h-96 bg-white/[0.04] rounded-2xl" />
@@ -261,123 +277,193 @@ export default function UserDashboardPage() {
       </div>
 
       {/* ========================================================= */}
-      {/* 2. 4 EDITORIAL KPI CARDS */}
+      {/* 2. STATS (WIDTH OF PERFORMANCE OVERVIEW) + FEATURED CAMPAIGN */}
       {/* ========================================================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {/* Card 1: Available Credits */}
-        <div className="relative rounded-2xl bg-gradient-to-b from-white/[0.12] to-white/[0.02] p-[1px] shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-          <div className="rounded-[15px] bg-[#121212] p-5 sm:p-6 flex flex-col justify-between h-full relative overflow-hidden">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-400">
-                AVAILABLE CREDITS
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-[#FF5500]/15 border border-[#FF5500]/30 flex items-center justify-center text-[#FF5500]">
-                <Zap className="w-4 h-4" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left: 3 KPI Cards taking the exact width of Performance Overview (2 Cols) */}
+        <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Card 1: Available Credits */}
+          <div className="relative rounded-2xl bg-gradient-to-b from-white/[0.12] to-white/[0.02] p-[1px] shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+            <div className="rounded-[15px] bg-[#121212] p-5 flex flex-col justify-between h-full relative overflow-hidden">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-400">
+                  AVAILABLE CREDITS
+                </span>
+                <div className="w-8 h-8 rounded-xl bg-[#FF5500]/15 border border-[#FF5500]/30 flex items-center justify-center text-[#FF5500]">
+                  <Zap className="w-4 h-4" />
+                </div>
+              </div>
+              <div>
+                <div className="sc-display text-3xl sm:text-[38px] font-black text-white tracking-tight leading-none mb-2">
+                  {Number(kpis.availableCredits).toFixed(2)}
+                </div>
+                <div className="flex items-center justify-between text-xs pt-2 border-t border-white/[0.06]">
+                  <span
+                    className={`inline-flex items-center gap-1 font-semibold text-[11px] ${
+                      Number(kpis.creditsChangePercent) >= 0 ? 'text-[#10B981]' : 'text-red-400'
+                    }`}
+                  >
+                    <TrendingUp className="w-3 h-3" />
+                    {Number(kpis.creditsChangePercent) >= 0 ? '+' : ''}
+                    {Number(kpis.creditsChangePercent).toFixed(2)}%
+                  </span>
+                  <Link
+                    href="/user/billing"
+                    className="text-zinc-400 hover:text-white font-medium text-[11px] transition-colors"
+                  >
+                    Add +
+                  </Link>
+                </div>
               </div>
             </div>
-            <div>
-              <div className="sc-display text-4xl sm:text-[42px] font-black text-white tracking-tight leading-none mb-2">
-                {Number(kpis.availableCredits).toFixed(2)}
-              </div>
-              <div className="flex items-center justify-between text-xs pt-2 border-t border-white/[0.06]">
-                <span className={`inline-flex items-center gap-1 font-semibold ${Number(kpis.creditsChangePercent) >= 0 ? 'text-[#10B981]' : 'text-red-400'}`}>
-                  <TrendingUp className="w-3 h-3" />
-                  {Number(kpis.creditsChangePercent) >= 0 ? '+' : ''}{Number(kpis.creditsChangePercent).toFixed(2)}% from last week
+          </div>
+
+          {/* Card 2: Active Campaigns */}
+          <div className="relative rounded-2xl bg-gradient-to-b from-white/[0.12] to-white/[0.02] p-[1px] shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+            <div className="rounded-[15px] bg-[#121212] p-5 flex flex-col justify-between h-full relative overflow-hidden">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-400">
+                  ACTIVE CAMPAIGNS
                 </span>
-                <Link
-                  href="/user/billing"
-                  className="text-zinc-400 hover:text-white font-medium text-[11px] transition-colors"
-                >
-                  Add +
-                </Link>
+                <div className="w-8 h-8 rounded-xl bg-[#3B82F6]/15 border border-[#3B82F6]/30 flex items-center justify-center text-[#3B82F6]">
+                  <Music className="w-4 h-4" />
+                </div>
+              </div>
+              <div>
+                <div className="sc-display text-3xl sm:text-[38px] font-black text-white tracking-tight leading-none mb-2">
+                  {Number(kpis.activeCampaigns).toFixed(2)}
+                </div>
+                <div className="flex items-center justify-between text-xs pt-2 border-t border-white/[0.06]">
+                  <span
+                    className={`inline-flex items-center gap-1 font-semibold text-[11px] ${
+                      Number(kpis.campaignsChangePercent) >= 0 ? 'text-[#10B981]' : 'text-red-400'
+                    }`}
+                  >
+                    <TrendingUp className="w-3 h-3" />
+                    {Number(kpis.campaignsChangePercent) >= 0 ? '+' : ''}
+                    {Number(kpis.campaignsChangePercent).toFixed(2)}%
+                  </span>
+                  <Link
+                    href="/user/campaign-management/my-campaigns"
+                    className="text-[#FF5500] hover:text-white font-medium text-[11px] transition-colors"
+                  >
+                    Manage →
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3: Reposts Received */}
+          <div className="relative rounded-2xl bg-gradient-to-b from-white/[0.12] to-white/[0.02] p-[1px] shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+            <div className="rounded-[15px] bg-[#121212] p-5 flex flex-col justify-between h-full relative overflow-hidden">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-400">
+                  REPOSTS RECEIVED
+                </span>
+                <div className="w-8 h-8 rounded-xl bg-[#10B981]/15 border border-[#10B981]/30 flex items-center justify-center text-[#10B981]">
+                  <Repeat2 className="w-4 h-4" />
+                </div>
+              </div>
+              <div>
+                <div className="sc-display text-3xl sm:text-[38px] font-black text-white tracking-tight leading-none mb-2">
+                  {Number(kpis.repostsReceived).toFixed(2)}
+                </div>
+                <div className="flex items-center justify-between text-xs pt-2 border-t border-white/[0.06]">
+                  <span
+                    className={`inline-flex items-center gap-1 font-semibold text-[11px] ${
+                      Number(kpis.repostsChangePercent) >= 0 ? 'text-[#10B981]' : 'text-red-400'
+                    }`}
+                  >
+                    <TrendingUp className="w-3 h-3" />
+                    {Number(kpis.repostsChangePercent) >= 0 ? '+' : ''}
+                    {Number(kpis.repostsChangePercent).toFixed(2)}%
+                  </span>
+                  <Link
+                    href="/user/analytics"
+                    className="text-zinc-400 hover:text-white font-medium text-[11px] transition-colors"
+                  >
+                    Stats →
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Card 2: Active Campaigns */}
-        <div className="relative rounded-2xl bg-gradient-to-b from-white/[0.12] to-white/[0.02] p-[1px] shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-          <div className="rounded-[15px] bg-[#121212] p-5 sm:p-6 flex flex-col justify-between h-full relative overflow-hidden">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-400">
-                ACTIVE CAMPAIGNS
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-[#3B82F6]/15 border border-[#3B82F6]/30 flex items-center justify-center text-[#3B82F6]">
-                <Music className="w-4 h-4" />
-              </div>
-            </div>
-            <div>
-              <div className="sc-display text-4xl sm:text-[42px] font-black text-white tracking-tight leading-none mb-2">
-                {Number(kpis.activeCampaigns).toFixed(2)}
-              </div>
-              <div className="flex items-center justify-between text-xs pt-2 border-t border-white/[0.06]">
-                <span className={`inline-flex items-center gap-1 font-semibold ${Number(kpis.campaignsChangePercent) >= 0 ? 'text-[#10B981]' : 'text-red-400'}`}>
-                  <TrendingUp className="w-3 h-3" />
-                  {Number(kpis.campaignsChangePercent) >= 0 ? '+' : ''}{Number(kpis.campaignsChangePercent).toFixed(2)}% from last week
-                </span>
-                <Link
-                  href="/user/campaign-management/my-campaigns"
-                  className="text-[#FF5500] hover:text-white font-medium text-[11px] transition-colors"
-                >
-                  Manage →
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Right: Featured Campaign of the Day Card (1 Col) */}
+        <div className="lg:col-span-1">
+          <div className="relative rounded-2xl bg-gradient-to-b from-[#FF5500]/30 via-white/[0.08] to-white/[0.02] p-[1px] shadow-xl h-full flex flex-col">
+            <div className="rounded-[15px] bg-[#121212] p-4 sm:p-5 flex flex-col justify-between h-full relative overflow-hidden group">
+              {/* Subtle ambient accent glow */}
+              <div
+                className="absolute -top-12 -right-12 w-32 h-32 bg-[#FF5500]/15 rounded-full blur-2xl pointer-events-none"
+                aria-hidden="true"
+              />
 
-        {/* Card 3: Reposts Received */}
-        <div className="relative rounded-2xl bg-gradient-to-b from-white/[0.12] to-white/[0.02] p-[1px] shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-          <div className="rounded-[15px] bg-[#121212] p-5 sm:p-6 flex flex-col justify-between h-full relative overflow-hidden">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-400">
-                REPOSTS RECEIVED
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-[#10B981]/15 border border-[#10B981]/30 flex items-center justify-center text-[#10B981]">
-                <Repeat2 className="w-4 h-4" />
-              </div>
-            </div>
-            <div>
-              <div className="sc-display text-4xl sm:text-[42px] font-black text-white tracking-tight leading-none mb-2">
-                {Number(kpis.repostsReceived).toFixed(2)}
-              </div>
-              <div className="flex items-center justify-between text-xs pt-2 border-t border-white/[0.06]">
-                <span className={`inline-flex items-center gap-1 font-semibold ${Number(kpis.repostsChangePercent) >= 0 ? 'text-[#10B981]' : 'text-red-400'}`}>
-                  <TrendingUp className="w-3 h-3" />
-                  {Number(kpis.repostsChangePercent) >= 0 ? '+' : ''}{Number(kpis.repostsChangePercent).toFixed(2)}% from last week
-                </span>
-                <Link
-                  href="/user/analytics"
-                  className="text-zinc-400 hover:text-white font-medium text-[11px] transition-colors"
-                >
-                  Stats →
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
+              <div>
+                {/* Header Badge */}
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FF5500]/15 text-[#FF5500] text-[10px] font-black uppercase tracking-wider">
+                    <Sparkles className="w-3 h-3 text-[#FF5500]" />
+                    FEATURED CAMPAIGN
+                  </span>
+                  <span className="text-[10px] font-mono text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                    OF THE DAY
+                  </span>
+                </div>
 
-        {/* Card 4: Credibility Score */}
-        <div className="relative rounded-2xl bg-gradient-to-b from-white/[0.12] to-white/[0.02] p-[1px] shadow-xl hover:-translate-y-1 transition-all duration-300 group">
-          <div className="rounded-[15px] bg-[#121212] p-5 sm:p-6 flex flex-col justify-between h-full relative overflow-hidden">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-400">
-                CREDIBILITY SCORE
-              </span>
-              <div className="w-9 h-9 rounded-xl bg-[#8B5CF6]/15 border border-[#8B5CF6]/30 flex items-center justify-center text-[#8B5CF6]">
-                <Award className="w-4 h-4" />
+                <h3 className="sc-display text-base font-black text-white tracking-tight">
+                  Featured Campaign of the Day
+                </h3>
+
+                {/* Track Item Preview */}
+                <div className="flex items-center gap-3 mt-3 p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:border-white/20 transition-all">
+                  <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-white/10 group-hover:border-[#FF5500]/40 transition-colors">
+                    <img
+                      src={featuredCampaign.artwork_url || '/default_img/track_1.jpg'}
+                      alt={featuredCampaign.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src = '/default_img/no_img.jpg';
+                      }}
+                    />
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-xs sm:text-sm font-bold text-white truncate">
+                      {featuredCampaign.title}
+                    </h4>
+                    <p className="text-[11px] text-zinc-400 truncate">
+                      By {featuredCampaign.artist_name || 'SoundCloud Artist'}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-white/[0.06] text-zinc-300">
+                        {featuredCampaign.genre || 'Electronic'}
+                      </span>
+                      <span className="text-[10px] font-bold text-[#FF5500]">
+                        +{featuredCampaign.credits_reward || 2} CREDITS
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div>
-              <div className="sc-display text-4xl sm:text-[42px] font-black text-white tracking-tight leading-none mb-2">
-                {Number(kpis.credibilityScore).toFixed(2)}%
-              </div>
-              <div className="flex items-center justify-between text-xs pt-2 border-t border-white/[0.06]">
-                <span className={`inline-flex items-center gap-1 font-semibold ${Number(kpis.credibilityChangePercent) >= 0 ? 'text-[#10B981]' : 'text-red-400'}`}>
-                  <TrendingUp className="w-3 h-3" />
-                  {Number(kpis.credibilityChangePercent) >= 0 ? '+' : ''}{Number(kpis.credibilityChangePercent).toFixed(2)}% from last week
-                </span>
-                <span className="text-zinc-500 text-[11px]">Rank Score</span>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-white/[0.06] text-xs">
+                <Link
+                  href="/user/campaign-management/campaigns"
+                  className="sc-pill-orange py-1.5 px-3 text-[11px] font-bold flex-1 text-center justify-center cursor-pointer inline-flex items-center gap-1.5"
+                >
+                  <Repeat2 className="w-3 h-3" />
+                  <span>Repost Track</span>
+                </Link>
+                <Link
+                  href="/user/plans"
+                  className="text-[11px] text-zinc-400 hover:text-white transition-colors font-medium shrink-0 px-2 py-1"
+                >
+                  Get Featured?
+                </Link>
               </div>
             </div>
           </div>

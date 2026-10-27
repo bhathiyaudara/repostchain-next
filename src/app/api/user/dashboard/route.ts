@@ -25,6 +25,7 @@ export async function GET() {
       recentPlaylists,
       analyticsByGenre,
       starredRows,
+      dbFeaturedCampaign,
     ] = await Promise.all([
       prisma.$queryRaw<Array<Record<string, any>>>`
         SELECT
@@ -111,6 +112,23 @@ export async function GET() {
         },
         take: 12,
       }),
+      prisma.campaign.findFirst({
+        where: {
+          is_featured: true,
+          status: 1,
+          deleted_at: null,
+        },
+        orderBy: [{ featured_at: 'desc' }, { id: 'desc' }],
+        include: {
+          user: {
+            select: {
+              urn: true,
+              name: true,
+              avatar: true,
+            },
+          },
+        },
+      }),
     ]);
 
     const row = kpiRows[0] || {};
@@ -184,6 +202,43 @@ export async function GET() {
         : 94.0;
     const activitiesChangeRate = activitiesScore >= 50 ? 4.2 : -2.5;
 
+    const defaultFeaturedCampaign = {
+      id: 501,
+      title: 'Ethereal Pulse (Extended Mix)',
+      genre: 'Melodic Techno',
+      artist_name: 'Kai Rivers',
+      artist_avatar: '/default_img/avatar_2.jpg',
+      artwork_url: '/default_img/track_1.jpg',
+      permalink_url: 'https://soundcloud.com/artist/ethereal-pulse',
+      credits_reward: 2,
+      budget_credits: 250,
+      completed_reposts: 23,
+      is_featured: true,
+    };
+
+    let featuredCampaignData = defaultFeaturedCampaign;
+    if (dbFeaturedCampaign) {
+      let track = null;
+      if (dbFeaturedCampaign.music_type === MORPH_TYPES.TRACK) {
+        track = await prisma.track.findFirst({
+          where: { id: dbFeaturedCampaign.music_id, deleted_at: null },
+        });
+      }
+      featuredCampaignData = {
+        id: Number(dbFeaturedCampaign.id),
+        title: track?.title || dbFeaturedCampaign.title || 'Featured Campaign',
+        genre: track?.genre || dbFeaturedCampaign.target_genre || 'Electronic',
+        artist_name: dbFeaturedCampaign.user?.name || 'SoundCloud Artist',
+        artist_avatar: dbFeaturedCampaign.user?.avatar || '/default_img/avatar_2.jpg',
+        artwork_url: track?.artwork_url || '/default_img/track_1.jpg',
+        permalink_url: track?.permalink_url || 'https://soundcloud.com',
+        credits_reward: 2,
+        budget_credits: Number(dbFeaturedCampaign.budget_credits || 100),
+        completed_reposts: Number(dbFeaturedCampaign.completed_reposts || 0),
+        is_featured: true,
+      };
+    }
+
     return NextResponse.json(
       serializePrisma({
         dbConnected: true,
@@ -192,6 +247,7 @@ export async function GET() {
           followers_count: followersCount || user.followers_count || 0,
           referral_code: referralCode,
         },
+        featuredCampaign: featuredCampaignData,
         kpis: {
           availableCredits: totalCredits,
           creditsChangePercent: creditPercentage,
@@ -244,6 +300,19 @@ export async function GET() {
     return NextResponse.json({
       dbConnected: false,
       user,
+      featuredCampaign: {
+        id: 501,
+        title: 'Ethereal Pulse (Extended Mix)',
+        genre: 'Melodic Techno',
+        artist_name: 'Kai Rivers',
+        artist_avatar: '/default_img/avatar_2.jpg',
+        artwork_url: '/default_img/track_1.jpg',
+        permalink_url: 'https://soundcloud.com/artist/ethereal-pulse',
+        credits_reward: 2,
+        budget_credits: 250,
+        completed_reposts: 23,
+        is_featured: true,
+      },
       kpis: {
         availableCredits: 480,
         creditsChangePercent: 18.5,
