@@ -107,9 +107,9 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#0A0A0A] text-[#121212] dark:text-white overflow-x-hidden relative">
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#0A0A0A] text-[#121212] dark:text-white overflow-x-hidden relative pt-16">
       {/* Header - Exact match to resources/views/backend/user/layouts/partials/header.blade.php */}
-      <header className="bg-white/85 dark:bg-[#0A0A0A]/85 backdrop-blur-xl border-b border-black/[0.08] dark:border-white/[0.08] px-3 sm:px-4 md:px-6 h-16 flex items-center sticky top-0 z-40">
+      <header className="bg-white/85 dark:bg-[#0A0A0A]/85 backdrop-blur-xl border-b border-black/[0.08] dark:border-white/[0.08] px-3 sm:px-4 md:px-6 h-16 flex items-center fixed top-0 left-0 right-0 z-50">
         <div className="flex items-center justify-between w-full gap-2">
           {/* Left Side: Mobile Menu Button + Logo */}
           <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
