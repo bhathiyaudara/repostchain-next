@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -14,10 +14,19 @@ import {
   Search,
   Copy,
   Check,
+  TrendingUp,
+  Sparkles,
+  Coins,
+  Radio,
+  ArrowUpRight,
+  Sliders,
+  CheckCircle2,
+  ExternalLink,
 } from 'lucide-react';
 import { SoundCloudPlayer } from '@/components/soundcloud-player';
+import { RepostChainMark, SoundCloudMark } from '@/components/public-layout';
 
-const GENRE_COLORS = ['#ff6b35', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444'];
+const GENRE_COLORS = ['#FF5500', '#10B981', '#8B5CF6', '#F59E0B', '#EC4899', '#3B82F6'];
 
 export default function UserDashboardPage() {
   const queryClient = useQueryClient();
@@ -28,6 +37,7 @@ export default function UserDashboardPage() {
   const [campaignBudget, setCampaignBudget] = useState(50);
   const [campaignError, setCampaignError] = useState<string | null>(null);
   const [copiedReferral, setCopiedReferral] = useState(false);
+  const [activeChartMetric, setActiveChartMetric] = useState<'both' | 'followers' | 'reach'>('both');
 
   const { data, isLoading } = useQuery({
     queryKey: ['user-dashboard'],
@@ -61,9 +71,9 @@ export default function UserDashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           musicUrn: selectedTrackUrn,
-          musicType: 'track',
+          musicType: modalTab === 'playlists' ? 'playlist' : 'track',
           budgetCredits: campaignBudget,
-          title: 'New Track Campaign',
+          title: 'New Campaign',
         }),
       });
       const json = await res.json();
@@ -80,19 +90,6 @@ export default function UserDashboardPage() {
       setCampaignError(err.message);
     },
   });
-
-  if (isLoading) {
-    return (
-      <div className="p-6 space-y-6 animate-pulse">
-        <div className="h-12 bg-gray-200 dark:bg-slate-800 rounded-lg w-1/3" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-32 bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6" />
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   const user = data?.user || { name: 'SoundCloud Artist', urn: 'soundcloud:users:999001' };
   const kpis = data?.kpis || {
@@ -114,350 +111,575 @@ export default function UserDashboardPage() {
     { genre: 'Progressive', count: 5 },
   ];
 
-  // SVG Chart data points for Followers & Repost Reach
+  // SVG Chart points
   const chartLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   const followersPoints = [30, 42, 38, 55, 64, 72, 88];
   const reachPoints = [20, 35, 50, 48, 70, 82, 95];
 
+  const chartPaths = useMemo(() => {
+    const width = 640;
+    const height = 220;
+    const paddingX = 40;
+    const paddingY = 30;
+    const chartW = width - paddingX * 2;
+    const chartH = height - paddingY * 2;
+    const stepX = chartW / (chartLabels.length - 1);
+
+    const getCoords = (pts: number[]) => {
+      return pts.map((val, idx) => ({
+        x: paddingX + idx * stepX,
+        y: height - paddingY - (val / 100) * chartH,
+      }));
+    };
+
+    const makeSmoothPath = (pts: number[]) => {
+      const coords = getCoords(pts);
+      let d = `M ${coords[0].x} ${coords[0].y}`;
+      for (let i = 0; i < coords.length - 1; i++) {
+        const curr = coords[i];
+        const next = coords[i + 1];
+        const cp1x = curr.x + (next.x - curr.x) / 2;
+        const cp1y = curr.y;
+        const cp2x = curr.x + (next.x - curr.x) / 2;
+        const cp2y = next.y;
+        d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${next.x} ${next.y}`;
+      }
+      const area = `${d} L ${coords[coords.length - 1].x} ${height - paddingY} L ${coords[0].x} ${height - paddingY} Z`;
+      return { line: d, area, coords };
+    };
+
+    return {
+      followers: makeSmoothPath(followersPoints),
+      reach: makeSmoothPath(reachPoints),
+      width,
+      height,
+      paddingY,
+    };
+  }, []);
+
+  const totalGenreCount = useMemo(() => {
+    return genreBreakdown.reduce((acc: number, curr: { count: number }) => acc + (curr.count || 1), 0);
+  }, [genreBreakdown]);
+
   const copyReferralLink = () => {
-    navigator.clipboard?.writeText(`https://repostchain.com/?ref=${user.urn.slice(-6).toUpperCase()}`);
+    navigator.clipboard?.writeText(
+      `https://growmusicians.com/?ref=${user.urn ? user.urn.slice(-6).toUpperCase() : 'VIP'}`
+    );
     setCopiedReferral(true);
     setTimeout(() => setCopiedReferral(false), 2000);
   };
 
-  return (
-    <div>
-      {/* Top Row + 4 KPI Cards - Exact match to resources/views/livewire/user/dashboard.blade.php */}
-      <div className="p-2">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800 dark:text-white">Dashboard</h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-              Welcome back! <span className="font-semibold text-orange-500">{user.name}</span>.
-              Here&apos;s an overview of your RepostChain activity.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
-            <Link
-              href="/user/campaign-management/campaigns"
-              className="flex-1 sm:flex-initial font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg inline-flex items-center justify-center bg-orange-100 text-orange-800 hover:bg-orange-200 active:bg-orange-300 px-3 sm:px-4 py-2 text-sm sm:text-base whitespace-nowrap"
-            >
-              💰 Earn Credits
-            </Link>
-
-            <button
-              type="button"
-              onClick={() => setShowCampaignsModal(true)}
-              className="flex-1 sm:flex-initial font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg inline-flex items-center justify-center bg-orange-600 text-white hover:bg-orange-500 active:bg-orange-700 px-3 sm:px-4 py-2 text-sm sm:text-base cursor-pointer whitespace-nowrap"
-            >
-              <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-1 shrink-0" />
-              Start a new campaign
-            </button>
-          </div>
+  if (isLoading) {
+    return (
+      <div className="space-y-6 animate-pulse max-w-7xl mx-auto">
+        <div className="h-14 bg-white/[0.04] rounded-2xl w-1/3" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-36 bg-white/[0.04] rounded-2xl" />
+          ))}
         </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 h-96 bg-white/[0.04] rounded-2xl" />
+          <div className="h-96 bg-white/[0.04] rounded-2xl" />
+        </div>
+      </div>
+    );
+  }
 
-        {/* 4 KPI Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Card 1: Available Credits */}
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 hover:-translate-y-2 transition-all duration-500 ease-in-out">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-gray-500 dark:text-white text-sm font-medium">
-                Available Credits
-              </h3>
-              <div className="p-2 rounded-lg bg-yellow-500/20 text-yellow-500">
-                <Zap className="w-5 h-5" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-2xl font-bold text-slate-700 dark:text-white">
-                {Number(kpis.availableCredits).toFixed(2)}
-              </p>
-              <p
-                className={`text-sm flex items-center space-x-1 ${
-                  kpis.creditsChangePercent >= 0 ? 'text-green-400' : 'text-red-400'
-                }`}
-              >
-                <span>
-                  {kpis.creditsChangePercent >= 0 ? '+' : ''}
-                  {Number(kpis.creditsChangePercent).toFixed(2)}% from last week
-                </span>
-              </p>
-            </div>
-          </div>
+  return (
+    <div className="space-y-8 max-w-7xl mx-auto pb-12">
+      {/* ========================================================= */}
+      {/* 1. EDITORIAL HEADER & WELCOME STRIP */}
+      {/* ========================================================= */}
+      <div className="relative rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] p-[1px] shadow-2xl">
+        <div className="rounded-[23px] bg-[#121212] p-6 sm:p-8 relative overflow-hidden">
+          {/* Subtle Ambient Radial Glow */}
+          <div
+            className="absolute -top-24 -right-24 w-80 h-80 bg-[#FF5500]/15 rounded-full blur-[100px] pointer-events-none"
+            aria-hidden="true"
+          />
 
-          {/* Card 2: Active Campaigns */}
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 hover:-translate-y-2 transition-all duration-500 ease-in-out">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-gray-500 dark:text-white text-sm font-medium">
-                Active Campaigns
-              </h3>
-              <div className="p-2 rounded-lg bg-blue-500/20 text-blue-500">
-                <Music className="w-5 h-5" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-2xl font-bold text-slate-700 dark:text-white">
-                {Number(kpis.activeCampaigns).toFixed(2)}
-              </p>
-              <p
-                className={`text-sm flex items-center space-x-1 ${
-                  kpis.campaignsChangePercent >= 0 ? 'text-green-400' : 'text-red-400'
-                }`}
-              >
-                <span>
-                  {kpis.campaignsChangePercent >= 0 ? '+' : ''}
-                  {Number(kpis.campaignsChangePercent).toFixed(2)}% from last week
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div>
+              {/* Official Rounded Badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 mb-3.5 backdrop-blur-sm">
+                <RepostChainMark className="w-3.5 h-3.5 drop-shadow-[0_0_6px_rgba(255,85,0,0.4)]" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-300">
+                  CREATOR HUB
                 </span>
-              </p>
-            </div>
-          </div>
+                <span className="w-1 h-1 rounded-full bg-white/20" />
+                <span className="text-[10px] font-mono text-[#FF5500] font-bold">LIVE METRICS</span>
+              </div>
 
-          {/* Card 3: Reposts Received */}
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 hover:-translate-y-2 transition-all duration-500 ease-in-out">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-gray-500 dark:text-white text-sm font-medium">
-                Reposts Received
-              </h3>
-              <div className="p-2 rounded-lg bg-green-500/20 text-green-500">
-                <Repeat2 className="w-5 h-5" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-2xl font-bold text-slate-700 dark:text-white">
-                {Number(kpis.repostsReceived).toFixed(2)}
-              </p>
-              <p
-                className={`text-sm flex items-center space-x-1 ${
-                  kpis.repostsChangePercent >= 0 ? 'text-green-400' : 'text-red-400'
-                }`}
-              >
-                <span>
-                  {kpis.repostsChangePercent >= 0 ? '+' : ''}
-                  {Number(kpis.repostsChangePercent).toFixed(2)}% from last week
-                </span>
+              {/* Bold All-Caps Display Headline */}
+              <h1 className="sc-display text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-[0.95]">
+                WELCOME BACK, <span className="text-[#FF5500]">{user.name?.toUpperCase()}</span>
+              </h1>
+              <p className="text-zinc-400 text-sm sm:text-base mt-2 max-w-2xl font-normal leading-relaxed">
+                Monitor your live repost campaigns, track listener velocity, and circulation across
+                5,000+ verified SoundCloud artists.
               </p>
             </div>
-          </div>
 
-          {/* Card 4: Credibility Score */}
-          <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 hover:-translate-y-2 transition-all duration-500 ease-in-out">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-gray-500 dark:text-white text-sm font-medium">
-                Credibility Score
-              </h3>
-              <div className="p-2 rounded-lg bg-purple-500/20 text-purple-500">
-                <Award className="w-5 h-5" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <p className="text-2xl font-bold text-slate-700 dark:text-white">
-                {Number(kpis.credibilityScore).toFixed(2)}%
-              </p>
-              <p
-                className={`text-sm flex items-center space-x-1 ${
-                  kpis.credibilityChangePercent >= 0 ? 'text-green-400' : 'text-red-400'
-                }`}
+            {/* Quick Action Buttons */}
+            <div className="flex flex-wrap items-center gap-3 shrink-0">
+              <Link
+                href="/user/campaign-management/campaigns"
+                className="sc-pill-dark px-5 py-3 text-xs sm:text-sm font-bold border border-white/15 hover:border-white/40 transition-all"
               >
-                <span>
-                  {kpis.credibilityChangePercent >= 0 ? '+' : ''}
-                  {Number(kpis.credibilityChangePercent).toFixed(2)}% from last week
-                </span>
-              </p>
+                <Coins className="w-4 h-4 text-[#FF5500]" />
+                <span>Earn Credits</span>
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => setShowCampaignsModal(true)}
+                className="sc-pill-white px-6 py-3 text-xs sm:text-sm font-bold shadow-xl shadow-white/5 cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Start New Campaign</span>
+              </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main 3-Column Grid - Charts + Recent Tracks + Latest Repost Requests */}
-      <div className="p-2 mt-4">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 dark:text-white">
-          {/* Left Section: Performance Overview Chart */}
-          <div className="lg:col-span-2 min-w-0 overflow-hidden rounded-lg p-4 shadow-sm bg-white dark:bg-slate-800">
-            <div className="flex flex-col sm:flex-row justify-between sm:items-center p-2">
-              <div>
-                <h2 className="dark:text-white text-lg font-semibold">Performance Overview</h2>
-                <p className="text-sm text-slate-400">Track the impact of your campaigns</p>
+      {/* ========================================================= */}
+      {/* 2. 4 EDITORIAL KPI CARDS */}
+      {/* ========================================================= */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* Card 1: Available Credits */}
+        <div className="relative rounded-2xl bg-gradient-to-b from-white/[0.12] to-white/[0.02] p-[1px] shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+          <div className="rounded-[15px] bg-[#121212] p-5 sm:p-6 flex flex-col justify-between h-full relative overflow-hidden">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-400">
+                AVAILABLE CREDITS
+              </span>
+              <div className="w-9 h-9 rounded-xl bg-[#FF5500]/15 border border-[#FF5500]/30 flex items-center justify-center text-[#FF5500]">
+                <Zap className="w-4 h-4" />
               </div>
-              <Link
-                href="/user/analytics"
-                className="text-orange-400 text-sm font-medium mt-4 sm:mt-0 hover:text-orange-300 transition-colors"
-              >
-                View all →
-              </Link>
             </div>
-
-            {/* Interactive SVG Line Chart matching Chart.js Followers (#f5540b) & Repost Reach (#3bdeff) */}
-            <div className="p-4">
-              <div className="flex items-center justify-center gap-6 mb-4 text-xs">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-[#f5540b] inline-block" />
-                  <span className="text-slate-600 dark:text-slate-300">Followers</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-[#3bdeff] inline-block" />
-                  <span className="text-slate-600 dark:text-slate-300">Repost Reach</span>
-                </div>
+            <div>
+              <div className="sc-display text-4xl sm:text-[42px] font-black text-white tracking-tight leading-none mb-2">
+                {Number(kpis.availableCredits).toFixed(0)}
               </div>
-
-              <div className="relative h-72 w-full">
-                <svg viewBox="0 0 700 240" className="w-full h-full overflow-visible">
-                  {/* Horizontal Grid Lines */}
-                  {[0, 60, 120, 180, 220].map((y) => (
-                    <line
-                      key={y}
-                      x1="40"
-                      y1={y}
-                      x2="680"
-                      y2={y}
-                      stroke="currentColor"
-                      className="text-gray-100 dark:text-slate-700/60"
-                      strokeWidth="1"
-                    />
-                  ))}
-
-                  {/* Followers Line (#f5540b) */}
-                  <polyline
-                    fill="none"
-                    stroke="#f5540b"
-                    strokeWidth="3"
-                    points={followersPoints
-                      .map((v, i) => `${60 + i * 100},${220 - v * 2}`)
-                      .join(' ')}
-                  />
-                  {followersPoints.map((v, i) => (
-                    <circle
-                      key={`f-${i}`}
-                      cx={60 + i * 100}
-                      cy={220 - v * 2}
-                      r="4.5"
-                      fill="#f5540b"
-                      stroke="#fff"
-                      strokeWidth="1.5"
-                    />
-                  ))}
-
-                  {/* Repost Reach Line (#3bdeff) */}
-                  <polyline
-                    fill="none"
-                    stroke="#3bdeff"
-                    strokeWidth="3"
-                    points={reachPoints
-                      .map((v, i) => `${60 + i * 100},${220 - v * 2}`)
-                      .join(' ')}
-                  />
-                  {reachPoints.map((v, i) => (
-                    <circle
-                      key={`r-${i}`}
-                      cx={60 + i * 100}
-                      cy={220 - v * 2}
-                      r="4.5"
-                      fill="#3bdeff"
-                      stroke="#fff"
-                      strokeWidth="1.5"
-                    />
-                  ))}
-
-                  {/* X-axis Labels */}
-                  {chartLabels.map((label, i) => (
-                    <text
-                      key={label}
-                      x={60 + i * 100}
-                      y="238"
-                      textAnchor="middle"
-                      className="fill-slate-400 text-[11px]"
-                    >
-                      {label}
-                    </text>
-                  ))}
-                </svg>
+              <div className="flex items-center justify-between text-xs pt-2 border-t border-white/[0.06]">
+                <span className="inline-flex items-center gap-1 text-[#10B981] font-semibold">
+                  <TrendingUp className="w-3 h-3" />
+                  +{Number(kpis.creditsChangePercent).toFixed(1)}% this week
+                </span>
+                <Link
+                  href="/user/billing"
+                  className="text-zinc-400 hover:text-white font-medium text-[11px] transition-colors"
+                >
+                  Add +
+                </Link>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Right Section: Genre Distribution + Referral Widget */}
-          <div className="min-w-0 overflow-hidden rounded-lg p-4 sm:p-6 shadow-sm bg-white dark:bg-slate-800 flex flex-col justify-between">
+        {/* Card 2: Active Campaigns */}
+        <div className="relative rounded-2xl bg-gradient-to-b from-white/[0.12] to-white/[0.02] p-[1px] shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+          <div className="rounded-[15px] bg-[#121212] p-5 sm:p-6 flex flex-col justify-between h-full relative overflow-hidden">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-400">
+                ACTIVE CAMPAIGNS
+              </span>
+              <div className="w-9 h-9 rounded-xl bg-[#3B82F6]/15 border border-[#3B82F6]/30 flex items-center justify-center text-[#3B82F6]">
+                <Music className="w-4 h-4" />
+              </div>
+            </div>
             <div>
-              <h3 className="dark:text-white text-lg font-semibold">Genre Distribution</h3>
-              <p className="text-slate-400 text-sm mb-5">What your audience listens to</p>
+              <div className="sc-display text-4xl sm:text-[42px] font-black text-white tracking-tight leading-none mb-2">
+                {Number(kpis.activeCampaigns).toFixed(0)}
+              </div>
+              <div className="flex items-center justify-between text-xs pt-2 border-t border-white/[0.06]">
+                <span className="inline-flex items-center gap-1.5 text-zinc-400 font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
+                  Live in artist loop
+                </span>
+                <Link
+                  href="/user/campaign-management/my-campaigns"
+                  className="text-[#FF5500] hover:text-white font-medium text-[11px] transition-colors"
+                >
+                  Manage →
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
 
-              {/* Genre Donut Visualization */}
-              <div className="flex justify-center my-4">
-                <div className="relative w-44 h-44 rounded-full flex items-center justify-center"
+        {/* Card 3: Reposts Received */}
+        <div className="relative rounded-2xl bg-gradient-to-b from-white/[0.12] to-white/[0.02] p-[1px] shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+          <div className="rounded-[15px] bg-[#121212] p-5 sm:p-6 flex flex-col justify-between h-full relative overflow-hidden">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-400">
+                REPOSTS RECEIVED
+              </span>
+              <div className="w-9 h-9 rounded-xl bg-[#10B981]/15 border border-[#10B981]/30 flex items-center justify-center text-[#10B981]">
+                <Repeat2 className="w-4 h-4" />
+              </div>
+            </div>
+            <div>
+              <div className="sc-display text-4xl sm:text-[42px] font-black text-white tracking-tight leading-none mb-2">
+                {Number(kpis.repostsReceived).toFixed(0)}
+              </div>
+              <div className="flex items-center justify-between text-xs pt-2 border-t border-white/[0.06]">
+                <span className="inline-flex items-center gap-1 text-[#10B981] font-semibold">
+                  <TrendingUp className="w-3 h-3" />
+                  +{Number(kpis.repostsChangePercent).toFixed(1)}% organic reach
+                </span>
+                <Link
+                  href="/user/analytics"
+                  className="text-zinc-400 hover:text-white font-medium text-[11px] transition-colors"
+                >
+                  Stats →
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 4: Credibility Score */}
+        <div className="relative rounded-2xl bg-gradient-to-b from-white/[0.12] to-white/[0.02] p-[1px] shadow-xl hover:-translate-y-1 transition-all duration-300 group">
+          <div className="rounded-[15px] bg-[#121212] p-5 sm:p-6 flex flex-col justify-between h-full relative overflow-hidden">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-zinc-400">
+                CREDIBILITY SCORE
+              </span>
+              <div className="w-9 h-9 rounded-xl bg-[#8B5CF6]/15 border border-[#8B5CF6]/30 flex items-center justify-center text-[#8B5CF6]">
+                <Award className="w-4 h-4" />
+              </div>
+            </div>
+            <div>
+              <div className="sc-display text-4xl sm:text-[42px] font-black text-white tracking-tight leading-none mb-2">
+                {Number(kpis.credibilityScore).toFixed(1)}%
+              </div>
+              <div className="flex items-center justify-between text-xs pt-2 border-t border-white/[0.06]">
+                <span className="inline-flex items-center gap-1 text-[#8B5CF6] font-semibold">
+                  ★ Verified Artist Status
+                </span>
+                <span className="text-zinc-500 text-[11px]">Top 5%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================= */}
+      {/* 3. PERFORMANCE OVERVIEW CHART + GENRE DISTRIBUTION */}
+      {/* ========================================================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Section: 2026 SoundCloud Editorial Line Chart (2 Cols) */}
+        <div className="lg:col-span-2 relative rounded-2xl bg-gradient-to-b from-white/[0.12] to-white/[0.02] p-[1px] shadow-xl">
+          <div className="rounded-[15px] bg-[#121212] p-6 sm:p-7 flex flex-col justify-between h-full">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#FF5500]">
+                  ANALYTICS VELOCITY
+                </span>
+                <h2 className="sc-display text-2xl font-black text-white tracking-tight mt-0.5">
+                  AUDIENCE REACH &amp; FOLLOWER GROWTH
+                </h2>
+                <p className="text-zinc-400 text-xs mt-1">
+                  Track real listener impressions and follower conversion from RepostChain campaigns
+                </p>
+              </div>
+
+              {/* Chart Metric Toggle */}
+              <div className="flex items-center gap-2 p-1 rounded-full bg-white/[0.04] border border-white/10 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setActiveChartMetric('both')}
+                  className={`px-3 py-1 rounded-full font-bold transition-all cursor-pointer ${
+                    activeChartMetric === 'both'
+                      ? 'bg-white text-black'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  All
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveChartMetric('followers')}
+                  className={`px-3 py-1 rounded-full font-bold transition-all cursor-pointer ${
+                    activeChartMetric === 'followers'
+                      ? 'bg-[#FF5500] text-white'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  Followers
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveChartMetric('reach')}
+                  className={`px-3 py-1 rounded-full font-bold transition-all cursor-pointer ${
+                    activeChartMetric === 'reach'
+                      ? 'bg-[#3B82F6] text-white'
+                      : 'text-zinc-400 hover:text-white'
+                  }`}
+                >
+                  Reach
+                </button>
+              </div>
+            </div>
+
+            {/* Glowing SVG Analytics Chart */}
+            <div className="relative w-full overflow-hidden">
+              <svg viewBox={`0 0 ${chartPaths.width} ${chartPaths.height}`} className="w-full h-64 overflow-visible">
+                <defs>
+                  {/* Followers Orange Glow Gradient */}
+                  <linearGradient id="followerGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#FF5500" stopOpacity="0.35" />
+                    <stop offset="100%" stopColor="#FF5500" stopOpacity="0.0" />
+                  </linearGradient>
+
+                  {/* Reach Blue Glow Gradient */}
+                  <linearGradient id="reachGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.0" />
+                  </linearGradient>
+                </defs>
+
+                {/* Horizontal Grid lines */}
+                {[0, 25, 50, 75, 100].map((val) => {
+                  const y = chartPaths.height - chartPaths.paddingY - (val / 100) * (chartPaths.height - chartPaths.paddingY * 2);
+                  return (
+                    <g key={val}>
+                      <line
+                        x1="30"
+                        y1={y}
+                        x2={chartPaths.width - 30}
+                        y2={y}
+                        stroke="rgba(255, 255, 255, 0.05)"
+                        strokeDasharray="4 4"
+                      />
+                      <text
+                        x="20"
+                        y={y + 3}
+                        textAnchor="end"
+                        className="fill-zinc-600 text-[10px] font-mono"
+                      >
+                        {val}
+                      </text>
+                    </g>
+                  );
+                })}
+
+                {/* Repost Reach Path */}
+                {(activeChartMetric === 'both' || activeChartMetric === 'reach') && (
+                  <>
+                    <path d={chartPaths.reach.area} fill="url(#reachGradient)" />
+                    <path
+                      d={chartPaths.reach.line}
+                      fill="none"
+                      stroke="#3B82F6"
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                    />
+                    {chartPaths.reach.coords.map((c, i) => (
+                      <circle
+                        key={`r-${i}`}
+                        cx={c.x}
+                        cy={c.y}
+                        r="4"
+                        fill="#3B82F6"
+                        stroke="#121212"
+                        strokeWidth="2"
+                        className="hover:scale-150 transition-transform cursor-pointer"
+                      />
+                    ))}
+                  </>
+                )}
+
+                {/* Followers Path */}
+                {(activeChartMetric === 'both' || activeChartMetric === 'followers') && (
+                  <>
+                    <path d={chartPaths.followers.area} fill="url(#followerGradient)" />
+                    <path
+                      d={chartPaths.followers.line}
+                      fill="none"
+                      stroke="#FF5500"
+                      strokeWidth="3.5"
+                      strokeLinecap="round"
+                    />
+                    {chartPaths.followers.coords.map((c, i) => (
+                      <circle
+                        key={`f-${i}`}
+                        cx={c.x}
+                        cy={c.y}
+                        r="4.5"
+                        fill="#FF5500"
+                        stroke="#121212"
+                        strokeWidth="2"
+                        className="hover:scale-150 transition-transform cursor-pointer"
+                      />
+                    ))}
+                  </>
+                )}
+
+                {/* X-axis Day Labels */}
+                {chartLabels.map((lbl, i) => {
+                  const x = 40 + i * ((chartPaths.width - 80) / (chartLabels.length - 1));
+                  return (
+                    <text
+                      key={lbl}
+                      x={x}
+                      y={chartPaths.height - 8}
+                      textAnchor="middle"
+                      className="fill-zinc-500 font-mono text-[11px] uppercase tracking-wider"
+                    >
+                      {lbl}
+                    </text>
+                  );
+                })}
+              </svg>
+            </div>
+
+            {/* Bottom Legend & Direct Link */}
+            <div className="flex flex-wrap items-center justify-between gap-4 pt-4 mt-2 border-t border-white/[0.08] text-xs">
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#FF5500]" />
+                  <span className="text-zinc-300 font-medium">Follower Velocity (+88)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#3B82F6]" />
+                  <span className="text-zinc-300 font-medium">Repost Impressions (+95k)</span>
+                </div>
+              </div>
+              <Link
+                href="/user/analytics"
+                className="inline-flex items-center gap-1.5 text-zinc-400 hover:text-white font-bold transition-colors"
+              >
+                <span>Full Demographic Reports</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Section: Genre Distribution + Creator Referral Hub (1 Col) */}
+        <div className="space-y-6">
+          {/* Genre Distribution Donut */}
+          <div className="relative rounded-2xl bg-gradient-to-b from-white/[0.12] to-white/[0.02] p-[1px] shadow-xl">
+            <div className="rounded-[15px] bg-[#121212] p-6">
+              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#FF5500]">
+                DEMOGRAPHICS
+              </span>
+              <h3 className="sc-display text-xl font-black text-white tracking-tight mt-0.5">
+                GENRE AUDIENCE
+              </h3>
+              <p className="text-zinc-400 text-xs mt-1 mb-5">
+                Audience distribution across your music catalogue
+              </p>
+
+              {/* Styled Donut Graphic */}
+              <div className="flex items-center justify-center my-4">
+                <div
+                  className="relative w-40 h-40 rounded-full flex items-center justify-center p-3 shadow-lg"
                   style={{
                     background:
-                      'conic-gradient(#ff6b35 0deg 140deg, #10b981 140deg 230deg, #8b5cf6 230deg 300deg, #f59e0b 300deg 360deg)',
+                      'conic-gradient(#FF5500 0deg 140deg, #10B981 140deg 230deg, #8B5CF6 230deg 300deg, #F59E0B 300deg 360deg)',
                   }}
                 >
-                  <div className="w-28 h-28 rounded-full bg-white dark:bg-slate-800 flex flex-col items-center justify-center">
-                    <span className="text-xs text-slate-400">Top Genre</span>
-                    <span className="text-sm font-bold text-slate-800 dark:text-white">
+                  <div className="w-28 h-28 rounded-full bg-[#121212] border border-white/10 flex flex-col items-center justify-center text-center p-2">
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-zinc-400">
+                      TOP GENRE
+                    </span>
+                    <span className="text-sm font-black text-white leading-tight mt-0.5">
                       {genreBreakdown[0]?.genre || 'Electronic'}
+                    </span>
+                    <span className="text-[10px] font-mono text-[#FF5500] mt-0.5">
+                      {Math.round(((genreBreakdown[0]?.count || 14) / totalGenreCount) * 100)}%
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-wrap justify-center gap-3 text-xs mt-4">
+              {/* Genre Color Breakdown List */}
+              <div className="grid grid-cols-2 gap-2.5 mt-5 pt-4 border-t border-white/[0.08]">
                 {genreBreakdown.map((g: { genre: string; count: number }, idx: number) => {
                   const color = GENRE_COLORS[idx % GENRE_COLORS.length];
+                  const percent = Math.round(((g.count || 1) / totalGenreCount) * 100);
                   return (
-                    <div key={g.genre} className="flex items-center gap-1.5">
-                      <span
-                        className="w-2.5 h-2.5 rounded-full inline-block"
-                        style={{ backgroundColor: color }}
-                      />
-                      <span className="text-sm font-medium" style={{ color }}>
-                        {g.genre}
-                      </span>
+                    <div key={g.genre} className="flex items-center gap-2 p-1.5 rounded-lg bg-white/[0.02]">
+                      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                      <div className="truncate">
+                        <p className="text-xs font-bold text-white truncate">{g.genre}</p>
+                        <p className="text-[10px] font-mono text-zinc-400">{percent}% of reach</p>
+                      </div>
                     </div>
                   );
                 })}
               </div>
             </div>
+          </div>
 
-            {/* Inline Referral Widget matching @livewire('user.referral-widget', ['mode' => 'inline']) */}
-            <div className="mt-6 pt-4 border-t border-gray-100 dark:border-slate-700">
-              <div className="bg-orange-50/70 dark:bg-slate-700/50 rounded-xl p-4 border border-orange-200/60 dark:border-slate-600">
-                <h4 className="text-sm font-semibold text-slate-800 dark:text-white mb-1">
-                  Invite Artists &amp; Earn Free Credits
-                </h4>
-                <p className="text-xs text-slate-500 dark:text-slate-300 mb-3">
-                  Share your referral link and earn bonus credits for every artist who joins.
-                </p>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    readOnly
-                    value={`https://repostchain.com/?ref=${user.urn.slice(-6).toUpperCase()}`}
-                    className="flex-1 text-xs bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-lg px-3 py-2 text-slate-700 dark:text-slate-200"
-                  />
-                  <button
-                    type="button"
-                    onClick={copyReferralLink}
-                    className="px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs font-medium flex items-center gap-1 cursor-pointer shrink-0"
-                  >
-                    {copiedReferral ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                    {copiedReferral ? 'Copied' : 'Copy'}
-                  </button>
-                </div>
+          {/* Artist Referral Multiplier Card */}
+          <div className="relative rounded-2xl bg-gradient-to-b from-[#FF5500]/30 to-white/[0.02] p-[1px] shadow-xl">
+            <div className="rounded-[15px] bg-[#121212] p-5 sm:p-6">
+              <div className="flex items-center justify-between mb-2">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FF5500]/15 text-[#FF5500] text-[10px] font-black uppercase tracking-wider">
+                  <Sparkles className="w-3 h-3" />
+                  +10 FREE CREDITS
+                </span>
+                <span className="text-xs font-mono text-zinc-400">Referral Code</span>
+              </div>
+              <h4 className="sc-display text-lg font-black text-white tracking-tight mt-1">
+                INVITE ARTISTS, MULTIPLY REACH
+              </h4>
+              <p className="text-zinc-400 text-xs mt-1 mb-4 leading-relaxed">
+                Earn 10 bonus campaign credits for every SoundCloud creator who joins via your link.
+              </p>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={`https://growmusicians.com/?ref=${user.urn ? user.urn.slice(-6).toUpperCase() : 'VIP'}`}
+                  className="flex-1 text-xs bg-white/[0.04] border border-white/10 rounded-xl px-3.5 py-2.5 text-zinc-200 font-mono select-all focus:outline-none focus:border-[#FF5500]"
+                />
+                <button
+                  type="button"
+                  onClick={copyReferralLink}
+                  className="sc-pill-orange px-4 py-2.5 text-xs font-bold cursor-pointer shrink-0"
+                >
+                  {copiedReferral ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{copiedReferral ? 'Copied' : 'Copy'}</span>
+                </button>
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
-          {/* Bottom Left Section: Recent Tracks */}
-          <div className="lg:col-span-2 min-w-0 overflow-hidden rounded-lg p-4 shadow-sm bg-white dark:bg-slate-800">
-            <div className="flex items-center justify-between p-4">
+      {/* ========================================================= */}
+      {/* 4. RECENT TRACKS & REPOST REQUESTS QUEUE */}
+      {/* ========================================================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Recent Track Campaigns (2 Cols) */}
+        <div className="lg:col-span-2 relative rounded-2xl bg-gradient-to-b from-white/[0.12] to-white/[0.02] p-[1px] shadow-xl">
+          <div className="rounded-[15px] bg-[#121212] p-6 sm:p-7">
+            <div className="flex items-center justify-between gap-4 mb-6">
               <div>
-                <h3 className="text-lg font-semibold">Recent Tracks</h3>
-                <p className="text-slate-400 text-sm">Your latest submissions</p>
+                <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#FF5500]">
+                  SOUNDCLOUD DISCOVERY
+                </span>
+                <h3 className="sc-display text-2xl font-black text-white tracking-tight mt-0.5">
+                  RECENT TRACK CAMPAIGNS
+                </h3>
+                <p className="text-zinc-400 text-xs mt-1">
+                  Tracks circulating in the active RepostChain exchange queue
+                </p>
               </div>
               {recentTracks.length > 0 && (
                 <Link
-                  className="text-orange-500 hover:text-orange-400 text-sm font-medium"
                   href="/user/my-account"
+                  className="text-[#FF5500] hover:text-white text-xs font-bold uppercase tracking-wider transition-colors shrink-0"
                 >
-                  View all →
+                  View All Catalogue →
                 </Link>
               )}
             </div>
@@ -472,296 +694,368 @@ export default function UserDashboardPage() {
                   artwork_url?: string | null;
                   genre?: string | null;
                   author_username?: string | null;
+                  playback_count?: number;
                 }) => (
-                  <SoundCloudPlayer key={track.id || track.urn} track={track} visual={false} />
+                  <div
+                    key={track.id || track.urn}
+                    className="rounded-xl bg-white/[0.02] border border-white/[0.06] p-3 sm:p-4 hover:border-white/20 transition-all group"
+                  >
+                    <SoundCloudPlayer track={track} visual={false} />
+                  </div>
                 ))
               ) : (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                    <Plus className="w-8 h-8 text-slate-400" />
+                <div className="text-center py-12 px-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                  <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-zinc-400">
+                    <Music className="w-7 h-7 text-[#FF5500]" />
                   </div>
-                  <h4 className="font-medium mb-2">No upcoming campaigns scheduled</h4>
-                  <p className="text-slate-400 text-sm mb-4">
-                    Submit a track to start a new campaign
+                  <h4 className="sc-display text-xl font-bold text-white mb-1">
+                    NO CAMPAIGNS CURRENTLY RUNNING
+                  </h4>
+                  <p className="text-zinc-400 text-xs max-w-sm mx-auto mb-5">
+                    Launch your first repost campaign to get your tracks shared across real listener
+                    follower streams.
                   </p>
                   <button
                     type="button"
                     onClick={() => setShowCampaignsModal(true)}
-                    className="font-medium transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 rounded-lg inline-flex items-center justify-center bg-orange-600 text-white hover:bg-orange-500 px-4 py-2 text-base cursor-pointer"
+                    className="sc-pill-white px-6 py-2.5 text-xs font-bold cursor-pointer"
                   >
-                    <Plus className="inline-block h-4 w-4 text-white mr-1" />
-                    Create Campaign
+                    <Plus className="w-4 h-4" />
+                    <span>Create Campaign Now</span>
                   </button>
                 </div>
               )}
             </div>
           </div>
+        </div>
 
-          {/* Bottom Right Section: Latest Repost Requests */}
-          <div className="min-w-0 overflow-hidden rounded-lg shadow-sm p-4 bg-white dark:bg-slate-800">
-            <div className="flex items-center justify-between p-2">
-              <div>
-                <h3 className="text-lg font-semibold">Latest Repost Requests</h3>
+        {/* Latest Direct Repost Requests (1 Col) */}
+        <div className="relative rounded-2xl bg-gradient-to-b from-white/[0.12] to-white/[0.02] p-[1px] shadow-xl">
+          <div className="rounded-[15px] bg-[#121212] p-6 sm:p-7 flex flex-col justify-between h-full">
+            <div>
+              <div className="flex items-center justify-between gap-2 mb-4">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#FF5500]">
+                    COLLABORATION QUEUE
+                  </span>
+                  <h3 className="sc-display text-xl font-black text-white tracking-tight mt-0.5">
+                    REPOST REQUESTS
+                  </h3>
+                </div>
+                {pendingRequests.length > 0 && (
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#FF5500] text-white text-[11px] font-bold">
+                    {pendingRequests.length}
+                  </span>
+                )}
               </div>
-              {pendingRequests.length > 0 && (
-                <Link
-                  className="text-orange-500 hover:text-orange-400 text-sm font-medium"
-                  href="/user/reposts-request"
-                >
-                  View all →
-                </Link>
-              )}
-            </div>
+              <p className="text-zinc-400 text-xs mb-5">
+                Artists requesting reposts on your SoundCloud profile
+              </p>
 
-            {pendingRequests.length > 0 ? (
-              <div className="space-y-4 mt-2">
-                {pendingRequests.map(
-                  (
-                    req: {
-                      id: string;
-                      credits_spent: number;
-                      requester?: { name?: string; avatar?: string };
-                      music?: { title?: string; genre?: string };
-                    },
-                    index: number
-                  ) => (
-                    <div
-                      key={req.id}
-                      className="shadow-sm border border-gray-100 dark:border-slate-700 rounded-lg p-4"
-                    >
-                      <div className="flex justify-between text-sm mb-3">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-orange-500 font-bold">#{index + 1}</span>
-                          <span className="text-sm max-w-[200px] truncate">
-                            {req.music?.title || 'Untitled Track'}
+              {pendingRequests.length > 0 ? (
+                <div className="space-y-3.5">
+                  {pendingRequests.map(
+                    (
+                      req: {
+                        id: string;
+                        credits_spent: number;
+                        requester?: { name?: string; avatar?: string };
+                        music?: { title?: string; genre?: string; artwork_url?: string };
+                      },
+                      idx: number
+                    ) => (
+                      <div
+                        key={req.id}
+                        className="rounded-xl bg-white/[0.03] border border-white/[0.08] p-4 hover:border-white/20 transition-all"
+                      >
+                        <div className="flex items-center justify-between text-xs mb-2.5 pb-2 border-b border-white/[0.06]">
+                          <span className="text-zinc-500 font-mono">#{idx + 1} DIRECT REQUEST</span>
+                          <span className="text-[#FF5500] font-black text-xs">
+                            +{req.credits_spent ?? 1} CREDITS
                           </span>
                         </div>
-                        <span className="text-slate-400">{req.music?.genre || 'Electronic'}</span>
-                      </div>
-                      <div className="flex items-start space-x-3 mb-3">
-                        <img
-                          src={req.requester?.avatar || '/default_img/no_img.jpg'}
-                          className="w-8 h-8 rounded-full object-cover"
-                          alt={req.requester?.name || 'Requester'}
-                          onError={(e) => {
-                            (e.currentTarget as HTMLImageElement).src = '/default_img/no_img.jpg';
-                          }}
-                        />
-                        <div className="flex-1">
-                          <h4 className="text-sm font-medium">
-                            {req.requester?.name || 'Artist'}
-                          </h4>
+
+                        <div className="flex items-center gap-3 mb-3">
+                          <img
+                            src={req.requester?.avatar || '/default_img/no_img.jpg'}
+                            alt={req.requester?.name || 'Artist'}
+                            className="w-10 h-10 rounded-full object-cover border border-[#FF5500]"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).src = '/default_img/no_img.jpg';
+                            }}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <h4 className="text-sm font-bold text-white truncate">
+                              {req.music?.title || 'Untitled Track'}
+                            </h4>
+                            <p className="text-xs text-zinc-400 truncate">
+                              By {req.requester?.name || 'SoundCloud Artist'}
+                            </p>
+                          </div>
                         </div>
-                        <span className="text-orange-500 font-semibold text-sm">
-                          +{req.credits_spent ?? 0} credits
-                        </span>
-                      </div>
-                      <div className="flex space-x-2">
-                        <div className="flex-1">
+
+                        {/* Dual Accept / Decline Action Buttons */}
+                        <div className="grid grid-cols-2 gap-2 mt-3 pt-2">
                           <button
                             type="button"
                             onClick={() =>
                               requestActionMutation.mutate({ id: req.id, action: 'decline' })
                             }
-                            className="w-full font-medium transition-colors duration-200 rounded-lg inline-flex items-center justify-center bg-orange-100 text-orange-800 hover:bg-orange-200 px-4 py-2 text-sm cursor-pointer"
+                            disabled={requestActionMutation.isPending}
+                            className="w-full py-2 rounded-full border border-white/10 hover:border-white/30 text-zinc-400 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
                           >
                             Decline
                           </button>
-                        </div>
-                        <div className="flex-1">
                           <button
                             type="button"
                             onClick={() =>
                               requestActionMutation.mutate({ id: req.id, action: 'confirm' })
                             }
-                            className="w-full font-medium transition-colors duration-200 rounded-lg inline-flex items-center justify-center bg-orange-600 text-white hover:bg-orange-500 px-4 py-2 text-sm cursor-pointer"
+                            disabled={requestActionMutation.isPending}
+                            className="sc-pill-white w-full py-2 text-xs font-bold cursor-pointer"
                           >
-                            Repost
+                            <Repeat2 className="w-3.5 h-3.5" />
+                            <span>Repost</span>
                           </button>
                         </div>
                       </div>
-                    </div>
-                  )
-                )}
-              </div>
-            ) : (
-              <div className="text-center text-gray-500 dark:text-gray-400 py-8">
-                <p>No repost requests available yet.</p>
+                    )
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-12 px-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                  <CheckCircle2 className="w-8 h-8 text-zinc-500 mx-auto mb-2" />
+                  <p className="text-zinc-300 font-semibold text-sm">All caught up!</p>
+                  <p className="text-zinc-500 text-xs mt-1">
+                    No pending direct repost requests right now.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {pendingRequests.length > 0 && (
+              <div className="pt-4 mt-4 border-t border-white/[0.08]">
+                <Link
+                  href="/user/reposts-request"
+                  className="w-full block text-center py-2.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] text-xs font-bold text-zinc-300 transition-colors"
+                >
+                  View All Requests Queue →
+                </Link>
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Choose a track or playlist Modal - Exact match to dashboard.blade.php lines 516-660 */}
+      {/* ========================================================= */}
+      {/* 5. 2026 SOUNDCLOUD CAMPAIGN LAUNCH MODAL */}
+      {/* ========================================================= */}
       {showCampaignsModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="w-full max-w-3xl mx-auto rounded-2xl shadow-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 flex flex-col max-h-[85vh] overflow-hidden">
-            <div className="flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20">
+        <div className="fixed inset-0 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4 z-50">
+          <div className="relative w-full max-w-2xl rounded-3xl bg-[#121212] border border-white/15 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-white/10 bg-white/[0.02]">
               <div className="flex items-center gap-3">
-                <div>
-                  <img
-                    src="/assets/favicons/fav icon 1.svg"
-                    alt="RepostChain"
-                    className="w-10 dark:hidden"
-                  />
-                  <img
-                    src="/assets/favicons/fav icon 2 (1).svg"
-                    alt="RepostChain"
-                    className="w-10 hidden dark:block"
-                  />
+                <div className="w-10 h-10 rounded-xl bg-[#FF5500]/15 border border-[#FF5500]/30 flex items-center justify-center">
+                  <RepostChainMark className="w-5 h-5 drop-shadow-[0_0_6px_rgba(255,85,0,0.5)]" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                  Choose a track or playlist
-                </h2>
+                <div>
+                  <h2 className="sc-display text-2xl font-black text-white tracking-tight">
+                    LAUNCH CAMPAIGN
+                  </h2>
+                  <p className="text-xs text-zinc-400">Promote your track across the artist chain</p>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowCampaignsModal(false)}
-                className="cursor-pointer w-10 h-10 rounded-xl bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-all duration-200 flex items-center justify-center border border-gray-200 dark:border-gray-600"
+                className="w-9 h-9 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-zinc-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                aria-label="Close modal"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Modal Tabs */}
-            <div className="flex border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+            {/* Modal Type Pills */}
+            <div className="flex gap-2 p-4 border-b border-white/[0.08] bg-white/[0.01]">
               <button
                 type="button"
                 onClick={() => setModalTab('tracks')}
-                className={`cursor-pointer flex-1 py-4 px-6 text-center font-semibold text-base transition-all duration-300 ease-in-out border-b-2 hover:bg-white dark:hover:bg-gray-700 ${
+                className={`flex-1 py-2.5 px-4 rounded-full text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                   modalTab === 'tracks'
-                    ? 'border-orange-500 text-orange-600 bg-white dark:bg-gray-700'
-                    : 'border-transparent text-gray-600 dark:text-gray-400'
+                    ? 'bg-white text-black'
+                    : 'bg-white/[0.04] text-zinc-400 hover:text-white'
                 }`}
               >
-                <div className="flex items-center justify-center gap-2">
-                  <Music className="w-4 h-4" />
-                  Tracks
-                </div>
+                <Music className="w-4 h-4" />
+                <span>Single Track</span>
               </button>
               <button
                 type="button"
                 onClick={() => setModalTab('playlists')}
-                className={`cursor-pointer flex-1 py-4 px-6 text-center font-semibold text-base transition-all duration-300 ease-in-out border-b-2 hover:bg-white dark:hover:bg-gray-700 ${
+                className={`flex-1 py-2.5 px-4 rounded-full text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer ${
                   modalTab === 'playlists'
-                    ? 'border-orange-500 text-orange-600 bg-white dark:bg-gray-700'
-                    : 'border-transparent text-gray-600 dark:text-gray-400'
+                    ? 'bg-white text-black'
+                    : 'bg-white/[0.04] text-zinc-400 hover:text-white'
                 }`}
               >
-                <div className="flex items-center justify-center gap-2">
-                  <ListMusic className="w-4 h-4" />
-                  Playlists
-                </div>
+                <ListMusic className="w-4 h-4" />
+                <span>Playlist / Album</span>
               </button>
             </div>
 
-            <div className="flex-grow overflow-y-auto p-5 space-y-4">
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto space-y-6 flex-1">
+              {/* URL Input */}
               <div>
-                <label className="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                  {modalTab === 'tracks'
-                    ? 'Paste a SoundCloud track link'
-                    : 'Paste a SoundCloud playlist link'}
+                <label className="block text-xs font-bold uppercase tracking-wider text-zinc-300 mb-2">
+                  Paste SoundCloud {modalTab === 'tracks' ? 'Track' : 'Playlist'} Link:
                 </label>
-                <div className="flex w-full mt-2">
-                  <input
-                    type="text"
-                    value={trackSearchQuery}
-                    onChange={(e) => setTrackSearchQuery(e.target.value)}
-                    placeholder={
-                      modalTab === 'tracks'
-                        ? 'Paste a SoundCloud track link'
-                        : 'Paste a SoundCloud playlist link'
-                    }
-                    className="flex-grow p-3 text-gray-700 dark:text-gray-200 bg-white dark:bg-slate-700 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-orange-500 border-2 border-gray-300 dark:border-gray-600"
-                  />
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      value={trackSearchQuery}
+                      onChange={(e) => setTrackSearchQuery(e.target.value)}
+                      placeholder={`https://soundcloud.com/artist/${modalTab === 'tracks' ? 'track-name' : 'sets/playlist'}`}
+                      className="w-full bg-white/[0.04] border border-white/10 focus:border-[#FF5500] rounded-xl px-4 py-3 text-sm text-white placeholder-zinc-500 focus:outline-none transition-colors"
+                    />
+                  </div>
                   <button
                     type="button"
-                    className="bg-orange-500 text-white p-3 w-14 flex items-center justify-center hover:bg-orange-600 transition-colors"
+                    className="sc-pill-orange px-5 py-3 text-xs font-bold shrink-0 cursor-pointer"
                   >
-                    <Search className="h-6 w-6" />
+                    <Search className="w-4 h-4" />
+                    <span>Search</span>
                   </button>
                 </div>
               </div>
 
               {campaignError && (
-                <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-500 text-sm">
+                <div className="p-3.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 text-xs font-semibold">
                   {campaignError}
                 </div>
               )}
 
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Select a track to promote:
-                </p>
-                {recentTracks.map(
-                  (t: {
-                    id: string;
-                    urn: string;
-                    title: string;
-                    genre?: string;
-                    artwork_url?: string;
-                  }) => (
-                    <div
-                      key={t.urn}
-                      onClick={() => setSelectedTrackUrn(t.urn)}
-                      className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all ${
-                        selectedTrackUrn === t.urn
-                          ? 'border-orange-500 bg-orange-50/60 dark:bg-orange-950/30'
-                          : 'border-gray-200 dark:border-slate-700 hover:border-orange-400'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={t.artwork_url || '/default_img/no_img.jpg'}
-                          alt={t.title}
-                          className="w-12 h-12 rounded-lg object-cover"
-                          onError={(e) => {
-                            (e.currentTarget as HTMLImageElement).src = '/default_img/no_img.jpg';
-                          }}
-                        />
-                        <div>
-                          <h4 className="font-semibold text-gray-900 dark:text-white text-sm">
-                            {t.title}
-                          </h4>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {t.genre || 'Electronic'}
-                          </p>
-                        </div>
-                      </div>
-                      <span className="text-xs font-semibold text-orange-500">
-                        {selectedTrackUrn === t.urn ? 'Selected ✓' : 'Select'}
-                      </span>
-                    </div>
-                  )
-                )}
+              {/* Select Existing Track */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2.5">
+                  Or choose from your synced SoundCloud catalogue:
+                </label>
+                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                  {recentTracks.length > 0 ? (
+                    recentTracks.map(
+                      (t: {
+                        id: string;
+                        urn: string;
+                        title: string;
+                        genre?: string;
+                        artwork_url?: string;
+                      }) => {
+                        const isSelected = selectedTrackUrn === t.urn;
+                        return (
+                          <div
+                            key={t.urn}
+                            onClick={() => setSelectedTrackUrn(t.urn)}
+                            className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
+                              isSelected
+                                ? 'bg-[#FF5500]/15 border-[#FF5500] text-white shadow-lg shadow-[#FF5500]/10'
+                                : 'bg-white/[0.02] border-white/[0.08] hover:border-white/20 text-zinc-300'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <img
+                                src={t.artwork_url || '/default_img/no_img.jpg'}
+                                alt={t.title}
+                                className="w-11 h-11 rounded-lg object-cover border border-white/10"
+                                onError={(e) => {
+                                  (e.currentTarget as HTMLImageElement).src = '/default_img/no_img.jpg';
+                                }}
+                              />
+                              <div className="min-w-0">
+                                <h4 className="font-bold text-sm text-white truncate">{t.title}</h4>
+                                <span className="text-[11px] text-zinc-400">{t.genre || 'Electronic'}</span>
+                              </div>
+                            </div>
+                            <span
+                              className={`text-xs font-bold px-3 py-1 rounded-full ${
+                                isSelected ? 'bg-[#FF5500] text-white' : 'bg-white/[0.06] text-zinc-400'
+                              }`}
+                            >
+                              {isSelected ? 'Selected ✓' : 'Select'}
+                            </span>
+                          </div>
+                        );
+                      }
+                    )
+                  ) : (
+                    <p className="text-zinc-500 text-xs italic py-4 text-center">
+                      No tracks found. Paste a SoundCloud track URL above.
+                    </p>
+                  )}
+                </div>
               </div>
 
+              {/* Budget Allocation */}
               {selectedTrackUrn && (
-                <div className="p-4 rounded-xl bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-slate-600 space-y-3">
+                <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-4">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                      Campaign Budget (Credits):
-                    </label>
-                    <input
-                      type="number"
-                      min={10}
-                      max={1000}
-                      step={10}
-                      value={campaignBudget}
-                      onChange={(e) => setCampaignBudget(Number(e.target.value))}
-                      className="w-28 px-3 py-1.5 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-right font-bold text-orange-500"
-                    />
+                    <div>
+                      <h4 className="text-sm font-bold text-white">Campaign Credit Budget</h4>
+                      <p className="text-xs text-zinc-400">
+                        Credits allocated to other artists for reposting this track
+                      </p>
+                    </div>
+                    <div className="sc-display text-2xl font-black text-[#FF5500]">
+                      {campaignBudget} <span className="text-xs font-sans text-zinc-400">CREDITS</span>
+                    </div>
                   </div>
+
+                  <div className="flex items-center gap-2">
+                    {[25, 50, 100, 250].map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => setCampaignBudget(preset)}
+                        className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                          campaignBudget === preset
+                            ? 'bg-[#FF5500] text-white'
+                            : 'bg-white/[0.06] text-zinc-400 hover:text-white'
+                        }`}
+                      >
+                        {preset} Credits
+                      </button>
+                    ))}
+                  </div>
+
+                  <input
+                    type="range"
+                    min="10"
+                    max="500"
+                    step="10"
+                    value={campaignBudget}
+                    onChange={(e) => setCampaignBudget(Number(e.target.value))}
+                    className="w-full accent-[#FF5500] cursor-pointer"
+                  />
+
+                  <p className="text-[11px] text-zinc-400">
+                    Est. Reach: <span className="text-white font-bold">~{Math.round(campaignBudget * 180)} impressions</span> across {Math.round(campaignBudget / 2)} verified artist profiles.
+                  </p>
+
                   <button
                     type="button"
                     disabled={createCampaignMutation.isPending}
                     onClick={() => createCampaignMutation.mutate()}
-                    className="w-full py-3 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-semibold cursor-pointer"
+                    className="sc-pill-white w-full py-3.5 text-sm font-bold shadow-xl shadow-white/5 cursor-pointer mt-2"
                   >
-                    {createCampaignMutation.isPending
-                      ? 'Launching Campaign...'
-                      : `Launch Campaign (${campaignBudget} Credits)`}
+                    {createCampaignMutation.isPending ? (
+                      <span>Launching Campaign...</span>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 text-[#FF5500]" />
+                        <span>Launch Campaign ({campaignBudget} Credits)</span>
+                      </>
+                    )}
                   </button>
                 </div>
               )}
