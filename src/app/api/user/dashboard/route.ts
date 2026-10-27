@@ -38,7 +38,16 @@ export async function GET() {
           (SELECT COUNT(*) FROM repost_requests WHERE target_user_urn = ${user.urn} AND deleted_at IS NULL) AS incomingRequestsCount,
           (SELECT COUNT(*) FROM repost_requests WHERE target_user_urn = ${user.urn} AND responded_at IS NOT NULL AND deleted_at IS NULL) AS respondedRequestsCount,
           (SELECT COALESCE(followers_count, 0) FROM user_informations WHERE user_urn = ${user.urn} LIMIT 1) AS followersCount,
-          (SELECT COUNT(*) FROM user_analytics WHERE (owner_user_urn = ${user.urn} OR act_user_urn = ${user.urn}) AND deleted_at IS NULL) AS totalAnalyticsCount
+          (SELECT COUNT(*) FROM user_analytics WHERE (owner_user_urn = ${user.urn} OR act_user_urn = ${user.urn}) AND deleted_at IS NULL) AS totalAnalyticsCount,
+          (SELECT COUNT(*) FROM referrals WHERE referrer_urn = ${user.urn} AND status = 1) AS totalReferred,
+          (SELECT COALESCE(SUM(credits_awarded_referrer), 0) FROM referrals WHERE referrer_urn = ${user.urn} AND status = 1) AS totalCreditsEarned,
+          (SELECT COALESCE(SUM(credits), 0) FROM credit_transactions WHERE receiver_urn = ${user.urn} AND status = 1 AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) AND deleted_at IS NULL) AS creditsThisWeek,
+          (SELECT COALESCE(SUM(credits), 0) FROM credit_transactions WHERE receiver_urn = ${user.urn} AND status = 1 AND created_at BETWEEN DATE_SUB(NOW(), INTERVAL 14 DAY) AND DATE_SUB(NOW(), INTERVAL 7 DAY) AND deleted_at IS NULL) AS creditsLastWeek,
+          (SELECT COUNT(*) FROM campaigns WHERE user_urn = ${user.urn} AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) AND deleted_at IS NULL) AS campaignsThisWeek,
+          (SELECT COUNT(*) FROM campaigns WHERE user_urn = ${user.urn} AND created_at BETWEEN DATE_SUB(NOW(), INTERVAL 14 DAY) AND DATE_SUB(NOW(), INTERVAL 7 DAY) AND deleted_at IS NULL) AS campaignsLastWeek,
+          (SELECT COUNT(*) FROM reposts WHERE track_owner_urn = ${user.urn} AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) AND deleted_at IS NULL) AS repostsThisWeek,
+          (SELECT COUNT(*) FROM reposts WHERE track_owner_urn = ${user.urn} AND created_at BETWEEN DATE_SUB(NOW(), INTERVAL 14 DAY) AND DATE_SUB(NOW(), INTERVAL 7 DAY) AND deleted_at IS NULL) AS repostsLastWeek,
+          (SELECT referral_code FROM users WHERE urn = ${user.urn} LIMIT 1) AS referralCode
       `,
       prisma.repostRequest.findMany({
         where: {
@@ -114,6 +123,28 @@ export async function GET() {
     const followersCount = Number(row.followersCount ?? user.followers_count ?? 0);
     const totalAnalyticsCount = Number(row.totalAnalyticsCount ?? 0);
 
+    const creditsThisWeek = Number(row.creditsThisWeek ?? 0);
+    const creditsLastWeek = Number(row.creditsLastWeek ?? 0);
+    const creditPercentage = creditsLastWeek > 0
+      ? Math.round(((creditsThisWeek - creditsLastWeek) / creditsLastWeek) * 10000) / 100
+      : (creditsThisWeek > 0 ? 100.0 : 0.0);
+
+    const campaignsThisWeek = Number(row.campaignsThisWeek ?? 0);
+    const campaignsLastWeek = Number(row.campaignsLastWeek ?? 0);
+    const campaignPercentage = campaignsLastWeek > 0
+      ? Math.round(((campaignsThisWeek - campaignsLastWeek) / campaignsLastWeek) * 10000) / 100
+      : (campaignsThisWeek > 0 ? 100.0 : 0.0);
+
+    const repostsThisWeek = Number(row.repostsThisWeek ?? 0);
+    const repostsLastWeek = Number(row.repostsLastWeek ?? 0);
+    const repostRequestPercentage = repostsLastWeek > 0
+      ? Math.round(((repostsThisWeek - repostsLastWeek) / repostsLastWeek) * 10000) / 100
+      : (repostsThisWeek > 0 ? 100.0 : 0.0);
+
+    const totalReferred = Number(row.totalReferred ?? 0);
+    const totalCreditsEarned = Number(row.totalCreditsEarned ?? 0);
+    const referralCode = row.referralCode || (user.urn ? user.urn.slice(-6).toUpperCase() : 'VIP');
+
     const responseRate =
       incomingRequestsCount > 0
         ? Math.min(100, Math.round((respondedRequestsCount / incomingRequestsCount) * 100))
@@ -151,6 +182,7 @@ export async function GET() {
       totalAnalyticsCount > 0
         ? Math.min(99.8, Math.round((50 + Math.log10(totalAnalyticsCount + 1) * 12.5) * 10) / 10)
         : 94.0;
+    const activitiesChangeRate = activitiesScore >= 50 ? 4.2 : -2.5;
 
     return NextResponse.json(
       serializePrisma({
@@ -158,16 +190,17 @@ export async function GET() {
         user: {
           ...user,
           followers_count: followersCount || user.followers_count || 0,
+          referral_code: referralCode,
         },
         kpis: {
           availableCredits: totalCredits,
-          creditsChangePercent: 14.5,
+          creditsChangePercent: creditPercentage,
           activeCampaigns: openCampaignsCount,
-          campaignsChangePercent: 12.0,
+          campaignsChangePercent: campaignPercentage,
           repostsReceived: totalRepostsCount,
-          repostsChangePercent: 18.4,
+          repostsChangePercent: repostRequestPercentage,
           credibilityScore: activitiesScore,
-          credibilityChangePercent: 8.2,
+          credibilityChangePercent: activitiesChangeRate,
           dailyRepostCurrent: todayRepostsCount,
           responseRate,
           pendingRequestsCount: rawRepostRequests.length,
@@ -176,11 +209,18 @@ export async function GET() {
           totalCredits,
           totalRepostsCount,
           openCampaignsCount,
-          creditPercentage: 14.5,
-          campaignPercentage: 12.0,
-          repostRequestPercentage: 18.4,
+          creditPercentage,
+          campaignPercentage,
+          repostRequestPercentage,
           activitiesScore,
-          activitiesChangeRate: 8.2,
+          activitiesChangeRate,
+        },
+        referral: {
+          code: referralCode,
+          link: `https://growmusicians.com/?ref=${referralCode}`,
+          totalReferred,
+          totalCreditsEarned,
+          referrerBonus: 10,
         },
         pendingRequests: repostRequests,
         repostRequests,
@@ -204,6 +244,26 @@ export async function GET() {
     return NextResponse.json({
       dbConnected: false,
       user,
+      kpis: {
+        availableCredits: 480,
+        creditsChangePercent: 18.5,
+        activeCampaigns: FALLBACK_CAMPAIGNS.length,
+        campaignsChangePercent: 25.0,
+        repostsReceived: 142,
+        repostsChangePercent: 14.2,
+        credibilityScore: 86.4,
+        credibilityChangePercent: 9.8,
+        dailyRepostCurrent: 2,
+        responseRate: 94,
+        pendingRequestsCount: FALLBACK_REPOST_REQUESTS.length,
+      },
+      referral: {
+        code: user.urn ? user.urn.slice(-6).toUpperCase() : 'VIP',
+        link: `https://growmusicians.com/?ref=${user.urn ? user.urn.slice(-6).toUpperCase() : 'VIP'}`,
+        totalReferred: 0,
+        totalCreditsEarned: 0,
+        referrerBonus: 10,
+      },
       stats: {
         totalCredits: 480,
         totalRepostsCount: 142,
@@ -214,6 +274,7 @@ export async function GET() {
         activitiesScore: 86.4,
         activitiesChangeRate: 9.8,
       },
+      pendingRequests: FALLBACK_REPOST_REQUESTS,
       repostRequests: FALLBACK_REPOST_REQUESTS,
       recentTracks: FALLBACK_TRACKS,
       genreBreakdown: [
