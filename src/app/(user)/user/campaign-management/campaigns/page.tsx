@@ -248,25 +248,25 @@ export default function CampaignsFeedPage() {
       <Script src="https://w.soundcloud.com/player/api.js" strategy="lazyOnload" />
 
       {/* ========================================================= */}
-      {/* 1. EDITORIAL HERO SECTION (ADAPTS TO LIGHT & DARK MODES) */}
+      {/* 1. EDITORIAL HERO SECTION (MATCHING DASHBOARD & CHAT) */}
       {/* ========================================================= */}
-      <div className="relative rounded-3xl bg-gradient-to-b from-black/[0.04] to-black/[0.01] dark:from-white/[0.08] dark:to-white/[0.02] p-[1px] shadow-sm dark:shadow-2xl">
-        <div className="rounded-[23px] bg-white dark:bg-[#121212] border border-gray-200/80 dark:border-transparent p-6 sm:p-8 relative overflow-hidden transition-colors">
+      <div className="relative rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] p-[1px] shadow-2xl">
+        <div className="rounded-[23px] bg-[#121212] p-6 sm:p-8 relative overflow-hidden">
           {/* Subtle Ambient Radial Glow */}
           <div
-            className="absolute -top-24 -right-24 w-80 h-80 bg-[#FF5500]/10 dark:bg-[#FF5500]/15 rounded-full blur-[100px] pointer-events-none"
+            className="absolute -top-24 -right-24 w-80 h-80 bg-[#FF5500]/15 rounded-full blur-[100px] pointer-events-none"
             aria-hidden="true"
           />
 
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div>
               {/* Official Rounded Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 mb-3.5 backdrop-blur-sm">
-                <RepostChainMark className="w-3.5 h-3.5 text-[#FF5500] drop-shadow-[0_0_6px_rgba(255,85,0,0.4)]" />
-                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700 dark:text-zinc-300">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 mb-3.5 backdrop-blur-sm">
+                <RepostChainMark className="w-3.5 h-3.5 drop-shadow-[0_0_6px_rgba(255,85,0,0.4)]" />
+                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-300">
                   CAMPAIGN HUB
                 </span>
-                <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-white/20" />
+                <span className="w-1 h-1 rounded-full bg-white/20" />
                 <span className="text-[10px] font-mono text-[#FF5500] font-bold flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
                   COMMUNITY EXCHANGE
@@ -274,10 +274,10 @@ export default function CampaignsFeedPage() {
               </div>
 
               {/* Bold All-Caps Display Headline */}
-              <h1 className="sc-display text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-[0.95]">
+              <h1 className="sc-display text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-[0.95]">
                 CAMPAIGN <span className="text-[#FF5500]">FEED</span>
               </h1>
-              <p className="text-slate-600 dark:text-zinc-400 text-sm sm:text-base mt-2 max-w-2xl font-normal leading-relaxed">
+              <p className="text-zinc-400 text-sm sm:text-base mt-2 max-w-2xl font-normal leading-relaxed">
                 Discover and repost community tracks to earn credits and expand your SoundCloud reach.
               </p>
             </div>
@@ -287,18 +287,26 @@ export default function CampaignsFeedPage() {
               <button
                 type="button"
                 onClick={() => setShowStats(!showStats)}
-                className="2xl:hidden bg-gray-100 hover:bg-gray-200 text-slate-700 border-gray-300 dark:bg-[#121212]/85 dark:hover:bg-[#1F1F1F] dark:text-white dark:border-white/25 px-5 py-3 text-xs sm:text-sm font-semibold rounded-full border transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+                className="2xl:hidden sc-pill-dark px-5 py-3 text-xs sm:text-sm font-bold border border-white/15 hover:border-white/40 transition-all flex items-center gap-2 cursor-pointer"
               >
                 <span>{showStats ? 'Hide Stats' : 'Show Stats'}</span>
                 {showStats ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </button>
 
+              <Link
+                href="/user/campaign-management/my-campaigns"
+                className="sc-pill-dark px-5 py-3 text-xs sm:text-sm font-bold border border-white/15 hover:border-white/40 transition-all flex items-center gap-2"
+              >
+                <Music className="w-4 h-4 text-[#FF5500]" />
+                <span>My Campaigns</span>
+              </Link>
+
               <button
                 type="button"
                 onClick={() => setShowCreateModal(true)}
-                className="bg-[#FF5500] hover:bg-[#ff6a1a] text-white dark:bg-white dark:hover:bg-[#FF5500] dark:text-[#0A0A0A] dark:hover:text-white font-bold rounded-full border border-[#FF5500] dark:border-white px-6 py-3 text-xs sm:text-sm shadow-md transition-all flex items-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-95"
+                className="sc-pill-white px-6 py-3 text-xs sm:text-sm font-bold shadow-xl shadow-white/5 cursor-pointer flex items-center gap-2"
               >
-                <Plus className="w-4 h-4 stroke-[2.5]" />
+                <Plus className="w-4 h-4" />
                 <span>Start a new campaign</span>
               </button>
             </div>
