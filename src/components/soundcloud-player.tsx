@@ -24,6 +24,7 @@ interface SoundCloudPlayerProps {
   onEligible?: () => void;
   iframeId?: string;
   forceMock?: boolean;
+  className?: string;
 }
 
 export function SoundCloudPlayer({
@@ -37,6 +38,7 @@ export function SoundCloudPlayer({
   onEligible,
   iframeId,
   forceMock = false,
+  className,
 }: SoundCloudPlayerProps) {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
@@ -103,7 +105,10 @@ export function SoundCloudPlayer({
 
   return (
     <div
-      className="soundcloud-embed-container w-full max-w-full overflow-hidden bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-800"
+      className={
+        className ||
+        'soundcloud-embed-container w-full max-w-full overflow-hidden bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-800'
+      }
       style={{ borderTop: '2px solid #ff5500' }}
     >
       {embedUrl && !forceMock ? (
