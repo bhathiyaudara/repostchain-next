@@ -9,6 +9,7 @@ import {
   CreditCard,
   Signal,
   Rocket,
+  Sparkles,
 } from 'lucide-react';
 
 interface DashboardSummaryProps {
@@ -45,159 +46,165 @@ export function DashboardSummary({
     <section>
       <div className="max-w-screen-xl h-full mx-auto flex flex-col gap-y-4">
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 2xl:grid-cols-2 gap-4 lg:col-span-2">
-          {/* Stat Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow hover:shadow-lg transition-transform transform hover:-translate-y-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 2xl:grid-cols-2 gap-3.5">
+          {/* Earnings per Repost */}
+          <div className="relative rounded-2xl bg-[#141414] border border-white/[0.08] p-4 shadow-lg hover:border-white/20 transition-all">
             <div className="flex items-center gap-2">
-              <span>
-                <BarChart2 className="w-6 h-6 text-orange-500" />
-              </span>
-              <span className="text-sm font-medium text-[#718096] dark:text-gray-100">
-                Earnings per Repost
+              <div className="w-8 h-8 rounded-lg bg-[#FF5500]/10 flex items-center justify-center text-[#FF5500]">
+                <BarChart2 className="w-4 h-4" />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                Earnings / Repost
               </span>
             </div>
-            <div className="text-xl font-semibold mt-3 text-slate-900 dark:text-gray-100">
-              {earnings}
+            <div className="text-2xl font-black font-mono mt-3 text-white">
+              +{earnings} <span className="text-xs font-sans font-medium text-zinc-500">credit</span>
             </div>
           </div>
 
-          {/* Repost Limit */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow hover:shadow-lg transition-transform transform hover:-translate-y-1">
-            <div className="flex items-center gap-2 font-medium">
-              <span>
-                <Gauge className="w-6 h-6 text-orange-500" />
-              </span>
-              <span className="text-sm font-medium text-[#718096] dark:text-gray-100">
-                Daily repost limit
+          {/* Daily Repost Limit */}
+          <div className="relative rounded-2xl bg-[#141414] border border-white/[0.08] p-4 shadow-lg hover:border-white/20 transition-all">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-[#FF5500]/10 flex items-center justify-center text-[#FF5500]">
+                <Gauge className="w-4 h-4" />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                Daily Reposts
               </span>
             </div>
-            <div className="text-xl font-semibold mt-3 text-slate-900 dark:text-gray-100">
-              {dailyRepostCurrent}/{dailyRepostMax}
+            <div className="text-2xl font-black font-mono mt-3 text-white">
+              {dailyRepostCurrent}
+              <span className="text-base text-zinc-500 font-normal"> / {dailyRepostMax}</span>
             </div>
-            <div className="mt-2 bg-[#e2e8f0] dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
+            <div className="mt-2 bg-white/[0.08] h-1.5 rounded-full overflow-hidden">
               <div
-                className="bg-orange-500 h-full transition-all duration-500"
+                className="bg-gradient-to-r from-[#FF5500] to-[#FF7730] h-full transition-all duration-500 rounded-full"
                 style={{ width: `${repostPercentage}%` }}
               />
             </div>
           </div>
 
           {/* Response Rate */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow hover:shadow-lg transition-transform transform hover:-translate-y-1">
-            <div className="flex items-center gap-2 font-medium">
-              <span>
-                <Percent className="w-6 h-6 text-orange-500" />
-              </span>
-              <span className="text-sm font-medium text-[#718096] dark:text-gray-100">
+          <div className="relative rounded-2xl bg-[#141414] border border-white/[0.08] p-4 shadow-lg hover:border-white/20 transition-all">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-[#FF5500]/10 flex items-center justify-center text-[#FF5500]">
+                <Percent className="w-4 h-4" />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
                 Response Rate
               </span>
             </div>
-            <div className="flex justify-between items-center mt-3">
-              <div className="text-xl font-semibold text-slate-900 dark:text-gray-100">
+            <div className="flex justify-between items-baseline mt-3">
+              <div className="text-2xl font-black font-mono text-white">
                 {responseRate}%
               </div>
               <button
                 type="button"
                 disabled={!canResetResponseRate}
                 onClick={onResetResponseRate}
-                className={`text-sm font-semibold text-orange-500 ${
+                className={`text-xs font-bold uppercase tracking-wider text-[#FF5500] ${
                   canResetResponseRate
                     ? 'hover:underline cursor-pointer'
-                    : '!cursor-not-allowed opacity-60'
+                    : 'opacity-40 cursor-not-allowed'
                 }`}
               >
                 Reset
               </button>
             </div>
-            <div className="mt-2 bg-[#e2e8f0] dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
-              <div className="bg-orange-500 h-full" style={{ width: `${responseRate}%` }} />
+            <div className="mt-2 bg-white/[0.08] h-1.5 rounded-full overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-[#10B981] to-[#34D399] h-full rounded-full"
+                style={{ width: `${responseRate}%` }}
+              />
             </div>
           </div>
 
           {/* Pending Requests */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow hover:shadow-lg transition-transform transform hover:-translate-y-1">
+          <div className="relative rounded-2xl bg-[#141414] border border-white/[0.08] p-4 shadow-lg hover:border-white/20 transition-all">
             <div className="flex items-center gap-2">
-              <span>
-                <Bell className="w-6 h-6 text-orange-500" />
-              </span>
-              <span className="text-sm font-medium text-[#718096] dark:text-gray-100">
-                Pending Direct Requests
+              <div className="w-8 h-8 rounded-lg bg-[#FF5500]/10 flex items-center justify-center text-[#FF5500]">
+                <Bell className="w-4 h-4" />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+                Direct Requests
               </span>
             </div>
-            <div className="text-xl font-semibold mt-3 text-slate-900 dark:text-gray-100">
-              {pendingRequests} / {requestLimit}
+            <div className="text-2xl font-black font-mono mt-3 text-white">
+              {pendingRequests}
+              <span className="text-base text-zinc-500 font-normal"> / {requestLimit}</span>
             </div>
             <Link
               href="/user/plans"
-              className="inline-block mt-2 text-sm font-semibold text-orange-500 hover:underline"
+              className="inline-block mt-1 text-xs font-bold uppercase tracking-wider text-[#FF5500] hover:underline"
             >
-              Get higher limit
+              Higher Limit &rarr;
             </Link>
           </div>
         </div>
 
-        {/* Promotion Stats */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow flex flex-col gap-4">
-          <h3 className="text-xl font-semibold text-slate-900 dark:text-gray-100">
-            Promotion Stats
-          </h3>
+        {/* Promotion Stats Card */}
+        <div className="relative rounded-2xl bg-[#141414] border border-white/[0.08] p-5 shadow-xl flex flex-col gap-4">
+          <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+            <h3 className="sc-display text-sm font-black text-white tracking-wider flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#FF5500]" />
+              <span>PROMOTION STATS</span>
+            </h3>
+            <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-white/[0.06] text-zinc-400 border border-white/5">
+              LIVE TIER
+            </span>
+          </div>
 
-          <div className="flex justify-around text-center gap-4">
-            <div className="flex-1">
-              <div className="flex items-center justify-center gap-2">
-                <span>
-                  <CreditCard className="w-6 h-6 text-orange-500" />
-                </span>
-                <div className="text-xl font-semibold text-slate-900 dark:text-gray-100">
-                  {credits}
-                </div>
+          <div className="grid grid-cols-2 gap-3 text-center">
+            <div className="rounded-xl bg-white/[0.03] border border-white/5 p-3 flex flex-col items-center">
+              <div className="flex items-center gap-1.5 text-zinc-400 mb-1">
+                <CreditCard className="w-4 h-4 text-[#FF5500]" />
+                <span className="text-[11px] font-bold uppercase tracking-wider">Credits</span>
               </div>
-              <div className="text-sm font-medium text-[#718096] dark:text-gray-100">
-                Available Credits
+              <div className="text-2xl font-black font-mono text-white">
+                {credits}
               </div>
+              <span className="text-[10px] text-zinc-500 font-medium">Available</span>
             </div>
-            <div className="flex-1">
-              <div className="flex items-center justify-center gap-2">
-                <span>
-                  <Signal className="w-6 h-6 text-orange-500" />
-                </span>
-                <div className="text-xl font-semibold text-slate-900 dark:text-gray-100">
-                  {campaigns}/{campaignLimit}
-                </div>
+
+            <div className="rounded-xl bg-white/[0.03] border border-white/5 p-3 flex flex-col items-center">
+              <div className="flex items-center gap-1.5 text-zinc-400 mb-1">
+                <Signal className="w-4 h-4 text-[#FF5500]" />
+                <span className="text-[11px] font-bold uppercase tracking-wider">Campaigns</span>
               </div>
-              <div className="text-sm font-medium text-[#718096] dark:text-gray-100">
-                Active Campaign Limit
+              <div className="text-2xl font-black font-mono text-white">
+                {campaigns}
+                <span className="text-xs text-zinc-500 font-normal">/{campaignLimit}</span>
               </div>
+              <span className="text-[10px] text-zinc-500 font-medium">Active Limit</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-1">
+          <div>
             <Link
               href="/user/plans"
-              className="flex items-center justify-center gap-2 text-sm font-semibold py-2 bg-orange-500 text-white rounded-lg hover:opacity-90 transition"
+              className="sc-pill-orange w-full py-3 text-xs font-black tracking-wider uppercase shadow-lg shadow-[#FF5500]/25 hover:scale-[1.01] transition-all flex items-center justify-center gap-2"
             >
-              <span>
-                <Rocket className="w-6 h-6 text-white" />
-              </span>
-              Upgrade plan
+              <Rocket className="w-4 h-4" />
+              <span>Upgrade Plan & Limits</span>
             </Link>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow min-h-56 hidden 2xl:block">
-          <h2 className="text-xl font-semibold text-slate-900 dark:text-gray-50 mb-2">
-            About Direct Requests
+        {/* About Direct Requests Explainer Card */}
+        <div className="relative rounded-2xl bg-[#141414] border border-white/[0.08] p-5 shadow-xl min-h-56 hidden 2xl:block">
+          <h2 className="sc-display text-sm font-black text-white tracking-wider mb-2.5 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#FF5500]" />
+            <span>ABOUT DIRECT REQUESTS</span>
           </h2>
-          <p className="text-sm text-[#718096] dark:text-gray-100">
+          <p className="text-xs text-zinc-400 leading-relaxed font-normal">
             Direct Requests allow artists to connect and collaborate directly with other creators on
             RepostChain. Instead of waiting for repost campaigns, you can manually send a request to
             another user, playlist, or curator. This feature gives you full control to choose who
-            you want to network with, build relationships, and promote your tracks more
-            strategically.
+            you want to network with, build relationships, and promote your tracks more strategically.
           </p>
-          <p className="text-sm text-[#718096] dark:text-gray-100 mt-2">
+          <p className="text-xs text-zinc-500 mt-2.5 leading-relaxed font-normal">
             You can include a personal message with your Direct Request to explain why your music
-            fits their audience — making your outreach more authentic and effective.
+            fits their audience — making your outreach authentic and effective.
           </p>
         </div>
       </div>
