@@ -48,61 +48,61 @@ export function DashboardSummary({
         {/* Stats Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 2xl:grid-cols-2 gap-3.5">
           {/* Earnings per Repost */}
-          <div className="relative rounded-2xl bg-[#141414] border border-white/[0.08] p-4 shadow-lg hover:border-white/20 transition-all">
+          <div className="relative rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700/80 p-4 shadow-sm hover:shadow-md transition-all">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#FF5500]/10 flex items-center justify-center text-[#FF5500]">
+              <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-600 dark:text-orange-500">
                 <BarChart2 className="w-4 h-4" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                 Earnings / Repost
               </span>
             </div>
-            <div className="text-2xl font-black font-mono mt-3 text-white">
-              +{earnings} <span className="text-xs font-sans font-medium text-zinc-500">credit</span>
+            <div className="text-2xl font-black font-mono mt-3 text-slate-900 dark:text-white">
+              +{earnings} <span className="text-xs font-sans font-medium text-slate-400 dark:text-zinc-500">credit</span>
             </div>
           </div>
 
           {/* Daily Repost Limit */}
-          <div className="relative rounded-2xl bg-[#141414] border border-white/[0.08] p-4 shadow-lg hover:border-white/20 transition-all">
+          <div className="relative rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700/80 p-4 shadow-sm hover:shadow-md transition-all">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#FF5500]/10 flex items-center justify-center text-[#FF5500]">
+              <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-600 dark:text-orange-500">
                 <Gauge className="w-4 h-4" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                 Daily Reposts
               </span>
             </div>
-            <div className="text-2xl font-black font-mono mt-3 text-white">
+            <div className="text-2xl font-black font-mono mt-3 text-slate-900 dark:text-white">
               {dailyRepostCurrent}
-              <span className="text-base text-zinc-500 font-normal"> / {dailyRepostMax}</span>
+              <span className="text-base text-slate-400 dark:text-zinc-500 font-normal"> / {dailyRepostMax}</span>
             </div>
-            <div className="mt-2 bg-white/[0.08] h-1.5 rounded-full overflow-hidden">
+            <div className="mt-2 bg-gray-100 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
               <div
-                className="bg-gradient-to-r from-[#FF5500] to-[#FF7730] h-full transition-all duration-500 rounded-full"
+                className="bg-gradient-to-r from-orange-500 to-amber-500 h-full transition-all duration-500 rounded-full"
                 style={{ width: `${repostPercentage}%` }}
               />
             </div>
           </div>
 
           {/* Response Rate */}
-          <div className="relative rounded-2xl bg-[#141414] border border-white/[0.08] p-4 shadow-lg hover:border-white/20 transition-all">
+          <div className="relative rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700/80 p-4 shadow-sm hover:shadow-md transition-all">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#FF5500]/10 flex items-center justify-center text-[#FF5500]">
+              <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-600 dark:text-orange-500">
                 <Percent className="w-4 h-4" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                 Response Rate
               </span>
             </div>
             <div className="flex justify-between items-baseline mt-3">
-              <div className="text-2xl font-black font-mono text-white">
+              <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
                 {responseRate}%
               </div>
               <button
                 type="button"
                 disabled={!canResetResponseRate}
                 onClick={onResetResponseRate}
-                className={`text-xs font-bold uppercase tracking-wider text-[#FF5500] ${
+                className={`text-xs font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400 ${
                   canResetResponseRate
                     ? 'hover:underline cursor-pointer'
                     : 'opacity-40 cursor-not-allowed'
@@ -111,31 +111,31 @@ export function DashboardSummary({
                 Reset
               </button>
             </div>
-            <div className="mt-2 bg-white/[0.08] h-1.5 rounded-full overflow-hidden">
+            <div className="mt-2 bg-gray-100 dark:bg-gray-700 h-1.5 rounded-full overflow-hidden">
               <div
-                className="bg-gradient-to-r from-[#10B981] to-[#34D399] h-full rounded-full"
+                className="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full"
                 style={{ width: `${responseRate}%` }}
               />
             </div>
           </div>
 
           {/* Pending Requests */}
-          <div className="relative rounded-2xl bg-[#141414] border border-white/[0.08] p-4 shadow-lg hover:border-white/20 transition-all">
+          <div className="relative rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700/80 p-4 shadow-sm hover:shadow-md transition-all">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#FF5500]/10 flex items-center justify-center text-[#FF5500]">
+              <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center text-orange-600 dark:text-orange-500">
                 <Bell className="w-4 h-4" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                 Direct Requests
               </span>
             </div>
-            <div className="text-2xl font-black font-mono mt-3 text-white">
+            <div className="text-2xl font-black font-mono mt-3 text-slate-900 dark:text-white">
               {pendingRequests}
-              <span className="text-base text-zinc-500 font-normal"> / {requestLimit}</span>
+              <span className="text-base text-slate-400 dark:text-zinc-500 font-normal"> / {requestLimit}</span>
             </div>
             <Link
               href="/user/plans"
-              className="inline-block mt-1 text-xs font-bold uppercase tracking-wider text-[#FF5500] hover:underline"
+              className="inline-block mt-1 text-xs font-bold uppercase tracking-wider text-orange-600 dark:text-orange-400 hover:underline"
             >
               Higher Limit &rarr;
             </Link>
@@ -143,46 +143,46 @@ export function DashboardSummary({
         </div>
 
         {/* Promotion Stats Card */}
-        <div className="relative rounded-2xl bg-[#141414] border border-white/[0.08] p-5 shadow-xl flex flex-col gap-4">
-          <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
-            <h3 className="sc-display text-sm font-black text-white tracking-wider flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#FF5500]" />
+        <div className="relative rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700/80 p-5 shadow-sm hover:shadow-md transition-all flex flex-col gap-4">
+          <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700/80 pb-3">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white tracking-wider flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-orange-500" />
               <span>PROMOTION STATS</span>
             </h3>
-            <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-white/[0.06] text-zinc-400 border border-white/5">
+            <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400 border border-orange-200 dark:border-orange-500/20 font-semibold">
               LIVE TIER
             </span>
           </div>
 
           <div className="grid grid-cols-2 gap-3 text-center">
-            <div className="rounded-xl bg-white/[0.03] border border-white/5 p-3 flex flex-col items-center">
-              <div className="flex items-center gap-1.5 text-zinc-400 mb-1">
-                <CreditCard className="w-4 h-4 text-[#FF5500]" />
+            <div className="rounded-xl bg-gray-50 dark:bg-slate-900/60 border border-gray-100 dark:border-gray-700/50 p-3 flex flex-col items-center">
+              <div className="flex items-center gap-1.5 text-slate-500 dark:text-zinc-400 mb-1">
+                <CreditCard className="w-4 h-4 text-orange-500" />
                 <span className="text-[11px] font-bold uppercase tracking-wider">Credits</span>
               </div>
-              <div className="text-2xl font-black font-mono text-white">
+              <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
                 {credits}
               </div>
-              <span className="text-[10px] text-zinc-500 font-medium">Available</span>
+              <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium">Available</span>
             </div>
 
-            <div className="rounded-xl bg-white/[0.03] border border-white/5 p-3 flex flex-col items-center">
-              <div className="flex items-center gap-1.5 text-zinc-400 mb-1">
-                <Signal className="w-4 h-4 text-[#FF5500]" />
+            <div className="rounded-xl bg-gray-50 dark:bg-slate-900/60 border border-gray-100 dark:border-gray-700/50 p-3 flex flex-col items-center">
+              <div className="flex items-center gap-1.5 text-slate-500 dark:text-zinc-400 mb-1">
+                <Signal className="w-4 h-4 text-orange-500" />
                 <span className="text-[11px] font-bold uppercase tracking-wider">Campaigns</span>
               </div>
-              <div className="text-2xl font-black font-mono text-white">
+              <div className="text-2xl font-black font-mono text-slate-900 dark:text-white">
                 {campaigns}
-                <span className="text-xs text-zinc-500 font-normal">/{campaignLimit}</span>
+                <span className="text-xs text-slate-400 dark:text-zinc-500 font-normal">/{campaignLimit}</span>
               </div>
-              <span className="text-[10px] text-zinc-500 font-medium">Active Limit</span>
+              <span className="text-[10px] text-slate-400 dark:text-zinc-500 font-medium">Active Limit</span>
             </div>
           </div>
 
           <div>
             <Link
               href="/user/plans"
-              className="sc-pill-orange w-full py-3 text-xs font-black tracking-wider uppercase shadow-lg shadow-[#FF5500]/25 hover:scale-[1.01] transition-all flex items-center justify-center gap-2"
+              className="w-full py-2.5 px-4 rounded-lg bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-bold text-xs uppercase tracking-wider shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               <Rocket className="w-4 h-4" />
               <span>Upgrade Plan & Limits</span>
@@ -191,18 +191,18 @@ export function DashboardSummary({
         </div>
 
         {/* About Direct Requests Explainer Card */}
-        <div className="relative rounded-2xl bg-[#141414] border border-white/[0.08] p-5 shadow-xl min-h-56 hidden 2xl:block">
-          <h2 className="sc-display text-sm font-black text-white tracking-wider mb-2.5 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#FF5500]" />
+        <div className="relative rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700/80 p-5 shadow-sm min-h-56 hidden 2xl:block">
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white tracking-wider mb-2.5 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-orange-500" />
             <span>ABOUT DIRECT REQUESTS</span>
           </h2>
-          <p className="text-xs text-zinc-400 leading-relaxed font-normal">
+          <p className="text-xs text-slate-600 dark:text-zinc-400 leading-relaxed font-normal">
             Direct Requests allow artists to connect and collaborate directly with other creators on
             RepostChain. Instead of waiting for repost campaigns, you can manually send a request to
             another user, playlist, or curator. This feature gives you full control to choose who
             you want to network with, build relationships, and promote your tracks more strategically.
           </p>
-          <p className="text-xs text-zinc-500 mt-2.5 leading-relaxed font-normal">
+          <p className="text-xs text-slate-500 dark:text-zinc-500 mt-2.5 leading-relaxed font-normal">
             You can include a personal message with your Direct Request to explain why your music
             fits their audience — making your outreach authentic and effective.
           </p>

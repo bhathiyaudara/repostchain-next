@@ -247,33 +247,33 @@ export default function CampaignsFeedPage() {
       <Script src="https://w.soundcloud.com/player/api.js" strategy="lazyOnload" />
 
       {/* ========================================================= */}
-      {/* 1. TOP HEADER & TABS ROW (Exact match to Laravel) */}
+      {/* 1. TOP HEADER & TABS ROW (Clean Dashboard Light/Dark Styling) */}
       {/* ========================================================= */}
       <div>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
           <div>
-            <h1 className="sc-display text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
               Campaign Feed
             </h1>
-            <p className="text-xs sm:text-sm text-zinc-400 mt-1">
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-zinc-400 mt-1">
               Discover and repost community tracks to earn credits and expand your SoundCloud reach.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
             <button
               type="button"
               onClick={() => setShowCreateModal(true)}
-              className="sc-pill-orange px-5 py-2.5 text-xs sm:text-sm font-bold shadow-md shadow-[#FF5500]/25 flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer"
+              className="flex-1 sm:flex-initial bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-semibold px-4 py-2 sm:px-5 sm:py-2.5 rounded-lg text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2 cursor-pointer transition-colors"
             >
-              <Plus className="w-4 h-4 stroke-[3]" />
+              <Plus className="w-4 h-4 stroke-[2.5]" />
               <span>Start a new campaign</span>
             </button>
 
             <button
               type="button"
               onClick={() => setShowStats(!showStats)}
-              className="2xl:hidden sc-pill-dark px-4 py-2.5 text-xs font-bold border border-white/15 flex items-center gap-1.5 text-zinc-300 hover:text-white cursor-pointer"
+              className="2xl:hidden bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 text-slate-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-slate-700 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm cursor-pointer transition-colors"
             >
               <span>{showStats ? 'Hide Stats' : 'Show Stats'}</span>
               {showStats ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -281,8 +281,8 @@ export default function CampaignsFeedPage() {
           </div>
         </div>
 
-        {/* Clean Underline Tabs */}
-        <div className="border-b border-white/[0.1] mb-5">
+        {/* Clean Underline Tabs matching original Laravel layout */}
+        <div className="border-b border-gray-200 dark:border-gray-700 mb-5">
           <nav className="-mb-px flex space-x-6 sm:space-x-8 overflow-x-auto no-scrollbar">
             <button
               type="button"
@@ -290,14 +290,14 @@ export default function CampaignsFeedPage() {
                 setActiveMainTab('recommended_pro');
                 setPage(1);
               }}
-              className={`tab-button pb-3 text-sm sm:text-base font-bold transition-all duration-200 cursor-pointer border-b-2 flex items-center gap-2 ${
+              className={`tab-button pb-3 text-sm sm:text-base font-semibold transition-all duration-200 cursor-pointer border-b-2 flex items-center gap-2 ${
                 activeMainTab === 'recommended_pro'
-                  ? 'border-[#FF5500] text-[#FF5500]'
-                  : 'border-transparent text-zinc-400 hover:text-white hover:border-zinc-700'
+                  ? 'border-orange-500 text-orange-600 dark:text-orange-500 font-bold'
+                  : 'border-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-white hover:border-gray-300'
               }`}
             >
               <span>Recommended Pro</span>
-              <span className="text-xs font-mono text-[#FF5500]">
+              <span className="text-xs font-mono text-orange-500 font-bold">
                 ({counts.recommendedPro})
               </span>
             </button>
@@ -308,14 +308,14 @@ export default function CampaignsFeedPage() {
                 setActiveMainTab('recommended');
                 setPage(1);
               }}
-              className={`tab-button pb-3 text-sm sm:text-base font-bold transition-all duration-200 cursor-pointer border-b-2 flex items-center gap-2 ${
+              className={`tab-button pb-3 text-sm sm:text-base font-semibold transition-all duration-200 cursor-pointer border-b-2 flex items-center gap-2 ${
                 activeMainTab === 'recommended'
-                  ? 'border-[#FF5500] text-[#FF5500]'
-                  : 'border-transparent text-zinc-400 hover:text-white hover:border-zinc-700'
+                  ? 'border-orange-500 text-orange-600 dark:text-orange-500 font-bold'
+                  : 'border-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-white hover:border-gray-300'
               }`}
             >
               <span>Recommended</span>
-              <span className="text-xs font-mono text-[#FF5500]">
+              <span className="text-xs font-mono text-orange-500 font-bold">
                 ({counts.recommended})
               </span>
             </button>
@@ -326,14 +326,14 @@ export default function CampaignsFeedPage() {
                 setActiveMainTab('all');
                 setPage(1);
               }}
-              className={`tab-button pb-3 text-sm sm:text-base font-bold transition-all duration-200 cursor-pointer border-b-2 flex items-center gap-2 ${
+              className={`tab-button pb-3 text-sm sm:text-base font-semibold transition-all duration-200 cursor-pointer border-b-2 flex items-center gap-2 ${
                 activeMainTab === 'all'
-                  ? 'border-[#FF5500] text-[#FF5500]'
-                  : 'border-transparent text-zinc-400 hover:text-white hover:border-zinc-700'
+                  ? 'border-orange-500 text-orange-600 dark:text-orange-500 font-bold'
+                  : 'border-transparent text-slate-500 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-white hover:border-gray-300'
               }`}
             >
               <span>All</span>
-              <span className="text-xs font-mono text-[#FF5500]">
+              <span className="text-xs font-mono text-orange-500 font-bold">
                 ({counts.all})
               </span>
             </button>
@@ -362,7 +362,7 @@ export default function CampaignsFeedPage() {
       {/* 2. FILTER CONTROLS BAR (Track Type + Genre + Search) */}
       {/* ========================================================= */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 relative z-30 mb-6">
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
           {/* Filter by track type */}
           <div className="relative">
             <button
@@ -371,17 +371,17 @@ export default function CampaignsFeedPage() {
                 setOpenTrackTypeDropdown(!openTrackTypeDropdown);
                 setOpenGenreDropdown(false);
               }}
-              className="bg-[#181818] hover:bg-[#202020] border border-white/10 hover:border-[#FF5500]/50 text-white px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-between gap-2.5 transition-all shadow-sm cursor-pointer"
+              className="w-full sm:w-auto bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 border border-gray-200 dark:border-gray-700 text-slate-700 dark:text-zinc-200 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-between gap-2 transition-all shadow-sm cursor-pointer"
             >
-              <span className="text-zinc-400">Filter by track type /</span>
-              <span className="text-[#FF5500] capitalize">
+              <span className="text-slate-500 dark:text-zinc-400 truncate">Filter by /</span>
+              <span className="text-orange-600 dark:text-orange-500 capitalize font-bold">
                 {trackType === 'all' ? 'All' : `${trackType}s`}
               </span>
-              <ChevronDown className="w-4 h-4 text-zinc-400" />
+              <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
             </button>
 
             {openTrackTypeDropdown && (
-              <div className="absolute left-0 mt-2 w-48 rounded-xl shadow-2xl bg-[#161616] border border-white/10 p-1.5 z-50 backdrop-blur-xl">
+              <div className="absolute left-0 mt-2 w-52 rounded-xl shadow-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 p-1.5 z-50">
                 {(['all', 'track', 'playlist'] as const).map((type) => (
                   <button
                     key={type}
@@ -393,8 +393,8 @@ export default function CampaignsFeedPage() {
                     }}
                     className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg capitalize flex items-center justify-between transition-colors cursor-pointer ${
                       trackType === type
-                        ? 'bg-[#FF5500] text-white font-bold'
-                        : 'text-zinc-300 hover:bg-white/[0.08] hover:text-white'
+                        ? 'bg-orange-500 text-white font-bold'
+                        : 'text-slate-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-slate-700'
                     }`}
                   >
                     <span>{type === 'all' ? 'All Types' : `${type}s Only`}</span>
@@ -413,23 +413,23 @@ export default function CampaignsFeedPage() {
                 setOpenGenreDropdown(!openGenreDropdown);
                 setOpenTrackTypeDropdown(false);
               }}
-              className={`px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all shadow-sm cursor-pointer ${
+              className={`w-full sm:w-auto px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-between sm:justify-start gap-2 transition-all shadow-sm cursor-pointer ${
                 selectedGenres.length > 0
-                  ? 'bg-[#FF5500]/15 border border-[#FF5500]/50 text-[#FF5500]'
-                  : 'bg-[#181818] hover:bg-[#202020] border border-white/10 hover:border-[#FF5500]/50 text-white'
+                  ? 'bg-orange-50 text-orange-600 border border-orange-200 dark:bg-orange-950/40 dark:border-orange-500/40 dark:text-orange-400'
+                  : 'bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 border border-gray-200 dark:border-gray-700 text-slate-700 dark:text-zinc-200'
               }`}
             >
-              <Music className="w-4 h-4 text-[#FF5500]" />
-              <span>
-                Filter by genre / {selectedGenres.length}
+              <Music className="w-4 h-4 text-orange-500 shrink-0" />
+              <span className="truncate">
+                Genre / {selectedGenres.length}
               </span>
-              <ChevronDown className="w-4 h-4 text-zinc-400" />
+              <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
             </button>
 
             {openGenreDropdown && (
-              <div className="absolute left-0 mt-2 w-80 sm:w-96 rounded-2xl shadow-2xl bg-[#161616] border border-white/10 p-3.5 max-h-96 overflow-y-auto z-50 backdrop-blur-xl">
-                <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-white/[0.08]">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+              <div className="absolute left-0 sm:left-auto mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-sm rounded-2xl shadow-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 p-3.5 max-h-96 overflow-y-auto z-50">
+                <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-gray-100 dark:border-gray-700">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 font-bold">
                     SELECT GENRES ({selectedGenres.length} ACTIVE)
                   </span>
                   {selectedGenres.length > 0 && (
@@ -439,7 +439,7 @@ export default function CampaignsFeedPage() {
                         setSelectedGenres([]);
                         setPage(1);
                       }}
-                      className="text-xs font-bold text-[#FF5500] hover:underline cursor-pointer flex items-center gap-1"
+                      className="text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline cursor-pointer flex items-center gap-1"
                     >
                       <RotateCcw className="w-3 h-3" />
                       <span>Clear All</span>
@@ -459,8 +459,8 @@ export default function CampaignsFeedPage() {
                         onClick={() => toggleGenre(genre)}
                         className={`inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                           isSelected
-                            ? 'bg-[#FF5500] text-white shadow-md shadow-[#FF5500]/30'
-                            : 'bg-white/[0.06] text-zinc-300 hover:bg-white/[0.12] hover:text-white border border-white/5'
+                            ? 'bg-orange-500 text-white shadow-sm'
+                            : 'bg-gray-100 dark:bg-gray-700 text-slate-700 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200/60 dark:border-gray-600'
                         }`}
                       >
                         <span>{genre}</span>
@@ -477,9 +477,9 @@ export default function CampaignsFeedPage() {
         </div>
 
         {/* Search tags input */}
-        <div className="relative flex-1 sm:max-w-xs">
-          <div className="relative flex items-center bg-[#181818] border border-white/10 focus-within:border-[#FF5500] focus-within:ring-2 focus-within:ring-[#FF5500]/20 rounded-lg transition-all">
-            <Search className="w-4 h-4 absolute left-3 text-zinc-400 pointer-events-none" />
+        <div className="relative flex-1 sm:max-w-xs w-full">
+          <div className="relative flex items-center bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-500/20 rounded-lg transition-all shadow-sm">
+            <Search className="w-4 h-4 absolute left-3 text-slate-400 pointer-events-none" />
             <input
               type="text"
               value={search}
@@ -488,7 +488,7 @@ export default function CampaignsFeedPage() {
                 setPage(1);
               }}
               placeholder="Type to search tags..."
-              className="w-full py-2 pl-9 pr-8 text-xs sm:text-sm font-medium text-white placeholder-zinc-500 bg-transparent border-0 rounded-lg focus:outline-none"
+              className="w-full py-2 pl-9 pr-8 text-xs sm:text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 bg-transparent border-0 rounded-lg focus:outline-none"
             />
             {search && (
               <button
@@ -497,7 +497,7 @@ export default function CampaignsFeedPage() {
                   setSearch('');
                   setPage(1);
                 }}
-                className="absolute right-2.5 text-zinc-400 hover:text-white cursor-pointer"
+                className="absolute right-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -517,7 +517,7 @@ export default function CampaignsFeedPage() {
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="h-44 rounded-2xl bg-[#141414] border border-white/[0.06] animate-pulse"
+                  className="h-44 rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 animate-pulse shadow-sm"
                 />
               ))}
             </div>
@@ -560,11 +560,11 @@ export default function CampaignsFeedPage() {
                 return (
                   <div
                     key={campaign.id}
-                    className="campaign-card relative rounded-2xl bg-[#141414] border border-white/[0.08] hover:border-white/20 transition-all overflow-hidden shadow-lg"
+                    className="campaign-card relative rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700/80 hover:border-gray-300 dark:hover:border-gray-600 transition-all shadow-sm hover:shadow-md"
                   >
-                    <div className="flex flex-col md:flex-row">
+                    <div className="flex flex-col lg:flex-row">
                       {/* Left Column: Authentic SoundCloud Player */}
-                      <div className="w-full md:w-1/2 bg-black relative flex flex-col justify-center min-h-[166px] border-b md:border-b-0 md:border-r border-white/[0.08]">
+                      <div className="w-full lg:w-1/2 bg-gray-50 dark:bg-black rounded-t-2xl lg:rounded-tr-none lg:rounded-l-2xl overflow-hidden relative flex flex-col justify-center min-h-[166px] border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700">
                         <SoundCloudPlayer
                           track={campaign.music}
                           height={166}
@@ -587,16 +587,16 @@ export default function CampaignsFeedPage() {
                           }}
                         />
 
-                        {/* Editorial Floating Badges */}
+                        {/* Floating Badges */}
                         <div className="absolute top-2.5 left-2.5 flex items-center gap-2 pointer-events-none z-10">
                           {campaign.is_featured ? (
-                            <div className="bg-gradient-to-r from-[#FF5500] to-[#FF7730] text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md shadow-lg shadow-[#FF5500]/40 flex items-center gap-1">
+                            <div className="bg-orange-500 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md shadow-sm flex items-center gap-1">
                               <Flame className="w-3 h-3 fill-white" />
                               <span>FEATURED</span>
                             </div>
                           ) : null}
                           {campaign.is_boost ? (
-                            <div className="bg-gradient-to-r from-[#8B5CF6] to-[#A78BFA] text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md shadow-lg shadow-[#8B5CF6]/40 flex items-center gap-1">
+                            <div className="bg-purple-600 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md shadow-sm flex items-center gap-1">
                               <Zap className="w-3 h-3 fill-white" />
                               <span>BOOSTED</span>
                             </div>
@@ -605,13 +605,13 @@ export default function CampaignsFeedPage() {
                       </div>
 
                       {/* Right Column: Campaign Info & Repost Action */}
-                      <div className="w-full md:w-1/2 p-5 flex flex-col justify-between gap-4">
+                      <div className="w-full lg:w-1/2 p-5 flex flex-col justify-between gap-4">
                         {/* Top Line: Avatar + Name + Credits */}
                         <div className="flex items-start justify-between gap-4">
                           {/* Artist Info */}
                           <div className="flex items-center gap-3 min-w-0">
                             <img
-                              className="w-13 h-13 rounded-full object-cover ring-2 ring-white/10 shrink-0"
+                              className="w-14 h-14 rounded-full object-cover ring-2 ring-gray-100 dark:ring-gray-700 shrink-0"
                               src={campaign.user?.avatar || '/default_img/no_img.jpg'}
                               alt={campaign.user?.name || 'Avatar'}
                               onError={(e) => {
@@ -626,12 +626,12 @@ export default function CampaignsFeedPage() {
                                 }
                                 className="flex items-center gap-1 cursor-pointer group"
                               >
-                                <span className="text-white group-hover:text-[#FF5500] font-bold text-sm sm:text-base truncate transition-colors">
+                                <span className="text-slate-900 dark:text-white group-hover:text-orange-500 font-bold text-sm sm:text-base truncate transition-colors">
                                   {campaign.user?.name ||
                                     campaign.music?.author_username ||
                                     'SoundCloud Artist'}
                                 </span>
-                                <ChevronDown className="w-4 h-4 text-zinc-400 group-hover:text-[#FF5500] transition-colors shrink-0" />
+                                <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-orange-500 transition-colors shrink-0" />
                               </div>
 
                               <button
@@ -643,35 +643,35 @@ export default function CampaignsFeedPage() {
                                 <Star
                                   className={`w-4 h-4 ${
                                     isStarred
-                                      ? 'text-amber-400 fill-amber-400 drop-shadow-[0_0_6px_rgba(251,191,36,0.6)]'
-                                      : 'text-zinc-500 hover:text-zinc-300'
+                                      ? 'text-amber-400 fill-amber-400 drop-shadow-[0_0_4px_rgba(251,191,36,0.5)]'
+                                      : 'text-slate-400 dark:text-zinc-500 hover:text-slate-600 dark:hover:text-zinc-300'
                                   }`}
                                 />
-                                <span className="text-[10px] font-mono text-zinc-500 uppercase">
+                                <span className="text-[10px] font-mono text-slate-400 dark:text-zinc-500 uppercase font-bold">
                                   VERIFIED
                                 </span>
                               </button>
 
                               {/* Dropdown Menu */}
                               {isArtistMenuOpen && (
-                                <div className="absolute left-0 mt-2 w-56 rounded-xl shadow-2xl bg-[#1a1a1a] border border-white/10 p-1.5 z-40 backdrop-blur-xl">
+                                <div className="absolute left-0 mt-2 w-56 rounded-xl shadow-xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 p-1.5 z-40">
                                   {campaign.user?.soundcloud_permalink_url && (
                                     <a
                                       href={campaign.user.soundcloud_permalink_url}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] rounded-lg transition-colors"
+                                      className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
                                     >
                                       <span>Visit SoundCloud Profile</span>
-                                      <ExternalLink className="w-3.5 h-3.5 text-zinc-400" />
+                                      <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
                                     </a>
                                   )}
                                   <Link
                                     href="/user/members"
-                                    className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] rounded-lg transition-colors"
+                                    className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-slate-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
                                   >
                                     <span>View RepostChain Profile</span>
-                                    <ExternalLink className="w-3.5 h-3.5 text-zinc-400" />
+                                    <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
                                   </Link>
                                 </div>
                               )}
@@ -680,13 +680,13 @@ export default function CampaignsFeedPage() {
 
                           {/* Remaining Credits Counter */}
                           <div className="flex flex-col items-end shrink-0">
-                            <div className="flex items-center gap-1.5 text-[#FF5500]">
-                              <CreditCoinIcon className="w-5 h-3.5 shrink-0 text-[#FF5500]" />
-                              <span className="text-xl sm:text-2xl font-black font-mono text-white">
+                            <div className="flex items-center gap-1.5 text-orange-500">
+                              <CreditCoinIcon className="w-5 h-3.5 shrink-0 text-orange-500" />
+                              <span className="text-xl sm:text-2xl font-black font-mono text-slate-900 dark:text-white">
                                 {remainingCredits}
                               </span>
                             </div>
-                            <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400 mt-0.5">
+                            <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-zinc-500 mt-0.5">
                               REMAINING
                             </span>
                           </div>
@@ -695,38 +695,38 @@ export default function CampaignsFeedPage() {
                         {/* Middle Line: 15s Timer Progress Bar */}
                         <div className="space-y-1.5">
                           <div className="flex items-center justify-between text-xs">
-                            <span className="text-zinc-400 font-medium">
+                            <span className="text-slate-600 dark:text-zinc-400 font-medium">
                               {isReposted ? (
-                                <span className="text-[#10B981] font-semibold flex items-center gap-1">
+                                <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
                                   <CheckCircle2 className="w-3.5 h-3.5" />
                                   Completed Repost
                                 </span>
                               ) : isEligible ? (
-                                <span className="text-[#FF5500] font-bold flex items-center gap-1">
-                                  <Zap className="w-3.5 h-3.5 fill-[#FF5500]" />
+                                <span className="text-orange-600 dark:text-orange-500 font-bold flex items-center gap-1">
+                                  <Zap className="w-3.5 h-3.5 fill-orange-500" />
                                   Ready to Repost!
                                 </span>
                               ) : playSec > 0 ? (
-                                <span className="text-zinc-300">
+                                <span className="text-slate-700 dark:text-zinc-300">
                                   Listening... {15 - playSec}s left
                                 </span>
                               ) : (
-                                <span className="text-zinc-500">
+                                <span className="text-slate-400 dark:text-zinc-500">
                                   Play track for 15s to unlock repost
                                 </span>
                               )}
                             </span>
-                            <span className="font-mono text-[11px] text-zinc-500">
+                            <span className="font-mono text-[11px] text-slate-400 dark:text-zinc-500 font-semibold">
                               {playSec}s / 15s
                             </span>
                           </div>
 
-                          <div className="w-full bg-white/[0.08] h-2 rounded-full overflow-hidden p-0.5">
+                          <div className="w-full bg-gray-100 dark:bg-gray-700 h-2 rounded-full overflow-hidden p-0.5">
                             <div
                               className={`h-full rounded-full transition-all duration-300 ${
                                 isReposted
-                                  ? 'bg-gradient-to-r from-[#10B981] to-[#34D399]'
-                                  : 'bg-gradient-to-r from-[#FF5500] to-[#FF7730]'
+                                  ? 'bg-gradient-to-r from-emerald-500 to-teal-400'
+                                  : 'bg-gradient-to-r from-orange-500 to-amber-500'
                               }`}
                               style={{ width: `${isReposted ? 100 : playPct}%` }}
                             />
@@ -735,8 +735,8 @@ export default function CampaignsFeedPage() {
 
                         {/* Bottom Line: Genre Badge + Repost Button */}
                         <div className="flex items-center justify-between gap-3 pt-1">
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium bg-white/[0.06] border border-white/10 text-zinc-300">
-                            <Music className="w-3 h-3 text-[#FF5500]" />
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-slate-700 dark:text-zinc-300">
+                            <Music className="w-3 h-3 text-orange-500" />
                             <span>
                               {campaign.target_genre && campaign.target_genre !== 'anyGenre'
                                 ? campaign.target_genre
@@ -748,23 +748,23 @@ export default function CampaignsFeedPage() {
                           <div className="relative">
                             {/* Countdown Tooltip */}
                             {!isReposted && !isEligible && playSec > 0 && (
-                              <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap z-20 pointer-events-none">
+                              <div className="absolute -top-10 right-0 bg-slate-900 text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap z-30 pointer-events-none">
                                 <span>{Math.max(0, Math.ceil(15 - playSec))}s remaining</span>
-                                <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-px">
-                                  <div className="border-4 border-transparent border-t-gray-900" />
+                                <div className="absolute top-full right-4 -mt-px">
+                                  <div className="border-4 border-transparent border-t-slate-900" />
                                 </div>
                               </div>
                             )}
 
                             {/* Ready Tooltip */}
                             {!isReposted && isEligible && (
-                              <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-green-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap z-20 pointer-events-none animate-pulse">
+                              <div className="absolute -top-10 right-0 bg-emerald-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap z-30 pointer-events-none animate-pulse">
                                 <div className="flex items-center gap-1.5">
                                   <CheckCircle2 className="w-3.5 h-3.5" />
                                   <span>Ready ✓</span>
                                 </div>
-                                <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-px">
-                                  <div className="border-4 border-transparent border-t-green-600" />
+                                <div className="absolute top-full right-4 -mt-px">
+                                  <div className="border-4 border-transparent border-t-emerald-600" />
                                 </div>
                               </div>
                             )}
@@ -773,12 +773,12 @@ export default function CampaignsFeedPage() {
                               type="button"
                               disabled={!isEligible || isReposted || repostMutation.isPending}
                               onClick={() => repostMutation.mutate(campaign.id)}
-                              className={`repost-button relative overflow-hidden flex items-center gap-2 py-2 px-5 rounded-lg text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                              className={`repost-button relative flex items-center gap-2 py-2 px-5 rounded-lg text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                                 isReposted
-                                  ? 'bg-[#10B981] text-white !cursor-not-allowed shadow-md shadow-[#10B981]/25'
+                                  ? 'bg-emerald-600 text-white !cursor-not-allowed shadow-sm'
                                   : isEligible
-                                  ? 'sc-pill-orange shadow-lg shadow-[#FF5500]/30 hover:scale-[1.02] active:scale-95'
-                                  : 'bg-white/[0.08] text-zinc-400 border border-white/10 !cursor-not-allowed'
+                                  ? 'bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white shadow-md shadow-orange-500/25 hover:scale-[1.02] active:scale-95'
+                                  : 'bg-gray-100 dark:bg-gray-700/60 text-slate-400 dark:text-zinc-500 border border-gray-200 dark:border-gray-700 !cursor-not-allowed'
                               }`}
                             >
                               {isReposted ? (
@@ -795,7 +795,7 @@ export default function CampaignsFeedPage() {
                                 </>
                               ) : (
                                 <>
-                                  <CreditCoinIcon className="w-5 h-3.5 text-zinc-400" />
+                                  <CreditCoinIcon className="w-5 h-3.5 text-slate-400 dark:text-zinc-500" />
                                   <span>{userRepostPrice} Repost</span>
                                 </>
                               )}
@@ -809,12 +809,12 @@ export default function CampaignsFeedPage() {
               }
             )
           ) : (
-            <div className="text-center py-16 px-4 rounded-2xl bg-[#141414] border border-white/[0.08] shadow-xl">
-              <Music className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
-              <h3 className="sc-display text-xl font-black text-white tracking-wide">
+            <div className="text-center py-16 px-4 rounded-2xl bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-sm">
+              <Music className="w-12 h-12 text-slate-300 dark:text-zinc-600 mx-auto mb-3" />
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white tracking-wide">
                 NO CAMPAIGNS AVAILABLE
               </h3>
-              <p className="text-zinc-400 text-sm mt-1 max-w-md mx-auto">
+              <p className="text-slate-500 dark:text-zinc-400 text-sm mt-1 max-w-md mx-auto">
                 There are currently no active campaigns matching your selected filters. Try switching tabs or resetting your genre and search filters.
               </p>
               <button
@@ -826,22 +826,22 @@ export default function CampaignsFeedPage() {
                   setSearch('');
                   setPage(1);
                 }}
-                className="mt-5 sc-pill-dark px-5 py-2.5 text-xs font-bold border border-white/15 hover:border-white/40 cursor-pointer"
+                className="mt-5 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-slate-700 text-slate-700 dark:text-zinc-300 px-5 py-2.5 text-xs font-bold rounded-lg shadow-sm cursor-pointer transition-colors"
               >
                 Reset All Filters
               </button>
             </div>
           )}
 
-          {/* Editorial Pagination */}
+          {/* Clean Pagination */}
           {pagination.totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between border-t border-white/[0.08] mt-6 pt-4 gap-3">
-              <div className="text-xs font-mono text-zinc-400">
-                SHOWING <span className="font-bold text-white">{(page - 1) * 12 + 1}</span> TO{' '}
-                <span className="font-bold text-white">
+            <div className="flex flex-col sm:flex-row items-center justify-between border-t border-gray-200 dark:border-gray-700 mt-6 pt-4 gap-3">
+              <div className="text-xs font-mono text-slate-500 dark:text-zinc-400">
+                SHOWING <span className="font-bold text-slate-900 dark:text-white">{(page - 1) * 12 + 1}</span> TO{' '}
+                <span className="font-bold text-slate-900 dark:text-white">
                   {Math.min(page * 12, pagination.total)}
                 </span>{' '}
-                OF <span className="font-bold text-white">{pagination.total}</span> CAMPAIGNS
+                OF <span className="font-bold text-slate-900 dark:text-white">{pagination.total}</span> CAMPAIGNS
               </div>
 
               <div className="flex items-center gap-1.5">
@@ -849,7 +849,7 @@ export default function CampaignsFeedPage() {
                   type="button"
                   disabled={page <= 1}
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-lg bg-white/[0.06] border border-white/10 text-zinc-300 hover:bg-white/[0.12] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 transition-all"
+                  className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-lg bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 text-slate-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 transition-all shadow-sm"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" />
                   <span>Previous</span>
@@ -862,15 +862,15 @@ export default function CampaignsFeedPage() {
                     return (
                       <span key={p} className="flex items-center">
                         {prev && p - prev > 1 && (
-                          <span className="px-2 text-xs font-mono text-zinc-500">...</span>
+                          <span className="px-2 text-xs font-mono text-slate-400">...</span>
                         )}
                         <button
                           type="button"
                           onClick={() => setPage(p)}
                           className={`w-8 h-8 text-xs font-mono font-bold rounded-lg transition-all cursor-pointer ${
                             page === p
-                              ? 'bg-[#FF5500] text-white shadow-lg shadow-[#FF5500]/30'
-                              : 'bg-white/[0.06] border border-white/10 text-zinc-300 hover:bg-white/[0.12] hover:text-white'
+                              ? 'bg-orange-500 text-white shadow-sm'
+                              : 'bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 text-slate-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-slate-700'
                           }`}
                         >
                           {p}
@@ -883,7 +883,7 @@ export default function CampaignsFeedPage() {
                   type="button"
                   disabled={page >= pagination.totalPages}
                   onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
-                  className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-lg bg-white/[0.06] border border-white/10 text-zinc-300 hover:bg-white/[0.12] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 transition-all"
+                  className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-lg bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 text-slate-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 transition-all shadow-sm"
                 >
                   <span>Next</span>
                   <ChevronRight className="w-3.5 h-3.5" />
