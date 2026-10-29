@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
 
   const tab = searchParams.get('tab') || 'recommendedPro'; // 'recommendedPro' | 'recommended' | 'all' | 'mine'
   const search = (searchParams.get('search') || '').trim();
-  const genre = searchParams.get('genre') || '';
+  const genre = searchParams.get('genre') || searchParams.get('genres') || '';
   const trackType = searchParams.get('trackType') || 'all'; // 'all' | 'track' | 'playlist'
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
   const defaultPerPage = tab === 'mine' ? 50 : 12;
@@ -60,7 +60,15 @@ export async function GET(request: NextRequest) {
     }
 
     if (genre && genre !== 'all' && genre !== 'All Genres') {
-      baseWhere.target_genre = { contains: genre };
+      const genreList = genre.split(',').map((g) => g.trim()).filter(Boolean);
+      if (genreList.length === 1) {
+        baseWhere.target_genre = { contains: genreList[0] };
+      } else if (genreList.length > 1) {
+        baseWhere.OR = [
+          ...genreList.map((g) => ({ target_genre: { contains: g } })),
+          { target_genre: 'anyGenre' },
+        ];
+      }
     }
 
     if (trackType === 'track') {
@@ -178,7 +186,15 @@ export async function GET(request: NextRequest) {
     // Fallback preview mode when local MySQL is not running
     const filtered = FALLBACK_CAMPAIGNS.filter((c) => {
       if (tab === 'recommendedPro' && !c.pro_feature) return false;
-      if (genre && genre !== 'all' && c.target_genre !== genre) return false;
+      if (genre && genre !== 'all' && genre !== 'All Genres') {
+        const genreList = genre.split(',').map((g) => g.trim().toLowerCase()).filter(Boolean);
+        const cGenre = (c.target_genre || '').toLowerCase();
+        if (genreList.length > 0 && !genreList.some((g) => cGenre.includes(g) || cGenre === 'anygenre')) {
+          return false;
+        }
+      }
+      if (trackType === 'track' && c.music_type !== 'App\\Models\\Track') return false;
+      if (trackType === 'playlist' && c.music_type !== 'App\\Models\\Playlist') return false;
       if (
         search &&
         !c.title.toLowerCase().includes(search.toLowerCase()) &&

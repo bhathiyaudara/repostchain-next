@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Play, Pause, Volume2, Heart, Repeat2 } from 'lucide-react';
 
 interface SoundCloudPlayerProps {
@@ -20,6 +20,10 @@ interface SoundCloudPlayerProps {
   isPlaying?: boolean;
   playSeconds?: number;
   onTogglePlay?: () => void;
+  onProgress?: (seconds: number) => void;
+  onEligible?: () => void;
+  iframeId?: string;
+  forceMock?: boolean;
 }
 
 export function SoundCloudPlayer({
@@ -29,8 +33,12 @@ export function SoundCloudPlayer({
   isPlaying = false,
   playSeconds = 0,
   onTogglePlay,
+  onProgress,
+  onEligible,
+  iframeId,
+  forceMock = false,
 }: SoundCloudPlayerProps) {
-  const [embedActive, setEmbedActive] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
   if (!track) {
     return (
@@ -48,16 +56,41 @@ export function SoundCloudPlayer({
   const embedUrl = hasValidRealSoundcloudUrl
     ? `https://w.soundcloud.com/player/?url=${encodeURIComponent(
         track.permalink_url!
-      )}&color=%23ff5500&auto_play=true&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=${
+      )}&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&buying=false&sharing=false&download=false&visual=${
         visual ? 'true' : 'false'
       }`
     : null;
 
+  // Bind SC.Widget events if the SoundCloud Widget API is loaded
+  useEffect(() => {
+    if (!embedUrl || forceMock) return;
+
+    const setupWidget = () => {
+      const win = window as any;
+      if (typeof win !== 'undefined' && win.SC && win.SC.Widget && iframeRef.current) {
+        try {
+          const widget = win.SC.Widget(iframeRef.current);
+          widget.bind(win.SC.Widget.Events.PLAY, () => {
+            if (onTogglePlay) onTogglePlay();
+          });
+          widget.bind(win.SC.Widget.Events.PLAY_PROGRESS, (data: { currentPosition: number }) => {
+            const sec = (data?.currentPosition || 0) / 1000;
+            if (onProgress) onProgress(sec);
+            if (sec >= 15 && onEligible) onEligible();
+          });
+        } catch {
+          // Widget binding silent fallback
+        }
+      }
+    };
+
+    const timer = setTimeout(setupWidget, 500);
+    return () => clearTimeout(timer);
+  }, [embedUrl, forceMock, onTogglePlay, onProgress, onEligible]);
+
   const handlePlayClick = () => {
     if (onTogglePlay) {
       onTogglePlay();
-    } else if (embedUrl) {
-      setEmbedActive(true);
     }
   };
 
@@ -73,8 +106,10 @@ export function SoundCloudPlayer({
       className="soundcloud-embed-container w-full max-w-full overflow-hidden bg-white dark:bg-zinc-900 rounded-lg border border-gray-200 dark:border-zinc-800"
       style={{ borderTop: '2px solid #ff5500' }}
     >
-      {embedUrl && embedActive && !onTogglePlay ? (
+      {embedUrl && !forceMock ? (
         <iframe
+          ref={iframeRef}
+          id={iframeId || `sc-player-${track.id || 'track'}`}
           width="100%"
           height={height}
           scrolling="no"
@@ -179,8 +214,9 @@ export function SoundCloudPlayer({
                   );
                 })}
               </div>
-              {/* Bottom Mirrored Reflection Bars (Signature SoundCloud style) */}
-              <div className="flex items-start gap-[2px] h-2.5 mt-[1px] opacity-45">
+
+              {/* Bottom Mirror Reflection Bars */}
+              <div className="flex items-start gap-[2px] h-3.5 opacity-60">
                 {waveformBars.map((barHeight, idx) => {
                   const barProgress = idx / waveformBars.length;
                   const isFilled =
@@ -189,10 +225,12 @@ export function SoundCloudPlayer({
                   return (
                     <div
                       key={idx}
-                      className={`flex-1 rounded-b-[1px] ${
-                        isFilled ? 'bg-[#ff8833]' : 'bg-gray-400/50 dark:bg-zinc-700'
+                      className={`flex-1 rounded-b-[1px] transition-colors duration-150 ${
+                        isFilled
+                          ? 'bg-[#ff5500]'
+                          : 'bg-gray-400/70 dark:bg-zinc-600 group-hover:bg-[#ff5500]/60'
                       }`}
-                      style={{ height: `${Math.max(20, Math.round(barHeight * 0.45))}%` }}
+                      style={{ height: `${barHeight * 0.45}%` }}
                     />
                   );
                 })}
@@ -202,10 +240,10 @@ export function SoundCloudPlayer({
               <span className="absolute left-0 bottom-2 bg-black/80 text-[#ff5500] text-[9px] font-mono px-1 py-0.2 rounded">
                 {playSeconds > 0
                   ? `0:${String(Math.floor(playSeconds)).padStart(2, '0')}`
-                  : '0:24'}
+                  : '0:00'}
               </span>
               <span className="absolute right-0 bottom-2 bg-black/80 text-zinc-300 text-[9px] font-mono px-1 py-0.2 rounded">
-                3:18
+                0:15 / REPOST
               </span>
             </div>
 
@@ -215,7 +253,7 @@ export function SoundCloudPlayer({
                   <Volume2 className="w-3.5 h-3.5 text-[#ff5500]" />
                   {playSeconds > 0
                     ? `${playSeconds.toFixed(0)}s played`
-                    : 'Click waveform to stream'}
+                    : 'Click play to listen'}
                 </span>
                 {typeof track.favoritings_count === 'number' && track.favoritings_count > 0 && (
                   <span className="hidden sm:inline-flex items-center gap-1 text-zinc-400">

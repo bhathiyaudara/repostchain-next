@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { useState, useEffect, useRef } from 'react';
+import Script from 'next/script';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Plus,
@@ -9,35 +9,18 @@ import {
   ChevronUp,
   Search,
   Star,
-  Flame,
-  Zap,
-  Radio,
-  ExternalLink,
   Music,
+  ExternalLink,
   CheckCircle2,
   X,
-  Play,
-  Share2,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { SoundCloudPlayer } from '@/components/soundcloud-player';
 import { DashboardSummary } from '@/components/dashboard-summary';
 import { CreateCampaignModal } from '@/components/campaigns/CreateCampaignModal';
 
-function RepostChainMark({ className = 'w-4 h-4' }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path
-        d="M17 2l4 4-4 4M21 6H9a5 5 0 00-5 5v1M7 22l-4-4 4-4M3 18h12a5 5 0 005-5v-1"
-        stroke="#FF5500"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-const GENRES = [
+const ALL_GENRES = [
   'All Genres',
   'Electronic',
   'Melodic Techno',
@@ -49,14 +32,19 @@ const GENRES = [
   'Trap',
   'Progressive House',
   'Ambient',
+  'Future Bass',
+  'House',
+  'R&B',
+  'Rock',
 ];
 
 export default function CampaignsFeedPage() {
   const queryClient = useQueryClient();
-  const [activeMainTab, setActiveMainTab] = useState<'recommended_pro' | 'recommended' | 'all'>('all');
+  const [activeMainTab, setActiveMainTab] = useState<'recommended_pro' | 'recommended' | 'all'>('recommended_pro');
   const [trackType, setTrackType] = useState<'all' | 'track' | 'playlist'>('all');
-  const [selectedGenre, setSelectedGenre] = useState<string>('All Genres');
+  const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
   const [showStats, setShowStats] = useState(false);
   const [openTrackTypeDropdown, setOpenTrackTypeDropdown] = useState(false);
   const [openGenreDropdown, setOpenGenreDropdown] = useState(false);
@@ -67,8 +55,13 @@ export default function CampaignsFeedPage() {
   const [openArtistMenuId, setOpenArtistMenuId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
+  // Suggested tags autocomplete
+  const [suggestedTags, setSuggestedTags] = useState<string[]>([]);
+  const [showTagSuggestions, setShowTagSuggestions] = useState(false);
+
+  // Fetch campaigns feed
   const { data, isLoading } = useQuery({
-    queryKey: ['campaigns-feed', activeMainTab, trackType, selectedGenre, search],
+    queryKey: ['campaigns-feed', activeMainTab, trackType, selectedGenres, search, page],
     queryFn: async () => {
       const params = new URLSearchParams();
       params.set(
@@ -76,14 +69,18 @@ export default function CampaignsFeedPage() {
         activeMainTab === 'recommended_pro' ? 'recommendedPro' : activeMainTab
       );
       if (trackType !== 'all') params.set('trackType', trackType);
-      if (selectedGenre !== 'All Genres') params.set('genre', selectedGenre);
+      if (selectedGenres.length > 0) params.set('genre', selectedGenres.join(','));
       if (search) params.set('search', search);
+      params.set('page', String(page));
+      params.set('perPage', '12');
+
       const res = await fetch(`/api/user/campaigns?${params.toString()}`);
       if (!res.ok) throw new Error('Failed to load campaigns');
       return res.json();
     },
   });
 
+  // Fetch dashboard summary
   const { data: dashData } = useQuery({
     queryKey: ['user-dashboard'],
     queryFn: async () => {
@@ -93,7 +90,7 @@ export default function CampaignsFeedPage() {
     },
   });
 
-  // 15-second playback timer for active playing track
+  // 15-second playback timer for active track
   useEffect(() => {
     if (!playingCampaignId) return;
     const interval = setInterval(() => {
@@ -117,6 +114,21 @@ export default function CampaignsFeedPage() {
       setRepostedIds((prev) => ({ ...initialReposts, ...prev }));
     }
   }, [data]);
+
+  // Handle genre toggle
+  const toggleGenre = (genre: string) => {
+    if (genre === 'All Genres') {
+      setSelectedGenres([]);
+      setPage(1);
+      return;
+    }
+    setSelectedGenres((prev) => {
+      const exists = prev.includes(genre);
+      const updated = exists ? prev.filter((g) => g !== genre) : [...prev, genre];
+      return updated;
+    });
+    setPage(1);
+  };
 
   // Repost mutation
   const repostMutation = useMutation({
@@ -189,6 +201,12 @@ export default function CampaignsFeedPage() {
     recommended: campaigns.length,
     all: campaigns.length,
   };
+  const pagination = data?.pagination || {
+    page: 1,
+    perPage: 12,
+    total: campaigns.length,
+    totalPages: Math.ceil((campaigns.length || 1) / 12),
+  };
 
   const togglePlay = (campaignId: string) => {
     setPlayingCampaignId((prev) => (prev === campaignId ? null : campaignId));
@@ -196,171 +214,122 @@ export default function CampaignsFeedPage() {
 
   const availableCredits = dashData?.kpis?.availableCredits ?? 0;
   const recentTracks = dashData?.recentTracks || [];
+  const userRepostPrice = dashData?.user?.repost_price || 1;
 
   return (
-    <div className="sc-dash space-y-6 max-w-[1600px] mx-auto pb-16 px-2 sm:px-4 lg:px-6">
-      {/* ========================================================= */}
-      {/* 1. EDITORIAL HERO HEADER STRIP */}
-      {/* ========================================================= */}
-      <div className="relative rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] p-[1px] shadow-2xl">
-        <div className="rounded-[23px] bg-[#121212] p-6 sm:p-8 relative overflow-hidden">
-          {/* Subtle Ambient Radial Glow */}
-          <div
-            className="absolute -top-24 -right-24 w-80 h-80 bg-[#FF5500]/15 rounded-full blur-[100px] pointer-events-none"
-            aria-hidden="true"
-          />
+    <div>
+      {/* SoundCloud Widget API Script */}
+      <Script src="https://w.soundcloud.com/player/api.js" strategy="lazyOnload" />
 
-          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            <div>
-              {/* Rounded Editorial Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 mb-3.5 backdrop-blur-sm">
-                <RepostChainMark className="w-3.5 h-3.5 drop-shadow-[0_0_6px_rgba(255,85,0,0.4)]" />
-                <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-300">
-                  CREATOR CAMPAIGN EXCHANGE
-                </span>
-                <span className="w-1 h-1 rounded-full bg-white/20" />
-                <span className="text-[10px] font-mono text-[#FF5500] font-bold flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
-                  LIVE NETWORK
-                </span>
+      <section className="flex flex-col xl:flex-row gap-4 lg:gap-6 max-w-screen-2xl mx-auto">
+        {/* ========================================================= */}
+        {/* LEFT COLUMN: MAIN CAMPAIGN FEED */}
+        {/* ========================================================= */}
+        <div className="w-full min-w-0 flex-1">
+          {/* Top Tabs + Start Campaign Button (Exact match to redesign-campaign.blade.php) */}
+          <div className="mb-4">
+            <div className="border-b border-gray-200 dark:border-zinc-800 flex flex-wrap justify-between items-center gap-3 pb-2">
+              {/* Tab Navigation */}
+              <nav className="-mb-px flex overflow-x-auto no-scrollbar whitespace-nowrap space-x-4 md:space-x-8">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveMainTab('recommended_pro');
+                    setPage(1);
+                  }}
+                  className={`tab-button py-2.5 px-1 text-sm md:text-base font-semibold transition-all duration-200 cursor-pointer border-b-2 flex items-center gap-2 ${
+                    activeMainTab === 'recommended_pro'
+                      ? 'border-[#FF5500] text-[#FF5500]'
+                      : 'border-transparent text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300'
+                  }`}
+                >
+                  <span>Recommended Pro</span>
+                  <span className="text-xs text-[#FF5500] font-mono">
+                    ({counts.recommendedPro})
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveMainTab('recommended');
+                    setPage(1);
+                  }}
+                  className={`tab-button py-2.5 px-1 text-sm md:text-base font-semibold transition-all duration-200 cursor-pointer border-b-2 flex items-center gap-2 ${
+                    activeMainTab === 'recommended'
+                      ? 'border-[#FF5500] text-[#FF5500]'
+                      : 'border-transparent text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300'
+                  }`}
+                >
+                  <span>Recommended</span>
+                  <span className="text-xs text-[#FF5500] font-mono">
+                    ({counts.recommended})
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveMainTab('all');
+                    setPage(1);
+                  }}
+                  className={`tab-button py-2.5 px-1 text-sm md:text-base font-semibold transition-all duration-200 cursor-pointer border-b-2 flex items-center gap-2 ${
+                    activeMainTab === 'all'
+                      ? 'border-[#FF5500] text-[#FF5500]'
+                      : 'border-transparent text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300'
+                  }`}
+                >
+                  <span>All</span>
+                  <span className="text-xs text-[#FF5500] font-mono">
+                    ({counts.all})
+                  </span>
+                </button>
+              </nav>
+
+              {/* Action Buttons */}
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(true)}
+                  className="font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#FF5500] focus:ring-offset-2 rounded-lg inline-flex items-center justify-center bg-[#FF5500] hover:bg-[#ff6614] text-white px-4 py-2 text-sm shadow-md shadow-[#FF5500]/25 cursor-pointer active:scale-95"
+                >
+                  <Plus className="w-5 h-5 mr-1" />
+                  <span>Start a new campaign</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowStats(!showStats)}
+                  className="xl:hidden flex items-center gap-1 text-sm font-medium text-[#FF5500] cursor-pointer"
+                >
+                  <span>{showStats ? 'Hide Stats' : 'Show Stats'}</span>
+                  {showStats ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
               </div>
-
-              {/* Bold All-Caps Display Headline */}
-              <h1 className="sc-display text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-[0.95]">
-                CAMPAIGN FEED
-              </h1>
-              <p className="text-zinc-400 text-sm sm:text-base mt-2 max-w-2xl font-normal leading-relaxed">
-                Listen to verified community tracks for 15 seconds to unlock reposts, earn promotion credits, and boost your SoundCloud reach.
-              </p>
-            </div>
-
-            {/* Quick Action Navigation */}
-            <div className="flex flex-wrap items-center gap-3 shrink-0">
-              <button
-                type="button"
-                onClick={() => setShowCreateModal(true)}
-                className="sc-pill-orange px-6 py-3 text-xs sm:text-sm font-bold shadow-xl shadow-[#FF5500]/25 hover:scale-[1.02] active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
-              >
-                <Plus className="w-4 h-4 stroke-[3]" />
-                <span>Start a new campaign</span>
-              </button>
-
-              <Link
-                href="/user/campaign-management/my-campaigns"
-                className="sc-pill-dark px-5 py-3 text-xs sm:text-sm font-bold border border-white/15 hover:border-white/40 transition-all flex items-center gap-2"
-              >
-                <Radio className="w-4 h-4 text-[#FF5500]" />
-                <span>My Campaigns</span>
-              </Link>
-
-              {/* Mobile Stats Toggle */}
-              <button
-                type="button"
-                onClick={() => setShowStats(!showStats)}
-                className="xl:hidden sc-pill-dark px-4 py-3 text-xs font-bold border border-white/15 flex items-center gap-1.5 text-zinc-300 hover:text-white cursor-pointer"
-              >
-                <span>{showStats ? 'Hide Stats' : 'Show Stats'}</span>
-                {showStats ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-              </button>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Mobile/Tablet Collapsible Dashboard Summary */}
-      {showStats && (
-        <div className="xl:hidden">
-          <DashboardSummary
-            earnings={1}
-            dailyRepostCurrent={Object.keys(repostedIds).length}
-            dailyRepostMax={20}
-            responseRate={98}
-            pendingRequests={dashData?.pendingRequests?.length ?? 2}
-            requestLimit={20}
-            credits={availableCredits}
-            campaigns={dashData?.kpis?.activeCampaigns ?? 2}
-            campaignLimit={10}
-          />
-        </div>
-      )}
-
-      {/* ========================================================= */}
-      {/* 2. MAIN FEED + SIDEBAR LAYOUT */}
-      {/* ========================================================= */}
-      <section className="flex flex-col xl:flex-row gap-6">
-        {/* Left Column: Feed Content */}
-        <div className="w-full min-w-0 flex-1 space-y-4">
-          {/* Controls Bar: Pill Tabs & Filters */}
-          <div className="relative rounded-2xl bg-[#141414] border border-white/[0.08] p-3 sm:p-4 shadow-xl flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 z-30">
-            {/* Editorial Segmented Pill Tabs */}
-            <div className="inline-flex p-1 rounded-xl bg-black/40 border border-white/[0.08] overflow-x-auto no-scrollbar shrink-0">
-              <button
-                type="button"
-                onClick={() => setActiveMainTab('recommended_pro')}
-                className={`py-2 px-3 sm:px-4 text-xs font-bold uppercase tracking-wider rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
-                  activeMainTab === 'recommended_pro'
-                    ? 'bg-[#FF5500] text-white shadow-md shadow-[#FF5500]/30'
-                    : 'text-zinc-400 hover:text-white hover:bg-white/[0.04]'
-                }`}
-              >
-                <span>Recommended Pro</span>
-                <span
-                  className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
-                    activeMainTab === 'recommended_pro'
-                      ? 'bg-black/30 text-white'
-                      : 'bg-white/[0.08] text-zinc-300'
-                  }`}
-                >
-                  {counts.recommendedPro}
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveMainTab('recommended')}
-                className={`py-2 px-3 sm:px-4 text-xs font-bold uppercase tracking-wider rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
-                  activeMainTab === 'recommended'
-                    ? 'bg-[#FF5500] text-white shadow-md shadow-[#FF5500]/30'
-                    : 'text-zinc-400 hover:text-white hover:bg-white/[0.04]'
-                }`}
-              >
-                <span>Recommended</span>
-                <span
-                  className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
-                    activeMainTab === 'recommended'
-                      ? 'bg-black/30 text-white'
-                      : 'bg-white/[0.08] text-zinc-300'
-                  }`}
-                >
-                  {counts.recommended}
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveMainTab('all')}
-                className={`py-2 px-3 sm:px-4 text-xs font-bold uppercase tracking-wider rounded-lg transition-all flex items-center gap-2 cursor-pointer ${
-                  activeMainTab === 'all'
-                    ? 'bg-[#FF5500] text-white shadow-md shadow-[#FF5500]/30'
-                    : 'text-zinc-400 hover:text-white hover:bg-white/[0.04]'
-                }`}
-              >
-                <span>All</span>
-                <span
-                  className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
-                    activeMainTab === 'all'
-                      ? 'bg-black/30 text-white'
-                      : 'bg-white/[0.08] text-zinc-300'
-                  }`}
-                >
-                  {counts.all}
-                </span>
-              </button>
+          {/* Mobile/Tablet Collapsible Dashboard Summary */}
+          {showStats && (
+            <div className="xl:hidden mb-6">
+              <DashboardSummary
+                earnings={1}
+                dailyRepostCurrent={Object.keys(repostedIds).length}
+                dailyRepostMax={20}
+                responseRate={98}
+                pendingRequests={dashData?.pendingRequests?.length ?? 2}
+                requestLimit={20}
+                credits={availableCredits}
+                campaigns={dashData?.kpis?.activeCampaigns ?? 2}
+                campaignLimit={10}
+              />
             </div>
+          )}
 
-            {/* Filter Dropdowns & Search */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1 justify-end">
-              {/* Track Type Dropdown */}
+          {/* Filter options (Track Type + Multi-select Genre + Search tags) */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-4 relative z-30">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+              {/* Filter by track type */}
               <div className="relative">
                 <button
                   type="button"
@@ -368,15 +337,17 @@ export default function CampaignsFeedPage() {
                     setOpenTrackTypeDropdown(!openTrackTypeDropdown);
                     setOpenGenreDropdown(false);
                   }}
-                  className="w-full sm:w-auto bg-[#1A1A1A] hover:bg-[#222222] border border-white/10 hover:border-[#FF5500]/50 text-white px-3.5 py-2 text-xs font-bold uppercase tracking-wider rounded-xl shadow-md flex items-center justify-between gap-2.5 transition-all cursor-pointer"
+                  className="w-full sm:w-auto bg-orange-100 dark:bg-orange-950/40 hover:bg-orange-200 dark:hover:bg-orange-900/50 text-[#FF5500] px-4 py-2 text-sm font-medium rounded-md shadow-sm flex items-center justify-between gap-2 transition-colors cursor-pointer border border-orange-500/20"
                 >
-                  <span className="text-zinc-400">Type:</span>
-                  <span className="text-white capitalize">{trackType === 'all' ? 'All' : `${trackType}s`}</span>
-                  <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
+                  <span>
+                    Filter by track type /{' '}
+                    {trackType === 'all' ? 'All' : trackType === 'track' ? 'Tracks' : 'Playlists'}
+                  </span>
+                  <ChevronDown className="w-4 h-4" />
                 </button>
 
                 {openTrackTypeDropdown && (
-                  <div className="absolute right-0 mt-2 w-48 rounded-xl shadow-2xl bg-[#161616] border border-white/10 p-1.5 z-50 backdrop-blur-xl animate-in fade-in slide-in-from-top-1">
+                  <div className="absolute left-0 mt-2 w-56 rounded-md shadow-xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 z-50 py-1">
                     {(['all', 'track', 'playlist'] as const).map((type) => (
                       <button
                         key={type}
@@ -384,22 +355,22 @@ export default function CampaignsFeedPage() {
                         onClick={() => {
                           setTrackType(type);
                           setOpenTrackTypeDropdown(false);
+                          setPage(1);
                         }}
-                        className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg capitalize flex items-center justify-between transition-colors cursor-pointer ${
+                        className={`block w-full text-left px-4 py-2 text-sm border-b border-gray-100 dark:border-zinc-800 capitalize transition-colors ${
                           trackType === type
-                            ? 'bg-[#FF5500] text-white font-bold'
-                            : 'text-zinc-300 hover:bg-white/[0.08] hover:text-white'
+                            ? 'bg-orange-100 dark:bg-zinc-800 text-[#FF5500] font-semibold'
+                            : 'text-gray-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-zinc-800'
                         }`}
                       >
-                        <span>{type === 'all' ? 'All Types' : `${type}s Only`}</span>
-                        {trackType === type && <CheckCircle2 className="w-3.5 h-3.5" />}
+                        {type === 'all' ? 'All Types' : `${type}s Only`}
                       </button>
                     ))}
                   </div>
                 )}
               </div>
 
-              {/* Genre Dropdown */}
+              {/* Filter by genre (Multi-select popover) */}
               <div className="relative">
                 <button
                   type="button"
@@ -407,73 +378,103 @@ export default function CampaignsFeedPage() {
                     setOpenGenreDropdown(!openGenreDropdown);
                     setOpenTrackTypeDropdown(false);
                   }}
-                  className="w-full sm:w-auto bg-[#1A1A1A] hover:bg-[#222222] border border-white/10 hover:border-[#FF5500]/50 text-white px-3.5 py-2 text-xs font-bold uppercase tracking-wider rounded-xl shadow-md flex items-center justify-between gap-2.5 transition-all cursor-pointer"
+                  className={`w-full sm:w-auto px-4 py-2 rounded-md flex items-center gap-2 text-sm font-medium transition-colors cursor-pointer ${
+                    selectedGenres.length > 0
+                      ? 'bg-orange-100 dark:bg-orange-950/40 text-[#FF5500] border border-orange-500/30'
+                      : 'bg-orange-100 dark:bg-orange-950/40 hover:bg-orange-200 dark:hover:bg-orange-900/50 text-[#FF5500] border border-orange-500/20'
+                  }`}
                 >
-                  <span className="text-zinc-400">Genre:</span>
-                  <span className="text-white truncate max-w-[110px]">{selectedGenre}</span>
-                  <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
+                  <Music className="w-4 h-4" />
+                  <span>
+                    Filter by genre / {selectedGenres.length}
+                  </span>
+                  <ChevronDown className="w-4 h-4" />
                 </button>
 
                 {openGenreDropdown && (
-                  <div className="absolute right-0 mt-2 w-64 rounded-xl shadow-2xl bg-[#161616] border border-white/10 p-2 max-h-80 overflow-y-auto z-50 backdrop-blur-xl">
-                    <div className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 px-2 py-1">
-                      Select Target Genre
+                  <div className="absolute left-0 mt-2 w-80 sm:w-96 rounded-xl shadow-2xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 z-50 p-3 max-h-96 overflow-y-auto">
+                    <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-100 dark:border-zinc-800">
+                      <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-zinc-400">
+                        Select Genres
+                      </span>
+                      {selectedGenres.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedGenres([]);
+                            setPage(1);
+                          }}
+                          className="text-xs text-[#FF5500] hover:underline font-medium cursor-pointer"
+                        >
+                          Clear All
+                        </button>
+                      )}
                     </div>
-                    {GENRES.map((genre) => (
-                      <button
-                        key={genre}
-                        type="button"
-                        onClick={() => {
-                          setSelectedGenre(genre);
-                          setOpenGenreDropdown(false);
-                        }}
-                        className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg flex items-center justify-between transition-colors cursor-pointer ${
-                          selectedGenre === genre
-                            ? 'bg-[#FF5500] text-white font-bold'
-                            : 'text-zinc-300 hover:bg-white/[0.08] hover:text-white'
-                        }`}
-                      >
-                        <span>{genre}</span>
-                        {selectedGenre === genre && <CheckCircle2 className="w-3.5 h-3.5" />}
-                      </button>
-                    ))}
+                    <div className="flex flex-wrap gap-2">
+                      {ALL_GENRES.map((genre) => {
+                        const isSelected =
+                          genre === 'All Genres'
+                            ? selectedGenres.length === 0
+                            : selectedGenres.includes(genre);
+                        return (
+                          <button
+                            key={genre}
+                            type="button"
+                            onClick={() => toggleGenre(genre)}
+                            className={`inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md transition-all cursor-pointer ${
+                              isSelected
+                                ? 'bg-[#FF5500] text-white shadow-sm'
+                                : 'bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-700'
+                            }`}
+                          >
+                            <span>{genre}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
               </div>
+            </div>
 
-              {/* Search Box */}
-              <div className="relative flex-1 sm:w-56">
-                <div className="relative flex items-center bg-[#1A1A1A] border border-white/10 focus-within:border-[#FF5500] focus-within:ring-2 focus-within:ring-[#FF5500]/20 rounded-xl transition-all">
-                  <Search className="w-4 h-4 absolute left-3 text-zinc-400 pointer-events-none" />
-                  <input
-                    type="text"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search tags or titles..."
-                    className="w-full py-2 pl-9 pr-8 text-xs font-medium text-white placeholder-zinc-500 bg-transparent border-0 rounded-xl focus:outline-none"
-                  />
-                  {search && (
-                    <button
-                      type="button"
-                      onClick={() => setSearch('')}
-                      className="absolute right-2.5 text-zinc-400 hover:text-white cursor-pointer"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
+            {/* Search Box */}
+            <div className="w-full flex-1 relative">
+              <div className="relative flex items-center text-gray-600 dark:text-zinc-400 border border-gray-300 dark:border-zinc-700 rounded bg-white dark:bg-zinc-900">
+                <Search className="w-4 h-4 absolute left-2.5 text-gray-500 dark:text-zinc-400 pointer-events-none" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setPage(1);
+                  }}
+                  placeholder="Type to search tags..."
+                  className="w-full py-2 pl-8 pr-8 text-sm text-gray-900 dark:text-zinc-200 bg-transparent border-0 rounded focus:outline-none focus:ring-1 focus:ring-orange-400"
+                />
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearch('');
+                      setPage(1);
+                    }}
+                    className="absolute right-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-white cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Campaign Feed Cards List */}
-          <div className="space-y-4">
+          {/* Campaign Cards List */}
+          <div className="flex flex-col space-y-4">
             {isLoading ? (
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="h-44 rounded-3xl bg-[#141414] border border-white/[0.06] animate-pulse"
+                    className="h-44 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg animate-pulse"
                   />
                 ))}
               </div>
@@ -516,11 +517,11 @@ export default function CampaignsFeedPage() {
                   return (
                     <div
                       key={campaign.id}
-                      className="relative rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] p-[1px] hover:from-[#FF5500]/30 hover:to-white/[0.06] transition-all duration-300 shadow-xl group"
+                      className="campaign-card bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden"
                     >
-                      <div className="rounded-[23px] bg-[#121212] overflow-hidden flex flex-col lg:flex-row">
-                        {/* Left Column: Player & Badges */}
-                        <div className="w-full lg:w-1/2 border-b lg:border-b-0 lg:border-r border-white/[0.08] bg-[#0c0c0c] relative flex flex-col justify-center">
+                      <div className="flex flex-col lg:flex-row">
+                        {/* Left Column: Authentic SoundCloud Player */}
+                        <div className="w-full lg:w-1/2 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-900 relative">
                           <SoundCloudPlayer
                             track={campaign.music}
                             height={166}
@@ -528,231 +529,257 @@ export default function CampaignsFeedPage() {
                             isPlaying={playingCampaignId === campaign.id}
                             playSeconds={playSec}
                             onTogglePlay={() => togglePlay(campaign.id)}
+                            onProgress={(sec) => {
+                              setPlayTimes((prev) => ({
+                                ...prev,
+                                [campaign.id]: Math.min(15, sec),
+                              }));
+                            }}
+                            onEligible={() => {
+                              setPlayTimes((prev) => ({
+                                ...prev,
+                                [campaign.id]: 15,
+                              }));
+                            }}
                           />
 
-                          {/* Editorial Floating Badges */}
-                          <div className="absolute top-3 left-3 flex items-center gap-2 pointer-events-none z-10">
+                          {/* Featured & Boosted Badges */}
+                          <div className="absolute top-2 left-2 flex items-center space-x-2 pointer-events-none z-10">
                             {campaign.is_featured ? (
-                              <div className="bg-gradient-to-r from-[#FF5500] to-[#FF7730] text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-lg shadow-[#FF5500]/40 flex items-center gap-1">
-                                <Flame className="w-3 h-3 fill-white" />
-                                <span>FEATURED</span>
+                              <div className="bg-[#FF5500] text-white text-xs font-semibold px-2 py-0.5 rounded shadow z-10 tracking-wide">
+                                FEATURED
                               </div>
                             ) : null}
                             {campaign.is_boost ? (
-                              <div className="bg-gradient-to-r from-[#8B5CF6] to-[#A78BFA] text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-lg shadow-[#8B5CF6]/40 flex items-center gap-1">
-                                <Zap className="w-3 h-3 fill-white" />
-                                <span>BOOSTED</span>
+                              <div className="bg-purple-600 text-white text-xs font-semibold px-2 py-0.5 rounded shadow z-10 tracking-wide">
+                                Boosted
                               </div>
                             ) : null}
                           </div>
                         </div>
 
-                        {/* Right Column: Artist Details & Repost Action */}
-                        <div className="w-full lg:w-1/2 p-5 sm:p-6 flex flex-col justify-between gap-5 bg-gradient-to-b from-transparent to-white/[0.01]">
-                          {/* Top Row: Artist & Credits */}
-                          <div className="flex items-start justify-between gap-4">
+                        {/* Right Column: Campaign Info & Repost Action */}
+                        <div className="w-full lg:w-1/2 p-4 flex flex-col justify-between">
+                          <div className="flex flex-col sm:flex-row relative items-start sm:items-center justify-between gap-4 mb-4">
                             {/* Artist Avatar & Name Dropdown */}
-                            <div className="flex items-center gap-3.5 min-w-0">
+                            <div className="flex items-center gap-3 w-full">
                               <img
-                                className="w-13 h-13 sm:w-14 sm:h-14 rounded-full object-cover ring-2 ring-white/10 group-hover:ring-[#FF5500]/40 transition-all shadow-md shrink-0"
+                                className="w-14 h-14 rounded-full object-cover shrink-0 border border-gray-200 dark:border-zinc-700"
                                 src={campaign.user?.avatar || '/default_img/no_img.jpg'}
-                                alt={campaign.user?.name || 'Artist'}
+                                alt={campaign.user?.name || 'Avatar'}
                                 onError={(e) => {
                                   (e.currentTarget as HTMLImageElement).src = '/default_img/no_img.jpg';
                                 }}
                               />
 
-                              <div className="min-w-0 relative">
-                                <div className="flex items-center gap-1.5">
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      setOpenArtistMenuId(isArtistMenuOpen ? null : campaign.id)
-                                    }
-                                    className="text-white hover:text-[#FF5500] font-bold text-sm sm:text-base truncate transition-colors flex items-center gap-1 cursor-pointer"
-                                  >
-                                    <span>
-                                      {campaign.user?.name ||
-                                        campaign.music?.author_username ||
-                                        'SoundCloud Artist'}
-                                    </span>
-                                    <ChevronDown className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
-                                  </button>
+                              <div className="inline-block text-left relative min-w-0">
+                                <div
+                                  onClick={() =>
+                                    setOpenArtistMenuId(isArtistMenuOpen ? null : campaign.id)
+                                  }
+                                  className="flex items-center gap-1 cursor-pointer group"
+                                >
+                                  <span className="text-gray-900 dark:text-zinc-200 font-medium truncate group-hover:text-[#FF5500] transition-colors">
+                                    {campaign.user?.name ||
+                                      campaign.music?.author_username ||
+                                      'SoundCloud Artist'}
+                                  </span>
+                                  <ChevronDown className="w-4 h-4 text-gray-500 dark:text-zinc-400 shrink-0" />
                                 </div>
 
-                                <div className="flex items-center gap-2 mt-1">
-                                  <button
-                                    type="button"
-                                    onClick={() => handleToggleStar(artistUrn)}
-                                    title={isStarred ? 'Unstar creator' : 'Star creator'}
-                                    className="cursor-pointer hover:scale-110 transition-transform"
-                                  >
-                                    <Star
-                                      className={`w-4 h-4 ${
-                                        isStarred
-                                          ? 'text-[#FFB200] fill-[#FFB200] drop-shadow-[0_0_8px_rgba(255,178,0,0.5)]'
-                                          : 'text-zinc-500 hover:text-zinc-300'
-                                      }`}
-                                    />
-                                  </button>
-                                  <span className="text-[11px] font-mono text-zinc-500 uppercase">
-                                    VERIFIED CREATOR
-                                  </span>
-                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleStar(artistUrn)}
+                                  className="cursor-pointer mt-1"
+                                  title={isStarred ? 'Unstar creator' : 'Star creator'}
+                                >
+                                  <Star
+                                    className={`w-5 h-5 ${
+                                      isStarred
+                                        ? 'text-orange-400 fill-orange-400'
+                                        : 'text-gray-400 dark:text-zinc-500 hover:text-gray-600'
+                                    }`}
+                                  />
+                                </button>
 
                                 {/* Artist Links Popover */}
                                 {isArtistMenuOpen && (
-                                  <div className="absolute left-0 mt-2 w-56 rounded-xl shadow-2xl bg-[#181818] border border-white/10 p-1.5 z-40 backdrop-blur-xl">
+                                  <div className="absolute left-0 mt-2 w-56 rounded-md shadow-xl bg-gray-900 text-white text-sm p-2 space-y-1 z-50">
                                     {campaign.user?.soundcloud_permalink_url && (
                                       <a
                                         href={campaign.user.soundcloud_permalink_url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] rounded-lg transition-colors"
+                                        className="block hover:bg-gray-800 px-3 py-1.5 rounded transition-colors text-xs flex items-center justify-between"
                                       >
                                         <span>Visit SoundCloud Profile</span>
                                         <ExternalLink className="w-3.5 h-3.5 text-zinc-400" />
                                       </a>
                                     )}
-                                    <Link
-                                      href={`/user/members`}
-                                      className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] rounded-lg transition-colors"
+                                    <a
+                                      href="/user/members"
+                                      className="block hover:bg-gray-800 px-3 py-1.5 rounded transition-colors text-xs flex items-center justify-between"
                                     >
-                                      <span>View RepostChain Profile</span>
-                                      <RepostChainMark className="w-3 h-3" />
-                                    </Link>
+                                      <span>Visit RepostChain Profile</span>
+                                      <ExternalLink className="w-3.5 h-3.5 text-zinc-400" />
+                                    </a>
                                   </div>
                                 )}
                               </div>
                             </div>
 
-                            {/* Remaining Credits Counter */}
-                            <div className="flex flex-col items-end shrink-0">
-                              <div className="flex items-center gap-1 text-[#FF5500]">
-                                <svg
-                                  width="22"
-                                  height="16"
-                                  viewBox="0 0 26 18"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  className="shrink-0"
-                                >
-                                  <rect
-                                    x="1"
-                                    y="1"
-                                    width="24"
-                                    height="16"
-                                    rx="3"
+                            {/* Remaining Credits + Repost Button */}
+                            <div className="flex items-center justify-between gap-4 w-full sm:w-auto shrink-0">
+                              {/* Remaining Budget Credits */}
+                              <div className="flex flex-col items-center sm:items-start text-gray-600 dark:text-zinc-400">
+                                <div className="flex items-center gap-1.5">
+                                  <svg
+                                    width="26"
+                                    height="18"
+                                    viewBox="0 0 26 18"
                                     fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                  />
-                                  <circle
-                                    cx="8"
-                                    cy="9"
-                                    r="3"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                  />
-                                </svg>
-                                <span className="text-xl sm:text-2xl font-black font-mono text-white">
-                                  {remainingCredits}
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="shrink-0"
+                                  >
+                                    <rect
+                                      x="1"
+                                      y="1"
+                                      width="24"
+                                      height="16"
+                                      rx="3"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                    />
+                                    <circle
+                                      cx="8"
+                                      cy="9"
+                                      r="3"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                    />
+                                  </svg>
+                                  <span className="text-sm sm:text-base font-semibold text-gray-900 dark:text-zinc-100">
+                                    {remainingCredits}
+                                  </span>
+                                </div>
+                                <span className="text-xs text-gray-500 dark:text-zinc-500 mt-0.5 font-medium">
+                                  REMAINING
                                 </span>
                               </div>
-                              <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-500 mt-0.5">
-                                REMAINING
-                              </span>
-                            </div>
-                          </div>
 
-                          {/* Middle: Progress Bar & Repost Countdown */}
-                          <div className="space-y-2">
-                            {/* 15s Timer Progress Bar */}
-                            <div className="relative">
-                              <div className="flex items-center justify-between text-xs mb-1">
-                                <span className="text-zinc-400 font-medium">
-                                  {isReposted ? (
-                                    <span className="text-[#10B981] font-semibold flex items-center gap-1">
+                              {/* Repost Button Container with 15s Countdown Tooltip */}
+                              <div className="relative">
+                                {/* Countdown Tooltip */}
+                                {!isReposted && !isEligible && playSec > 0 && (
+                                  <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap z-20 pointer-events-none">
+                                    <span>{Math.max(0, Math.ceil(15 - playSec))}s remaining</span>
+                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-px">
+                                      <div className="border-4 border-transparent border-t-gray-900" />
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Ready Tooltip */}
+                                {!isReposted && isEligible && (
+                                  <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-green-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap z-20 pointer-events-none animate-pulse">
+                                    <div className="flex items-center gap-1.5">
                                       <CheckCircle2 className="w-3.5 h-3.5" />
-                                      Completed Repost
-                                    </span>
-                                  ) : isEligible ? (
-                                    <span className="text-[#FF5500] font-bold flex items-center gap-1">
-                                      <Zap className="w-3.5 h-3.5 fill-[#FF5500]" />
-                                      Ready to Repost!
-                                    </span>
-                                  ) : playSec > 0 ? (
-                                    <span className="text-zinc-300">
-                                      Listening... {15 - playSec}s left
-                                    </span>
-                                  ) : (
-                                    <span className="text-zinc-500">
-                                      Play track for 15s to unlock repost
-                                    </span>
-                                  )}
-                                </span>
-                                <span className="font-mono text-[11px] text-zinc-500">
-                                  {playSec}s / 15s
-                                </span>
-                              </div>
+                                      <span>Ready</span>
+                                    </div>
+                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-px">
+                                      <div className="border-4 border-transparent border-t-green-600" />
+                                    </div>
+                                  </div>
+                                )}
 
-                              <div className="w-full bg-white/[0.08] h-2 rounded-full overflow-hidden p-0.5">
-                                <div
-                                  className={`h-full rounded-full transition-all duration-300 ${
+                                {/* Repost Button */}
+                                <button
+                                  type="button"
+                                  disabled={!isEligible || isReposted || repostMutation.isPending}
+                                  onClick={() => repostMutation.mutate(campaign.id)}
+                                  className={`repost-button relative overflow-hidden flex items-center gap-2 py-2 px-4 sm:px-5 focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-lg shadow-sm text-sm sm:text-base transition-all duration-200 cursor-pointer ${
                                     isReposted
-                                      ? 'bg-gradient-to-r from-[#10B981] to-[#34D399]'
-                                      : 'bg-gradient-to-r from-[#FF5500] to-[#FF7730]'
+                                      ? 'bg-green-500 text-white !cursor-not-allowed'
+                                      : isEligible
+                                      ? 'bg-[#FF5500] hover:bg-[#ff6614] text-white hover:shadow-lg focus:ring-[#FF5500]'
+                                      : 'bg-gray-300 dark:bg-zinc-700 text-white dark:text-zinc-300 !cursor-not-allowed'
                                   }`}
-                                  style={{ width: `${isReposted ? 100 : playPct}%` }}
-                                />
+                                >
+                                  {/* Animated Orange Progress Fill */}
+                                  {!isReposted && (
+                                    <div
+                                      className="absolute inset-0 bg-gradient-to-r from-orange-600 to-orange-500 transition-all duration-300 ease-out z-0"
+                                      style={{ width: `${playPct}%` }}
+                                    />
+                                  )}
+
+                                  {/* Reposted Green Background */}
+                                  {isReposted && (
+                                    <span className="absolute top-0 left-0 w-full h-full bg-green-500 z-0" />
+                                  )}
+
+                                  <div className="relative z-10 flex items-center gap-2 text-white font-medium">
+                                    {!isReposted ? (
+                                      <>
+                                        <svg
+                                          width="26"
+                                          height="18"
+                                          viewBox="0 0 26 18"
+                                          fill="none"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          className="shrink-0"
+                                        >
+                                          <rect
+                                            x="1"
+                                            y="1"
+                                            width="24"
+                                            height="16"
+                                            rx="3"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                          />
+                                          <circle
+                                            cx="8"
+                                            cy="9"
+                                            r="3"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2"
+                                          />
+                                        </svg>
+                                        <span>
+                                          {repostMutation.isPending
+                                            ? 'Reposting...'
+                                            : `${userRepostPrice} Repost`}
+                                        </span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <CheckCircle2 className="w-5 h-5 text-white" />
+                                        <span>Reposted</span>
+                                      </>
+                                    )}
+                                  </div>
+                                </button>
                               </div>
                             </div>
                           </div>
 
-                          {/* Bottom Row: Genre Pill & Action Button */}
-                          <div className="flex items-center justify-between gap-3 pt-1">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium bg-white/[0.06] border border-white/10 text-zinc-300">
-                              <Music className="w-3 h-3 text-[#FF5500]" />
-                              <span>
-                                {campaign.target_genre && campaign.target_genre !== 'anyGenre'
-                                  ? campaign.target_genre
-                                  : campaign.music?.genre || 'All Genres'}
-                              </span>
+                          {/* Bottom Row: Genre Pill + Playback Note */}
+                          <div className="mt-auto flex items-center justify-between">
+                            <span className="inline-block bg-gray-100 dark:bg-zinc-800 text-gray-700 dark:text-zinc-300 text-sm font-medium px-3 py-1.5 rounded-md shadow-sm border border-transparent dark:border-zinc-700">
+                              {campaign.target_genre && campaign.target_genre !== 'anyGenre'
+                                ? campaign.target_genre
+                                : campaign.music?.genre || 'Any Genre'}
                             </span>
-
-                            {/* Repost Button */}
-                            <button
-                              type="button"
-                              disabled={!isEligible || isReposted || repostMutation.isPending}
-                              onClick={() => repostMutation.mutate(campaign.id)}
-                              className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
-                                isReposted
-                                  ? 'bg-[#10B981] text-white cursor-default'
-                                  : isEligible
-                                  ? 'sc-pill-orange shadow-lg shadow-[#FF5500]/30 hover:scale-[1.02] active:scale-95'
-                                  : 'bg-white/[0.06] text-zinc-500 border border-white/10 !cursor-not-allowed opacity-75'
-                              }`}
-                            >
-                              {isReposted ? (
-                                <>
-                                  <CheckCircle2 className="w-4 h-4 text-white" />
-                                  <span>Reposted</span>
-                                </>
-                              ) : repostMutation.isPending ? (
-                                <span>Reposting...</span>
-                              ) : isEligible ? (
-                                <>
-                                  <RepostChainMark className="w-4 h-4" />
-                                  <span>Repost (+1 Credit)</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Play className="w-3.5 h-3.5" />
-                                  <span>Listen {Math.max(0, 15 - playSec)}s</span>
-                                </>
-                              )}
-                            </button>
+                            {!isEligible && !isReposted && (
+                              <span className="text-xs text-gray-400 dark:text-zinc-500">
+                                Play track for 15s to unlock Repost
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -761,33 +788,92 @@ export default function CampaignsFeedPage() {
                 }
               )
             ) : (
-              <div className="text-center py-16 px-4 rounded-3xl bg-[#121212] border border-white/[0.08] shadow-2xl">
-                <Music className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
-                <h3 className="sc-display text-xl font-black text-white tracking-wide">
-                  NO CAMPAIGNS AVAILABLE
-                </h3>
-                <p className="text-zinc-400 text-sm mt-1 max-w-md mx-auto">
-                  There are currently no active campaigns matching your selected filters. Try switching tabs or selecting &ldquo;All Genres&rdquo;.
+              <div className="text-center text-gray-500 dark:text-zinc-400 mt-6 py-16 bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 shadow-sm">
+                <Music className="w-12 h-12 text-zinc-500 mx-auto mb-3" />
+                <p className="text-base font-semibold text-gray-800 dark:text-zinc-200">
+                  No campaigns available at the moment.
+                </p>
+                <p className="text-sm text-gray-500 dark:text-zinc-400 mt-1">
+                  Try switching tabs or resetting your genre and search filters.
                 </p>
                 <button
                   type="button"
                   onClick={() => {
                     setActiveMainTab('all');
-                    setSelectedGenre('All Genres');
+                    setSelectedGenres([]);
                     setTrackType('all');
                     setSearch('');
+                    setPage(1);
                   }}
-                  className="mt-5 sc-pill-dark px-5 py-2.5 text-xs font-bold border border-white/15 hover:border-white/40 cursor-pointer"
+                  className="mt-4 px-4 py-2 bg-orange-100 dark:bg-zinc-800 text-[#FF5500] font-semibold text-xs rounded-lg hover:bg-orange-200 dark:hover:bg-zinc-700 transition cursor-pointer"
                 >
                   Reset All Filters
                 </button>
               </div>
             )}
           </div>
+
+          {/* Pagination Controls */}
+          {pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between border-t border-gray-200 dark:border-zinc-800 mt-6 pt-4">
+              <div className="text-xs text-gray-500 dark:text-zinc-400">
+                Page <span className="font-semibold text-gray-900 dark:text-white">{page}</span> of{' '}
+                <span className="font-semibold text-gray-900 dark:text-white">{pagination.totalPages}</span>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className="px-3 py-1.5 text-xs font-semibold rounded-md bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                  <span>Previous</span>
+                </button>
+
+                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+                  .filter((p) => p === 1 || p === pagination.totalPages || Math.abs(p - page) <= 1)
+                  .map((p, index, array) => {
+                    const prev = array[index - 1];
+                    return (
+                      <span key={p} className="flex items-center">
+                        {prev && p - prev > 1 && (
+                          <span className="px-2 text-xs text-gray-400">...</span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setPage(p)}
+                          className={`w-8 h-8 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
+                            page === p
+                              ? 'bg-[#FF5500] text-white'
+                              : 'bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      </span>
+                    );
+                  })}
+
+                <button
+                  type="button"
+                  disabled={page >= pagination.totalPages}
+                  onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+                  className="px-3 py-1.5 text-xs font-semibold rounded-md bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 text-gray-700 dark:text-zinc-300 hover:bg-gray-50 dark:hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1"
+                >
+                  <span>Next</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Right Rail: Desktop Dashboard Summary (Hidden below XL) */}
-        <div className="w-full xl:w-[360px] 2xl:w-[380px] hidden xl:block shrink-0">
+        {/* ========================================================= */}
+        {/* RIGHT COLUMN: DESKTOP DASHBOARD SUMMARY SIDEBAR */}
+        {/* ========================================================= */}
+        <div className="w-full xl:max-w-[360px] 2xl:max-w-[380px] hidden xl:block shrink-0">
           <DashboardSummary
             earnings={1}
             dailyRepostCurrent={Object.keys(repostedIds).length}
@@ -803,7 +889,7 @@ export default function CampaignsFeedPage() {
       </section>
 
       {/* ========================================================= */}
-      {/* 3. CAMPAIGN CREATION MODAL */}
+      {/* CAMPAIGN CREATION MODAL */}
       {/* ========================================================= */}
       {showCreateModal && (
         <CreateCampaignModal
