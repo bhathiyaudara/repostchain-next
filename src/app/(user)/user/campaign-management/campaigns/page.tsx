@@ -1,17 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import styles from './campaigns.module.css';
 import Script from 'next/script';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   Plus,
   ChevronDown,
-  ArrowUpRight,
-  Repeat2,
-  Headphones,
-  Coins,
+  ChevronUp,
   Search,
   Star,
   Music,
@@ -20,10 +16,54 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
+  Flame,
+  Zap,
+  SlidersHorizontal,
+  Play,
+  RotateCcw,
 } from 'lucide-react';
 import { SoundCloudPlayer } from '@/components/soundcloud-player';
-
+import { DashboardSummary } from '@/components/dashboard-summary';
 import { CreateCampaignModal } from '@/components/campaigns/CreateCampaignModal';
+
+function RepostChainMark({ className = 'w-4 h-4' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M17 2l4 4-4 4M21 6H9a5 5 0 00-5 5v1M7 22l-4-4 4-4M3 18h12a5 5 0 005-5v-1"
+        stroke="#FF5500"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function CreditCoinIcon({ className = 'w-6 h-4' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 26 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect
+        x="1"
+        y="1"
+        width="24"
+        height="16"
+        rx="3"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <circle
+        cx="8"
+        cy="9"
+        r="3"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+    </svg>
+  );
+}
 
 const ALL_GENRES = [
   'All Genres',
@@ -50,6 +90,8 @@ export default function CampaignsFeedPage() {
   const [selectedGenres, setSelectedGenres] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const [showStats, setShowStats] = useState(false);
+  const [openTrackTypeDropdown, setOpenTrackTypeDropdown] = useState(false);
   const [openGenreDropdown, setOpenGenreDropdown] = useState(false);
   const [playingCampaignId, setPlayingCampaignId] = useState<string | null>(null);
   const [playTimes, setPlayTimes] = useState<Record<string, number>>({});
@@ -58,9 +100,8 @@ export default function CampaignsFeedPage() {
   const [openArtistMenuId, setOpenArtistMenuId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-
   // Fetch campaigns feed
-  const { data, isLoading, isError, refetch } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['campaigns-feed', activeMainTab, trackType, selectedGenres, search, page],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -80,7 +121,7 @@ export default function CampaignsFeedPage() {
     },
   });
 
-  // Fetch dashboard summary
+  // Fetch user dashboard data
   const { data: dashData } = useQuery({
     queryKey: ['user-dashboard'],
     queryFn: async () => {
@@ -216,160 +257,742 @@ export default function CampaignsFeedPage() {
   const recentTracks = dashData?.recentTracks || [];
   const userRepostPrice = dashData?.user?.repost_price || 1;
 
-  const resetFilters = () => {
-    setSelectedGenres([]);
-    setTrackType('all');
-    setSearch('');
-    setPage(1);
-  };
-  const hasFilters = selectedGenres.length > 0 || trackType !== 'all' || !!search;
-
   return (
-    <div className={styles.page}>
+    <div className="sc-dash space-y-6 max-w-screen-2xl mx-auto pb-16 px-2 sm:px-4 lg:px-6">
+      {/* SoundCloud Widget API Script */}
       <Script src="https://w.soundcloud.com/player/api.js" strategy="lazyOnload" />
-      <header className={styles.hero}>
-        <div>
-          <p className={styles.eyebrow}><span className={styles.liveDot} /> THE REPOST EXCHANGE</p>
-          <h1 className={`sc-display ${styles.title}`}>FIND YOUR<br /><span>NEXT REPOST.</span></h1>
-          <p className={styles.intro}>Discover independent sounds. Support another artist.<br className="hidden sm:block" /> Earn credits to take your own music further.</p>
-        </div>
-        <div className={styles.heroAction}>
-          <button type="button" className="sc-pill-orange" onClick={() => setShowCreateModal(true)}><Plus size={18} /> Start a campaign</button>
-          <Link href="/user/campaign-management/my-campaigns">Manage my campaigns <ArrowUpRight size={15} /></Link>
-        </div>
-      </header>
 
-      <div className={styles.workspace}>
-        <section className={styles.feed} aria-label="Discover campaigns">
-          <nav className={styles.tabs} aria-label="Campaign feeds">
-            {([
-              ['recommended_pro', 'Recommended Pro', counts.recommendedPro],
-              ['recommended', 'For you', counts.recommended],
-              ['all', 'All campaigns', counts.all],
-            ] as const).map(([value, label, count]) => (
-              <button key={value} type="button" aria-current={activeMainTab === value ? 'page' : undefined} onClick={() => { setActiveMainTab(value); setPage(1); }} className={activeMainTab === value ? styles.activeTab : ''}>
-                {label}<span>{count}</span>
-              </button>
-            ))}
-          </nav>
+      {/* ========================================================= */}
+      {/* 1. EDITORIAL HEADER & TAB STRIP */}
+      {/* ========================================================= */}
+      <div className="relative rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] p-[1px] shadow-2xl">
+        <div className="rounded-[23px] bg-[#121212] p-5 sm:p-7 relative overflow-hidden">
+          {/* Subtle Ambient Radial Glow */}
+          <div
+            className="absolute -top-24 -right-24 w-80 h-80 bg-[#FF5500]/15 rounded-full blur-[100px] pointer-events-none"
+            aria-hidden="true"
+          />
 
-          <div className={styles.filters}>
-            <label className={styles.search}>
-              <Search size={17} aria-hidden="true" />
-              <input aria-label="Search campaigns" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} placeholder="Search tracks, genres, tags…" />
-              {search ? <button type="button" aria-label="Clear search" onClick={() => { setSearch(''); setPage(1); }}><X size={15} /></button> : null}
-            </label>
-            <label className={styles.typeFilter}>
-              <span className="sr-only">Track type</span>
-              <select value={trackType} onChange={(e) => { setTrackType(e.target.value as 'all' | 'track' | 'playlist'); setPage(1); }}>
-                <option value="all">All formats</option><option value="track">Tracks</option><option value="playlist">Playlists</option>
-              </select>
-            </label>
-            <div className={styles.genreFilter}>
-              <button type="button" aria-expanded={openGenreDropdown} aria-controls="campaign-genres" onClick={() => setOpenGenreDropdown(!openGenreDropdown)} className={styles.filterButton}>
-                Genres {selectedGenres.length ? `(${selectedGenres.length})` : ''}<ChevronDown size={15} />
-              </button>
-              {openGenreDropdown ? <>
-                <button type="button" className={styles.dismiss} aria-label="Close genre filter" onClick={() => setOpenGenreDropdown(false)} />
-                <div id="campaign-genres" className={styles.genrePopover} onKeyDown={(e) => { if (e.key === 'Escape') setOpenGenreDropdown(false); }}>
-                  <div className={styles.popoverHeading}><span>MAKE IT YOUR SOUND</span><button type="button" aria-label="Close genres" onClick={() => setOpenGenreDropdown(false)}><X size={16} /></button></div>
-                  <div className={styles.genreOptions}>{ALL_GENRES.map((genre) => <button type="button" key={genre} aria-pressed={genre === 'All Genres' ? selectedGenres.length === 0 : selectedGenres.includes(genre)} onClick={() => toggleGenre(genre)}>{genre}</button>)}</div>
+          <div className="relative z-10 flex flex-col gap-5">
+            {/* Top Bar: Badge & Action Buttons */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.06] border border-white/10 mb-2.5 backdrop-blur-sm">
+                  <RepostChainMark className="w-3.5 h-3.5 drop-shadow-[0_0_6px_rgba(255,85,0,0.4)]" />
+                  <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-300">
+                    CAMPAIGN EXCHANGE
+                  </span>
+                  <span className="w-1 h-1 rounded-full bg-white/20" />
+                  <span className="text-[10px] font-mono text-[#FF5500] font-bold flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
+                    LIVE FEED
+                  </span>
                 </div>
-              </> : null}
+
+                <h1 className="sc-display text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-[0.95]">
+                  CAMPAIGN FEED
+                </h1>
+                <p className="text-zinc-400 text-xs sm:text-sm mt-1.5 max-w-2xl font-normal">
+                  Listen to verified community tracks for 15 seconds to unlock reposts, earn promotion credits, and boost your SoundCloud reach.
+                </p>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(true)}
+                  className="sc-pill-white px-5 py-2.5 text-xs sm:text-sm font-bold shadow-xl shadow-white/5 cursor-pointer flex items-center gap-2 hover:scale-[1.02] active:scale-95 transition-all"
+                >
+                  <Plus className="w-4 h-4 text-[#FF5500]" />
+                  <span>Start a new campaign</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowStats(!showStats)}
+                  className="xl:hidden sc-pill-dark px-4 py-2.5 text-xs font-bold border border-white/15 flex items-center gap-1.5 text-zinc-300 hover:text-white cursor-pointer"
+                >
+                  <span>{showStats ? 'Hide Stats' : 'Show Stats'}</span>
+                  {showStats ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </button>
+              </div>
+            </div>
+
+            {/* Bottom Strip: Navigation Tabs */}
+            <div className="pt-2 border-t border-white/[0.08] flex items-center justify-between">
+              <nav className="-mb-px flex space-x-6 sm:space-x-8 overflow-x-auto no-scrollbar">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveMainTab('recommended_pro');
+                    setPage(1);
+                  }}
+                  className={`tab-button pb-2 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer border-b-2 flex items-center gap-2 ${
+                    activeMainTab === 'recommended_pro'
+                      ? 'border-[#FF5500] text-[#FF5500]'
+                      : 'border-transparent text-zinc-400 hover:text-white hover:border-zinc-700'
+                  }`}
+                >
+                  <span>Recommended Pro</span>
+                  <span
+                    className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                      activeMainTab === 'recommended_pro'
+                        ? 'bg-[#FF5500]/20 text-[#FF5500] border border-[#FF5500]/30 font-bold'
+                        : 'bg-white/[0.06] text-zinc-400'
+                    }`}
+                  >
+                    {counts.recommendedPro}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveMainTab('recommended');
+                    setPage(1);
+                  }}
+                  className={`tab-button pb-2 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer border-b-2 flex items-center gap-2 ${
+                    activeMainTab === 'recommended'
+                      ? 'border-[#FF5500] text-[#FF5500]'
+                      : 'border-transparent text-zinc-400 hover:text-white hover:border-zinc-700'
+                  }`}
+                >
+                  <span>Recommended</span>
+                  <span
+                    className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                      activeMainTab === 'recommended'
+                        ? 'bg-[#FF5500]/20 text-[#FF5500] border border-[#FF5500]/30 font-bold'
+                        : 'bg-white/[0.06] text-zinc-400'
+                    }`}
+                  >
+                    {counts.recommended}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveMainTab('all');
+                    setPage(1);
+                  }}
+                  className={`tab-button pb-2 text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer border-b-2 flex items-center gap-2 ${
+                    activeMainTab === 'all'
+                      ? 'border-[#FF5500] text-[#FF5500]'
+                      : 'border-transparent text-zinc-400 hover:text-white hover:border-zinc-700'
+                  }`}
+                >
+                  <span>All</span>
+                  <span
+                    className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
+                      activeMainTab === 'all'
+                        ? 'bg-[#FF5500]/20 text-[#FF5500] border border-[#FF5500]/30 font-bold'
+                        : 'bg-white/[0.06] text-zinc-400'
+                    }`}
+                  >
+                    {counts.all}
+                  </span>
+                </button>
+              </nav>
             </div>
           </div>
-          {hasFilters ? <div className={styles.activeFilters}>
-            {selectedGenres.map((genre) => <button type="button" key={genre} onClick={() => toggleGenre(genre)}>{genre}<X size={12} /></button>)}
-            <button type="button" onClick={resetFilters}>Clear filters <X size={12} /></button>
-          </div> : null}
-
-          <div className={styles.feedHeading}><span>{isLoading ? 'FINDING YOUR SOUND' : `${pagination.total} CAMPAIGNS TO EXPLORE`}</span><span>LISTEN. REPOST. GROW.</span></div>
-          {repostMutation.isError ? <p role="alert" className={styles.error}>{repostMutation.error.message}</p> : null}
-          <div aria-busy={isLoading}>
-            {isLoading ? <div role="status" aria-label="Loading campaigns">{[1, 2, 3].map((i) => <div key={i} className={styles.skeleton} />)}</div>
-            : isError ? <div className={styles.empty} role="alert"><Music size={32} /><h2>Couldn't load the music.</h2><p>Please try loading the campaigns again.</p><button type="button" className="sc-pill-orange" onClick={() => refetch()}>Try again</button></div>
-            : campaigns.length ? campaigns.map((campaign: {
-              id: string; budget_credits: number; credits_spent: number; target_genre?: string; is_featured?: number; is_boost?: number;
-              user?: { urn?: string; name?: string; avatar?: string; soundcloud_permalink_url?: string };
-              music?: { id?: string; title?: string; genre?: string; artwork_url?: string; permalink_url?: string; author_username?: string };
-            }, index: number) => {
-              const campaignId = String(campaign.id);
-              const playSec = playTimes[campaignId] || 0;
-              const isEligible = playSec >= 15;
-              const isReposted = !!repostedIds[campaignId];
-              const remainingCredits = Math.max(0, Number(campaign.budget_credits ?? 0) - Number(campaign.credits_spent ?? 0));
-              const artistUrn = campaign.user?.urn;
-              const artistName = campaign.user?.name || campaign.music?.author_username || 'SoundCloud Artist';
-              const isPending = repostMutation.isPending && repostMutation.variables === campaignId;
-              return <article key={campaignId} className={styles.campaign}>
-                <div className={styles.rowHeading}>
-                  <span className={styles.index}>{String((page - 1) * 12 + index + 1).padStart(2, '0')}</span>
-                  <span className={styles.genre}>{campaign.target_genre && campaign.target_genre !== 'anyGenre' ? campaign.target_genre : campaign.music?.genre || 'Any genre'}</span>
-                  {campaign.is_featured ? <span className={styles.featured}>FEATURED</span> : null}
-                  {campaign.is_boost ? <span className={styles.boosted}>BOOSTED</span> : null}
-                  <span className={styles.budget}>{remainingCredits.toLocaleString()} credits remaining</span>
-                </div>
-                <div className={styles.player}>
-                  <SoundCloudPlayer track={campaign.music} height={166} visual={false} isPlaying={playingCampaignId === campaignId} playSeconds={playSec}
-                    onTogglePlay={() => togglePlay(campaignId)}
-                    onProgress={(sec) => setPlayTimes((prev) => ({ ...prev, [campaignId]: Math.min(15, sec) }))}
-                    onEligible={() => setPlayTimes((prev) => ({ ...prev, [campaignId]: 15 }))} />
-                </div>
-                <div className={styles.rowFooter}>
-                  <div className={styles.artist}>
-                    <img src={campaign.user?.avatar || '/default_img/no_img.jpg'} alt="" loading="lazy" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/default_img/no_img.jpg'; }} />
-                    <div className={styles.artistName}>
-                      <button type="button" aria-expanded={openArtistMenuId === campaignId} onClick={() => setOpenArtistMenuId(openArtistMenuId === campaignId ? null : campaignId)}>{artistName}<ChevronDown size={13} /></button>
-                      <span>Independent artist</span>
-                      {openArtistMenuId === campaignId ? <div className={styles.artistPopover}>
-                        {campaign.user?.soundcloud_permalink_url ? <a href={campaign.user.soundcloud_permalink_url} target="_blank" rel="noopener noreferrer">SoundCloud profile <ExternalLink size={13} /></a> : null}
-                        <Link href="/user/members">Explore artists <ArrowUpRight size={13} /></Link>
-                        <button type="button" onClick={() => setOpenArtistMenuId(null)}>Close <X size={13} /></button>
-                      </div> : null}
-                    </div>
-                    {artistUrn ? <button type="button" className={styles.star} aria-label={`${starredUrns[artistUrn] ? 'Unstar' : 'Star'} ${artistName}`} aria-pressed={!!starredUrns[artistUrn]} onClick={() => handleToggleStar(artistUrn)}><Star size={17} fill={starredUrns[artistUrn] ? 'currentColor' : 'none'} /></button> : null}
-                  </div>
-                  <div className={styles.repostAction}>
-                    <span className={styles.listenNote}>{isReposted ? 'Thanks for supporting this artist' : isEligible ? 'Ready to support this sound' : playSec ? `${Math.ceil(15 - playSec)}s more to unlock` : 'Listen for 15s to unlock'}</span>
-                    <button type="button" className={styles.repostButton} disabled={!isEligible || isReposted || isPending} data-complete={isReposted} onClick={() => repostMutation.mutate(campaignId)}>
-                      {isReposted ? <CheckCircle2 size={17} /> : <Repeat2 size={17} />}
-                      {isReposted ? 'Reposted' : isPending ? 'Reposting…' : `Repost +${userRepostPrice}`}
-                    </button>
-                  </div>
-                </div>
-              </article>;
-            }) : <div className={styles.empty}><Music size={36} /><h2>A fresh sound is on its way.</h2><p>No campaigns match this selection. Explore another genre or try all campaigns.</p><button type="button" className="sc-pill-orange" onClick={() => { resetFilters(); setActiveMainTab('all'); }}>Explore all campaigns <ArrowUpRight size={16} /></button></div>}
-          </div>
-          {pagination.totalPages > 1 ? <nav className={styles.pagination} aria-label="Campaign pagination">
-            <span>Page {page} of {pagination.totalPages}</span>
-            <div><button type="button" aria-label="Previous page" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}><ChevronLeft size={18} /></button><button type="button" aria-label="Next page" disabled={page >= pagination.totalPages} onClick={() => setPage((p) => p + 1)}><ChevronRight size={18} /></button></div>
-          </nav> : null}
-        </section>
-
-        <aside className={styles.sidebar} aria-label="Your exchange overview">
-          <section className={styles.wallet}>
-            <div className={styles.walletLabel}><Coins size={18} /><span>YOUR NEXT MOVE</span></div>
-            <p className={styles.creditValue}>{dashData ? availableCredits.toLocaleString() : '—'}</p>
-            <p className={styles.creditLabel}>credits to grow your sound</p>
-            <button type="button" onClick={() => setShowCreateModal(true)}>Put them to work <ArrowUpRight size={18} /></button>
-            <div className={styles.walletStats}><span>Active campaigns</span><strong>{dashData?.kpis?.activeCampaigns ?? '—'}</strong></div>
-            <div className={styles.walletStats}><span>Reposted this session</span><strong>{Object.values(repostedIds).filter(Boolean).length}</strong></div>
-          </section>
-          <section className={styles.guide}>
-            <p className={styles.eyebrow}>GOOD MUSIC GOES BOTH WAYS.</p>
-            <h2 className="sc-display">GIVE A REPOST.<br />GET HEARD.</h2>
-            <div><Headphones size={19} /><p><strong>Find your sound</strong><span>Explore tracks and listen for at least 15 seconds.</span></p></div>
-            <div><Repeat2 size={19} /><p><strong>Back another artist</strong><span>Repost a track you connect with to earn credits.</span></p></div>
-            <div><ArrowUpRight size={19} /><p><strong>Build your momentum</strong><span>Use your credits to launch your own campaign.</span></p></div>
-          </section>
-          <p className={styles.sidebarNote}>INDEPENDENT SOUNDS. SHARED AMBITION.</p>
-        </aside>
+        </div>
       </div>
-      {showCreateModal ? <CreateCampaignModal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} tracks={recentTracks} availableCredits={availableCredits} onSuccess={() => {
-        setShowCreateModal(false);
-        queryClient.invalidateQueries({ queryKey: ['campaigns-feed'] });
-        queryClient.invalidateQueries({ queryKey: ['user-dashboard'] });
-      }} /> : null}
+
+      {/* Mobile/Tablet Collapsible Dashboard Summary */}
+      {showStats && (
+        <div className="xl:hidden">
+          <DashboardSummary
+            earnings={1}
+            dailyRepostCurrent={Object.keys(repostedIds).length}
+            dailyRepostMax={20}
+            responseRate={98}
+            pendingRequests={dashData?.pendingRequests?.length ?? 2}
+            requestLimit={20}
+            credits={availableCredits}
+            campaigns={dashData?.kpis?.activeCampaigns ?? 2}
+            campaignLimit={10}
+          />
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* 2. MAIN FEED + SIDEBAR LAYOUT */}
+      {/* ========================================================= */}
+      <section className="flex flex-col xl:flex-row gap-6">
+        {/* Left Column: Campaigns Feed */}
+        <div className="w-full min-w-0 flex-1 space-y-4">
+          {/* Editorial Filter Controls Bar */}
+          <div className="relative rounded-2xl bg-[#141414] border border-white/[0.08] p-3.5 shadow-xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 z-30">
+            <div className="flex flex-wrap items-center gap-2.5">
+              {/* Track Type Dropdown */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpenTrackTypeDropdown(!openTrackTypeDropdown);
+                    setOpenGenreDropdown(false);
+                  }}
+                  className="bg-[#1A1A1A] hover:bg-[#222222] border border-white/10 hover:border-[#FF5500]/50 text-white px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-between gap-2.5 transition-all shadow-md cursor-pointer"
+                >
+                  <span className="text-zinc-400">Type:</span>
+                  <span className="text-white capitalize">
+                    {trackType === 'all' ? 'All' : `${trackType}s`}
+                  </span>
+                  <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
+                </button>
+
+                {openTrackTypeDropdown && (
+                  <div className="absolute left-0 mt-2 w-48 rounded-xl shadow-2xl bg-[#161616] border border-white/10 p-1.5 z-50 backdrop-blur-xl">
+                    {(['all', 'track', 'playlist'] as const).map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => {
+                          setTrackType(type);
+                          setOpenTrackTypeDropdown(false);
+                          setPage(1);
+                        }}
+                        className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg capitalize flex items-center justify-between transition-colors cursor-pointer ${
+                          trackType === type
+                            ? 'bg-[#FF5500] text-white font-bold'
+                            : 'text-zinc-300 hover:bg-white/[0.08] hover:text-white'
+                        }`}
+                      >
+                        <span>{type === 'all' ? 'All Types' : `${type}s Only`}</span>
+                        {trackType === type && <CheckCircle2 className="w-3.5 h-3.5" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Genre Multi-Select Popover */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpenGenreDropdown(!openGenreDropdown);
+                    setOpenTrackTypeDropdown(false);
+                  }}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all shadow-md cursor-pointer ${
+                    selectedGenres.length > 0
+                      ? 'bg-[#FF5500]/15 border border-[#FF5500]/40 text-[#FF5500]'
+                      : 'bg-[#1A1A1A] hover:bg-[#222222] border border-white/10 hover:border-[#FF5500]/50 text-white'
+                  }`}
+                >
+                  <Music className="w-3.5 h-3.5" />
+                  <span>
+                    Genre / {selectedGenres.length}
+                  </span>
+                  <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
+                </button>
+
+                {openGenreDropdown && (
+                  <div className="absolute left-0 mt-2 w-80 sm:w-96 rounded-2xl shadow-2xl bg-[#161616] border border-white/10 p-3.5 max-h-96 overflow-y-auto z-50 backdrop-blur-xl">
+                    <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-white/[0.08]">
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-400">
+                        SELECT GENRES ({selectedGenres.length} ACTIVE)
+                      </span>
+                      {selectedGenres.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedGenres([]);
+                            setPage(1);
+                          }}
+                          className="text-[11px] font-bold text-[#FF5500] hover:underline cursor-pointer flex items-center gap-1"
+                        >
+                          <RotateCcw className="w-3 h-3" />
+                          <span>Clear All</span>
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {ALL_GENRES.map((genre) => {
+                        const isSelected =
+                          genre === 'All Genres'
+                            ? selectedGenres.length === 0
+                            : selectedGenres.includes(genre);
+                        return (
+                          <button
+                            key={genre}
+                            type="button"
+                            onClick={() => toggleGenre(genre)}
+                            className={`inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                              isSelected
+                                ? 'bg-[#FF5500] text-white shadow-md shadow-[#FF5500]/30'
+                                : 'bg-white/[0.06] text-zinc-300 hover:bg-white/[0.12] hover:text-white border border-white/5'
+                            }`}
+                          >
+                            <span>{genre}</span>
+                            {isSelected && genre !== 'All Genres' && (
+                              <CheckCircle2 className="w-3 h-3 ml-1.5 shrink-0" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Tag Search Input */}
+            <div className="relative flex-1 sm:max-w-xs">
+              <div className="relative flex items-center bg-[#1A1A1A] border border-white/10 focus-within:border-[#FF5500] focus-within:ring-2 focus-within:ring-[#FF5500]/20 rounded-xl transition-all">
+                <Search className="w-4 h-4 absolute left-3 text-zinc-400 pointer-events-none" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setPage(1);
+                  }}
+                  placeholder="Search tags or track title..."
+                  className="w-full py-2 pl-9 pr-8 text-xs font-medium text-white placeholder-zinc-500 bg-transparent border-0 rounded-xl focus:outline-none"
+                />
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearch('');
+                      setPage(1);
+                    }}
+                    className="absolute right-2.5 text-zinc-400 hover:text-white cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Campaign Feed Cards List */}
+          <div className="space-y-4">
+            {isLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className="h-44 rounded-3xl bg-[#141414] border border-white/[0.06] animate-pulse"
+                  />
+                ))}
+              </div>
+            ) : campaigns.length > 0 ? (
+              campaigns.map(
+                (campaign: {
+                  id: string;
+                  budget_credits: number;
+                  credits_spent: number;
+                  target_genre?: string;
+                  is_featured?: number;
+                  is_boost?: number;
+                  user?: {
+                    urn?: string;
+                    name?: string;
+                    avatar?: string;
+                    soundcloud_permalink_url?: string;
+                  };
+                  music?: {
+                    id?: string;
+                    title?: string;
+                    genre?: string;
+                    artwork_url?: string;
+                    permalink_url?: string;
+                    author_username?: string;
+                  };
+                }) => {
+                  const playSec = playTimes[campaign.id] || 0;
+                  const playPct = Math.min(100, (playSec / 15) * 100);
+                  const isEligible = playSec >= 15;
+                  const isReposted = !!repostedIds[campaign.id];
+                  const remainingCredits = Math.max(
+                    0,
+                    Number(campaign.budget_credits || 50) - Number(campaign.credits_spent || 0)
+                  );
+                  const artistUrn = campaign.user?.urn || campaign.id;
+                  const isStarred = !!starredUrns[artistUrn];
+                  const isArtistMenuOpen = openArtistMenuId === campaign.id;
+
+                  return (
+                    <div
+                      key={campaign.id}
+                      className="relative rounded-3xl bg-gradient-to-b from-white/[0.08] to-white/[0.02] p-[1px] hover:from-[#FF5500]/30 hover:to-white/[0.06] transition-all duration-300 shadow-xl group"
+                    >
+                      <div className="rounded-[23px] bg-[#121212] overflow-hidden flex flex-col lg:flex-row">
+                        {/* Left Column: Authentic SoundCloud Player */}
+                        <div className="w-full lg:w-1/2 border-b lg:border-b-0 lg:border-r border-white/[0.08] bg-[#0c0c0c] relative flex flex-col justify-center min-h-[166px]">
+                          <SoundCloudPlayer
+                            track={campaign.music}
+                            height={166}
+                            visual={false}
+                            isPlaying={playingCampaignId === campaign.id}
+                            playSeconds={playSec}
+                            onTogglePlay={() => togglePlay(campaign.id)}
+                            onProgress={(sec) => {
+                              setPlayTimes((prev) => ({
+                                ...prev,
+                                [campaign.id]: Math.min(15, sec),
+                              }));
+                            }}
+                            onEligible={() => {
+                              setPlayTimes((prev) => ({
+                                ...prev,
+                                [campaign.id]: 15,
+                              }));
+                            }}
+                          />
+
+                          {/* Editorial Floating Badges */}
+                          <div className="absolute top-2.5 left-2.5 flex items-center gap-2 pointer-events-none z-10">
+                            {campaign.is_featured ? (
+                              <div className="bg-gradient-to-r from-[#FF5500] to-[#FF7730] text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-lg shadow-[#FF5500]/40 flex items-center gap-1">
+                                <Flame className="w-3 h-3 fill-white" />
+                                <span>FEATURED</span>
+                              </div>
+                            ) : null}
+                            {campaign.is_boost ? (
+                              <div className="bg-gradient-to-r from-[#8B5CF6] to-[#A78BFA] text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-lg shadow-[#8B5CF6]/40 flex items-center gap-1">
+                                <Zap className="w-3 h-3 fill-white" />
+                                <span>BOOSTED</span>
+                              </div>
+                            ) : null}
+                          </div>
+                        </div>
+
+                        {/* Right Column: Campaign Info & Repost Action */}
+                        <div className="w-full lg:w-1/2 p-5 sm:p-6 flex flex-col justify-between gap-4 bg-gradient-to-b from-transparent to-white/[0.01]">
+                          {/* Top Row: Artist & Credits */}
+                          <div className="flex items-start justify-between gap-4">
+                            {/* Artist Avatar & Name Dropdown */}
+                            <div className="flex items-center gap-3.5 min-w-0">
+                              <img
+                                className="w-14 h-14 rounded-full object-cover ring-2 ring-white/10 group-hover:ring-[#FF5500]/40 transition-all shadow-md shrink-0"
+                                src={campaign.user?.avatar || '/default_img/no_img.jpg'}
+                                alt={campaign.user?.name || 'Artist Avatar'}
+                                onError={(e) => {
+                                  (e.currentTarget as HTMLImageElement).src = '/default_img/no_img.jpg';
+                                }}
+                              />
+
+                              <div className="min-w-0 relative">
+                                <div className="flex items-center gap-1.5">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setOpenArtistMenuId(isArtistMenuOpen ? null : campaign.id)
+                                    }
+                                    className="text-white hover:text-[#FF5500] font-bold text-sm sm:text-base truncate transition-colors flex items-center gap-1 cursor-pointer"
+                                  >
+                                    <span>
+                                      {campaign.user?.name ||
+                                        campaign.music?.author_username ||
+                                        'SoundCloud Artist'}
+                                    </span>
+                                    <ChevronDown className="w-3.5 h-3.5 text-zinc-400 shrink-0" />
+                                  </button>
+                                </div>
+
+                                <div className="flex items-center gap-2 mt-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleToggleStar(artistUrn)}
+                                    title={isStarred ? 'Unstar creator' : 'Star creator'}
+                                    className="cursor-pointer hover:scale-110 transition-transform"
+                                  >
+                                    <Star
+                                      className={`w-4 h-4 ${
+                                        isStarred
+                                          ? 'text-[#FFB200] fill-[#FFB200] drop-shadow-[0_0_8px_rgba(255,178,0,0.5)]'
+                                          : 'text-zinc-500 hover:text-zinc-300'
+                                      }`}
+                                    />
+                                  </button>
+                                  <span className="text-[10px] font-mono text-zinc-500 uppercase">
+                                    VERIFIED CREATOR
+                                  </span>
+                                </div>
+
+                                {/* Artist Links Popover */}
+                                {isArtistMenuOpen && (
+                                  <div className="absolute left-0 mt-2 w-56 rounded-xl shadow-2xl bg-[#181818] border border-white/10 p-1.5 z-40 backdrop-blur-xl">
+                                    {campaign.user?.soundcloud_permalink_url && (
+                                      <a
+                                        href={campaign.user.soundcloud_permalink_url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] rounded-lg transition-colors"
+                                      >
+                                        <span>Visit SoundCloud Profile</span>
+                                        <ExternalLink className="w-3.5 h-3.5 text-zinc-400" />
+                                      </a>
+                                    )}
+                                    <Link
+                                      href="/user/members"
+                                      className="flex items-center justify-between px-3 py-2 text-xs font-semibold text-zinc-300 hover:text-white hover:bg-white/[0.08] rounded-lg transition-colors"
+                                    >
+                                      <span>View RepostChain Profile</span>
+                                      <RepostChainMark className="w-3 h-3" />
+                                    </Link>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Remaining Credits Counter */}
+                            <div className="flex flex-col items-end shrink-0">
+                              <div className="flex items-center gap-1.5 text-[#FF5500]">
+                                <CreditCoinIcon className="w-6 h-4 shrink-0 text-[#FF5500]" />
+                                <span className="text-xl sm:text-2xl font-black font-mono text-white">
+                                  {remainingCredits}
+                                </span>
+                              </div>
+                              <span className="text-[10px] uppercase font-bold tracking-wider text-zinc-400 mt-0.5">
+                                REMAINING
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Middle Row: Progress Bar & Repost Countdown */}
+                          <div className="space-y-2">
+                            {/* 15s Timer Progress Bar */}
+                            <div>
+                              <div className="flex items-center justify-between text-xs mb-1">
+                                <span className="text-zinc-400 font-medium">
+                                  {isReposted ? (
+                                    <span className="text-[#10B981] font-semibold flex items-center gap-1">
+                                      <CheckCircle2 className="w-3.5 h-3.5" />
+                                      Completed Repost
+                                    </span>
+                                  ) : isEligible ? (
+                                    <span className="text-[#FF5500] font-bold flex items-center gap-1">
+                                      <Zap className="w-3.5 h-3.5 fill-[#FF5500]" />
+                                      Ready to Repost!
+                                    </span>
+                                  ) : playSec > 0 ? (
+                                    <span className="text-zinc-300">
+                                      Listening... {15 - playSec}s left
+                                    </span>
+                                  ) : (
+                                    <span className="text-zinc-500">
+                                      Play track for 15s to unlock repost
+                                    </span>
+                                  )}
+                                </span>
+                                <span className="font-mono text-[11px] text-zinc-500">
+                                  {playSec}s / 15s
+                                </span>
+                              </div>
+
+                              <div className="w-full bg-white/[0.08] h-2 rounded-full overflow-hidden p-0.5">
+                                <div
+                                  className={`h-full rounded-full transition-all duration-300 ${
+                                    isReposted
+                                      ? 'bg-gradient-to-r from-[#10B981] to-[#34D399]'
+                                      : 'bg-gradient-to-r from-[#FF5500] to-[#FF7730]'
+                                  }`}
+                                  style={{ width: `${isReposted ? 100 : playPct}%` }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Bottom Row: Genre Badge & Repost Button Container */}
+                          <div className="flex items-center justify-between gap-3 pt-1">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium bg-white/[0.06] border border-white/10 text-zinc-300">
+                              <Music className="w-3 h-3 text-[#FF5500]" />
+                              <span>
+                                {campaign.target_genre && campaign.target_genre !== 'anyGenre'
+                                  ? campaign.target_genre
+                                  : campaign.music?.genre || 'All Genres'}
+                              </span>
+                            </span>
+
+                            {/* Repost Button Container with Tooltip */}
+                            <div className="relative">
+                              {/* Countdown Tooltip */}
+                              {!isReposted && !isEligible && playSec > 0 && (
+                                <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap z-20 pointer-events-none">
+                                  <span>{Math.max(0, Math.ceil(15 - playSec))}s remaining</span>
+                                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-px">
+                                    <div className="border-4 border-transparent border-t-gray-900" />
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Ready Tooltip */}
+                              {!isReposted && isEligible && (
+                                <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-green-600 text-white text-xs font-medium px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap z-20 pointer-events-none animate-pulse">
+                                  <div className="flex items-center gap-1.5">
+                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                    <span>Ready ✓</span>
+                                  </div>
+                                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-px">
+                                    <div className="border-4 border-transparent border-t-green-600" />
+                                  </div>
+                                </div>
+                              )}
+
+                              <button
+                                type="button"
+                                disabled={!isEligible || isReposted || repostMutation.isPending}
+                                onClick={() => repostMutation.mutate(campaign.id)}
+                                className={`repost-button relative overflow-hidden flex items-center gap-2 py-2.5 px-5 rounded-full text-xs sm:text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                                  isReposted
+                                    ? 'bg-[#10B981] text-white !cursor-not-allowed shadow-md shadow-[#10B981]/25'
+                                    : isEligible
+                                    ? 'sc-pill-orange shadow-lg shadow-[#FF5500]/30 hover:scale-[1.02] active:scale-95'
+                                    : 'bg-white/[0.06] text-zinc-400 border border-white/10 !cursor-not-allowed'
+                                }`}
+                              >
+                                {isReposted ? (
+                                  <>
+                                    <CheckCircle2 className="w-4 h-4 text-white" />
+                                    <span>Reposted</span>
+                                  </>
+                                ) : repostMutation.isPending ? (
+                                  <span>Reposting...</span>
+                                ) : isEligible ? (
+                                  <>
+                                    <CreditCoinIcon className="w-5 h-3.5 text-white" />
+                                    <span>{userRepostPrice} Repost</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <CreditCoinIcon className="w-5 h-3.5 text-zinc-400" />
+                                    <span>{userRepostPrice} Repost</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+              )
+            ) : (
+              <div className="text-center py-16 px-4 rounded-3xl bg-[#121212] border border-white/[0.08] shadow-2xl">
+                <Music className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
+                <h3 className="sc-display text-xl font-black text-white tracking-wide">
+                  NO CAMPAIGNS AVAILABLE
+                </h3>
+                <p className="text-zinc-400 text-sm mt-1 max-w-md mx-auto">
+                  There are currently no active campaigns matching your selected filters. Try switching tabs or selecting &ldquo;All Genres&rdquo;.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveMainTab('all');
+                    setSelectedGenres([]);
+                    setTrackType('all');
+                    setSearch('');
+                    setPage(1);
+                  }}
+                  className="mt-5 sc-pill-dark px-5 py-2.5 text-xs font-bold border border-white/15 hover:border-white/40 cursor-pointer"
+                >
+                  Reset All Filters
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Editorial Pagination Controls */}
+          {pagination.totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between border-t border-white/[0.08] mt-6 pt-4 gap-3">
+              <div className="text-xs font-mono text-zinc-400">
+                SHOWING <span className="font-bold text-white">{(page - 1) * 12 + 1}</span> TO{' '}
+                <span className="font-bold text-white">
+                  {Math.min(page * 12, pagination.total)}
+                </span>{' '}
+                OF <span className="font-bold text-white">{pagination.total}</span> CAMPAIGNS
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-xl bg-white/[0.06] border border-white/10 text-zinc-300 hover:bg-white/[0.12] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 transition-all"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                  <span>Previous</span>
+                </button>
+
+                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+                  .filter((p) => p === 1 || p === pagination.totalPages || Math.abs(p - page) <= 1)
+                  .map((p, index, array) => {
+                    const prev = array[index - 1];
+                    return (
+                      <span key={p} className="flex items-center">
+                        {prev && p - prev > 1 && (
+                          <span className="px-2 text-xs font-mono text-zinc-500">...</span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setPage(p)}
+                          className={`w-8 h-8 text-xs font-mono font-bold rounded-xl transition-all cursor-pointer ${
+                            page === p
+                              ? 'bg-[#FF5500] text-white shadow-lg shadow-[#FF5500]/30'
+                              : 'bg-white/[0.06] border border-white/10 text-zinc-300 hover:bg-white/[0.12] hover:text-white'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      </span>
+                    );
+                  })}
+
+                <button
+                  type="button"
+                  disabled={page >= pagination.totalPages}
+                  onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
+                  className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider rounded-xl bg-white/[0.06] border border-white/10 text-zinc-300 hover:bg-white/[0.12] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 transition-all"
+                >
+                  <span>Next</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ========================================================= */}
+        {/* RIGHT COLUMN: DESKTOP DASHBOARD SUMMARY SIDEBAR */}
+        {/* ========================================================= */}
+        <div className="w-full xl:max-w-[360px] 2xl:max-w-[380px] hidden xl:block shrink-0">
+          <DashboardSummary
+            earnings={1}
+            dailyRepostCurrent={Object.keys(repostedIds).length}
+            dailyRepostMax={20}
+            responseRate={98}
+            pendingRequests={dashData?.pendingRequests?.length ?? 2}
+            requestLimit={20}
+            credits={availableCredits}
+            campaigns={dashData?.kpis?.activeCampaigns ?? 2}
+            campaignLimit={10}
+          />
+        </div>
+      </section>
+
+      {/* ========================================================= */}
+      {/* 3. CAMPAIGN CREATION MODAL */}
+      {/* ========================================================= */}
+      {showCreateModal && (
+        <CreateCampaignModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          tracks={recentTracks}
+          availableCredits={availableCredits}
+          onSuccess={() => {
+            setShowCreateModal(false);
+            queryClient.invalidateQueries({ queryKey: ['campaigns-feed'] });
+            queryClient.invalidateQueries({ queryKey: ['user-dashboard'] });
+          }}
+        />
+      )}
     </div>
   );
 }
