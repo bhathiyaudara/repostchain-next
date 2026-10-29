@@ -29,7 +29,7 @@ const archivoBlack = Archivo_Black({
   subsets: ['latin'],
   weight: ['400'],
   display: 'swap',
-  variable: '--font-display',
+  variable: '--font-archivo',
 });
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://growmusicians.com';
@@ -151,7 +151,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.className} bg-gray-50 dark:bg-gray-900 text-slate-800 dark:text-white min-h-screen overflow-x-hidden antialiased transition-colors duration-200 relative`}
+        className={`${overpass.className} bg-gray-50 dark:bg-gray-900 text-slate-800 dark:text-white min-h-screen overflow-x-hidden antialiased transition-colors duration-200 relative`}
         suppressHydrationWarning
       >
         <QueryProvider>{children}</QueryProvider>

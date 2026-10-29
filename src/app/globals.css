@@ -26,7 +26,7 @@
 
 @theme {
   --font-sans: 'Interstate', var(--font-overpass), 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Garuda, Verdana, Tahoma, sans-serif;
-  --font-display: 'Interstate', var(--font-display), var(--font-overpass), 'Arial Black', sans-serif;
+  --font-display: 'Interstate', var(--font-archivo), var(--font-overpass), 'Arial Black', sans-serif;
   --font-interstate: 'Interstate', var(--font-overpass), 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Garuda, Verdana, Tahoma, sans-serif;
 }
 
@@ -46,7 +46,7 @@ body {
 
 /* Official SoundCloud Modern 2026 Display Typography & Pill Buttons */
 .sc-display {
-  font-family: 'Interstate', var(--font-display), var(--font-overpass), 'Arial Black', sans-serif;
+  font-family: 'Interstate', var(--font-archivo), var(--font-overpass), 'Arial Black', sans-serif;
   text-transform: uppercase;
   letter-spacing: -0.03em;
   line-height: 0.93;
