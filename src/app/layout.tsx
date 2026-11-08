@@ -107,7 +107,7 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    google: 'GVWhyXjde2aylNlCiqPIqSvPhx-VGi6hh5ajLaa-erg',
+    google: 'NaP1t7WpHBqZO96YK8oIht7bOcFpU8dMdcJPBQ783N0',
   },
   icons: {
     icon: [
