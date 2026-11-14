@@ -78,16 +78,41 @@ export async function GET(request: NextRequest) {
           : playlistMap.get(String(r.music_id)) ?? null,
     }));
 
+    // Fetch counts for all 3 tabs
+    const [incomingCount, outgoingCount, previouslyRepostedCount] = await Promise.all([
+      prisma.repostRequest.count({
+        where: { target_user_urn: user.urn, deleted_at: null, status: REPOST_REQUEST_STATUS.PENDING },
+      }),
+      prisma.repostRequest.count({
+        where: { requester_urn: user.urn, deleted_at: null },
+      }),
+      prisma.repostRequest.count({
+        where: { target_user_urn: user.urn, deleted_at: null, status: REPOST_REQUEST_STATUS.APPROVED },
+      }),
+    ]);
+
     return NextResponse.json(
       serializePrisma({
         dbConnected: true,
         requests,
+        counts: {
+          incoming: incomingCount,
+          outgoing: outgoingCount,
+          previouslyReposted: previouslyRepostedCount,
+        },
       })
     );
   } catch {
+    const fallbackIncoming = FALLBACK_REPOST_REQUESTS.filter((r) => r.status === 0).length;
+    const fallbackApproved = FALLBACK_REPOST_REQUESTS.filter((r) => r.status === 1).length;
     return NextResponse.json({
       dbConnected: false,
       requests: FALLBACK_REPOST_REQUESTS,
+      counts: {
+        incoming: fallbackIncoming || 2,
+        outgoing: 1,
+        previouslyReposted: fallbackApproved || 5,
+      },
     });
   }
 }
@@ -103,10 +128,59 @@ export async function PATCH(request: NextRequest) {
 async function handleRepostRequestAction(request: NextRequest) {
   const user = (await getCurrentUser()) ?? FALLBACK_USER;
   const body = await request.json();
-  const { requestId, action, rejectionReason } = body; // action: 'approve' | 'confirm' | 'decline'
+  const { requestId, action, rejectionReason } = body; // action: 'approve' | 'confirm' | 'decline' | 'cancel'
 
   try {
     const now = new Date();
+
+    if (action === 'cancel') {
+      const updated = await prisma.$transaction(async (tx) => {
+        const req = await tx.repostRequest.findUnique({
+          where: { id: BigInt(requestId) },
+        });
+        if (!req) throw new Error('Repost request not found');
+
+        const cancelled = await tx.repostRequest.update({
+          where: { id: req.id },
+          data: {
+            status: REPOST_REQUEST_STATUS.CANCELLED,
+            rejection_reason: 'Cancelled by requester',
+            responded_at: now,
+            updated_at: now,
+          },
+        });
+
+        // Refund the requester's credits
+        if (Number(req.credits_spent) > 0) {
+          await tx.creditTransaction.create({
+            data: {
+              receiver_urn: req.requester_urn,
+              sender_urn: user.urn,
+              calculation_type: CREDIT_CALCULATION_TYPE.DEBIT_ADD,
+              source_id: req.id,
+              source_type: MORPH_TYPES.REPOST_REQUEST,
+              transaction_type: CREDIT_TRANSACTION_TYPE.REFUND,
+              status: CREDIT_TRANSACTION_STATUS.SUCCEEDED,
+              amount: 0,
+              credits: req.credits_spent,
+              description: `Refund for cancelled repost request #${req.id}`,
+              created_at: now,
+              updated_at: now,
+            },
+          });
+        }
+
+        return cancelled;
+      });
+
+      return NextResponse.json(
+        serializePrisma({
+          success: true,
+          message: 'Repost request cancelled and credits refunded.',
+          request: updated,
+        })
+      );
+    }
 
     if (action === 'decline') {
       const updated = await prisma.$transaction(async (tx) => {
