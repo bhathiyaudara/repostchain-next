@@ -393,157 +393,154 @@ export default function CampaignsFeedPage() {
       )}
 
       {/* ========================================================= */}
-      {/* 3. FILTER CONTROLS BAR (SEARCH BAR RESIZED NEXT TO FILTERS) */}
-      {/* ========================================================= */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 relative z-30 mb-6">
-        {/* Filter by track type */}
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => {
-              setOpenTrackTypeDropdown(!openTrackTypeDropdown);
-              setOpenGenreDropdown(false);
-            }}
-            className="w-full sm:w-auto px-4 py-2 text-xs sm:text-sm font-semibold rounded-full border border-gray-300 dark:border-white/10 bg-white hover:bg-gray-50 text-slate-700 dark:bg-[#181818] dark:hover:bg-[#202020] dark:text-white flex items-center justify-between gap-2.5 transition-all shadow-sm cursor-pointer"
-          >
-            <span className="text-slate-500 dark:text-zinc-400 truncate">Filter by /</span>
-            <span className="text-[#FF5500] capitalize font-bold">
-              {trackType === 'all' ? 'All' : `${trackType}s`}
-            </span>
-            <ChevronDown className="w-4 h-4 text-slate-400 dark:text-zinc-400 shrink-0" />
-          </button>
-
-          {openTrackTypeDropdown && (
-            <div className="absolute left-0 mt-2 w-52 rounded-xl shadow-xl bg-white dark:bg-[#161616] border border-gray-200 dark:border-white/10 p-1.5 z-50">
-              {(['all', 'track', 'playlist'] as const).map((type) => (
-                <button
-                  key={type}
-                  type="button"
-                  onClick={() => {
-                    setTrackType(type);
-                    setOpenTrackTypeDropdown(false);
-                    setPage(1);
-                  }}
-                  className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg capitalize flex items-center justify-between transition-colors cursor-pointer ${
-                    trackType === type
-                      ? 'bg-[#FF5500] text-white font-bold'
-                      : 'text-slate-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-white/[0.08] hover:text-slate-900 dark:hover:text-white'
-                  }`}
-                >
-                  <span>{type === 'all' ? 'All Types' : `${type}s Only`}</span>
-                  {trackType === type && <CheckCircle2 className="w-3.5 h-3.5" />}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Filter by genre (Multi-select Popover) */}
-        <div className="relative">
-          <button
-            type="button"
-            onClick={() => {
-              setOpenGenreDropdown(!openGenreDropdown);
-              setOpenTrackTypeDropdown(false);
-            }}
-            className={`w-full sm:w-auto px-4 py-2 rounded-full text-xs sm:text-sm font-semibold flex items-center justify-between sm:justify-start gap-2 transition-all shadow-sm cursor-pointer ${
-              selectedGenres.length > 0
-                ? 'bg-orange-50 dark:bg-[#FF5500]/15 border border-orange-300 dark:border-[#FF5500]/50 text-[#FF5500]'
-                : 'border border-gray-300 dark:border-white/10 bg-white hover:bg-gray-50 text-slate-700 dark:bg-[#181818] dark:hover:bg-[#202020] dark:text-white'
-            }`}
-          >
-            <Music className="w-4 h-4 text-[#FF5500] shrink-0" />
-            <span className="truncate">
-              Genre / {selectedGenres.length}
-            </span>
-            <ChevronDown className="w-4 h-4 text-slate-400 dark:text-zinc-400 shrink-0" />
-          </button>
-
-          {openGenreDropdown && (
-            <div className="absolute left-0 sm:left-auto mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-sm rounded-2xl shadow-2xl bg-white dark:bg-[#161616] border border-gray-200 dark:border-white/10 p-3.5 max-h-96 overflow-y-auto z-50">
-              <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-gray-200 dark:border-white/[0.08]">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 font-bold">
-                  SELECT GENRES ({selectedGenres.length} ACTIVE)
-                </span>
-                {selectedGenres.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedGenres([]);
-                      setPage(1);
-                    }}
-                    className="text-xs font-bold text-[#FF5500] hover:underline cursor-pointer flex items-center gap-1"
-                  >
-                    <RotateCcw className="w-3 h-3" />
-                    <span>Clear All</span>
-                  </button>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {ALL_GENRES.map((genre) => {
-                  const isSelected =
-                    genre === 'All Genres'
-                      ? selectedGenres.length === 0
-                      : selectedGenres.includes(genre);
-                  return (
-                    <button
-                      key={genre}
-                      type="button"
-                      onClick={() => toggleGenre(genre)}
-                      className={`inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-                        isSelected
-                          ? 'bg-[#FF5500] text-white shadow-md shadow-[#FF5500]/30'
-                          : 'bg-gray-100 dark:bg-white/[0.06] text-slate-700 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-white/[0.12] border border-gray-200 dark:border-white/5'
-                      }`}
-                    >
-                      <span>{genre}</span>
-                      {isSelected && genre !== 'All Genres' && (
-                        <CheckCircle2 className="w-3 h-3 ml-1.5 shrink-0" />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Search tags input (Expanded spacious width) */}
-        <div className="relative flex-1 w-full sm:max-w-lg md:max-w-xl lg:max-w-2xl">
-          <div className="relative flex items-center bg-white dark:bg-[#181818] border border-gray-300 dark:border-white/10 focus-within:border-[#FF5500] focus-within:ring-2 focus-within:ring-[#FF5500]/20 rounded-full transition-all shadow-sm">
-            <Search className="w-4 h-4 absolute left-3.5 text-slate-400 dark:text-zinc-400 pointer-events-none" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPage(1);
-              }}
-              placeholder="Type to search tags..."
-              className="w-full py-2 pl-10 pr-8 text-xs sm:text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 bg-transparent border-0 rounded-full focus:outline-none"
-            />
-            {search && (
-              <button
-                type="button"
-                onClick={() => {
-                  setSearch('');
-                  setPage(1);
-                }}
-                className="absolute right-3 text-slate-400 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-white cursor-pointer"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* ========================================================= */}
-      {/* 4. MAIN SECTION (FEED + SIDEBAR) */}
+      {/* 3. MAIN SECTION (FEED + SIDEBAR) */}
       {/* ========================================================= */}
       <section className="flex flex-col 2xl:flex-row gap-6 items-start">
         {/* Left Column: Campaigns Feed */}
         <div className="w-full min-w-0 flex-1 space-y-4">
+          {/* Filter Controls Bar (Search section width extends to campaign-card end point) */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 relative z-30 pb-1">
+            {/* Filter by track type */}
+            <div className="relative shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setOpenTrackTypeDropdown(!openTrackTypeDropdown);
+                  setOpenGenreDropdown(false);
+                }}
+                className="w-full sm:w-auto px-4 py-2 text-xs sm:text-sm font-semibold rounded-full border border-gray-300 dark:border-white/10 bg-white hover:bg-gray-50 text-slate-700 dark:bg-[#181818] dark:hover:bg-[#202020] dark:text-white flex items-center justify-between gap-2.5 transition-all shadow-sm cursor-pointer"
+              >
+                <span className="text-slate-500 dark:text-zinc-400 truncate">Filter by /</span>
+                <span className="text-[#FF5500] capitalize font-bold">
+                  {trackType === 'all' ? 'All' : `${trackType}s`}
+                </span>
+                <ChevronDown className="w-4 h-4 text-slate-400 dark:text-zinc-400 shrink-0" />
+              </button>
+
+              {openTrackTypeDropdown && (
+                <div className="absolute left-0 mt-2 w-52 rounded-xl shadow-xl bg-white dark:bg-[#161616] border border-gray-200 dark:border-white/10 p-1.5 z-50">
+                  {(['all', 'track', 'playlist'] as const).map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => {
+                        setTrackType(type);
+                        setOpenTrackTypeDropdown(false);
+                        setPage(1);
+                      }}
+                      className={`w-full text-left px-3 py-2 text-xs font-semibold rounded-lg capitalize flex items-center justify-between transition-colors cursor-pointer ${
+                        trackType === type
+                          ? 'bg-[#FF5500] text-white font-bold'
+                          : 'text-slate-700 dark:text-zinc-300 hover:bg-gray-100 dark:hover:bg-white/[0.08] hover:text-slate-900 dark:hover:text-white'
+                      }`}
+                    >
+                      <span>{type === 'all' ? 'All Types' : `${type}s Only`}</span>
+                      {trackType === type && <CheckCircle2 className="w-3.5 h-3.5" />}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Filter by genre (Multi-select Popover) */}
+            <div className="relative shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setOpenGenreDropdown(!openGenreDropdown);
+                  setOpenTrackTypeDropdown(false);
+                }}
+                className={`w-full sm:w-auto px-4 py-2 rounded-full text-xs sm:text-sm font-semibold flex items-center justify-between sm:justify-start gap-2 transition-all shadow-sm cursor-pointer ${
+                  selectedGenres.length > 0
+                    ? 'bg-orange-50 dark:bg-[#FF5500]/15 border border-orange-300 dark:border-[#FF5500]/50 text-[#FF5500]'
+                    : 'border border-gray-300 dark:border-white/10 bg-white hover:bg-gray-50 text-slate-700 dark:bg-[#181818] dark:hover:bg-[#202020] dark:text-white'
+                }`}
+              >
+                <Music className="w-4 h-4 text-[#FF5500] shrink-0" />
+                <span className="truncate">
+                  Genre / {selectedGenres.length}
+                </span>
+                <ChevronDown className="w-4 h-4 text-slate-400 dark:text-zinc-400 shrink-0" />
+              </button>
+
+              {openGenreDropdown && (
+                <div className="absolute left-0 sm:left-auto mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-sm rounded-2xl shadow-2xl bg-white dark:bg-[#161616] border border-gray-200 dark:border-white/10 p-3.5 max-h-96 overflow-y-auto z-50">
+                  <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-gray-200 dark:border-white/[0.08]">
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-500 dark:text-zinc-400 font-bold">
+                      SELECT GENRES ({selectedGenres.length} ACTIVE)
+                    </span>
+                    {selectedGenres.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedGenres([]);
+                          setPage(1);
+                        }}
+                        className="text-xs font-bold text-[#FF5500] hover:underline cursor-pointer flex items-center gap-1"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        <span>Clear All</span>
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {ALL_GENRES.map((genre) => {
+                      const isSelected =
+                        genre === 'All Genres'
+                          ? selectedGenres.length === 0
+                          : selectedGenres.includes(genre);
+                      return (
+                        <button
+                          key={genre}
+                          type="button"
+                          onClick={() => toggleGenre(genre)}
+                          className={`inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+                            isSelected
+                              ? 'bg-[#FF5500] text-white shadow-md shadow-[#FF5500]/30'
+                              : 'bg-gray-100 dark:bg-white/[0.06] text-slate-700 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-white/[0.12] border border-gray-200 dark:border-white/5'
+                          }`}
+                        >
+                          <span>{genre}</span>
+                          {isSelected && genre !== 'All Genres' && (
+                            <CheckCircle2 className="w-3 h-3 ml-1.5 shrink-0" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Search tags input (Width flex-expands to campaign-card end point) */}
+            <div className="relative flex-1 w-full min-w-0">
+              <div className="relative flex items-center bg-white dark:bg-[#181818] border border-gray-300 dark:border-white/10 focus-within:border-[#FF5500] focus-within:ring-2 focus-within:ring-[#FF5500]/20 rounded-full transition-all shadow-sm">
+                <Search className="w-4 h-4 absolute left-3.5 text-slate-400 dark:text-zinc-400 pointer-events-none" />
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setPage(1);
+                  }}
+                  placeholder="Type to search tags..."
+                  className="w-full py-2 pl-10 pr-8 text-xs sm:text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-zinc-500 bg-transparent border-0 rounded-full focus:outline-none"
+                />
+                {search && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearch('');
+                      setPage(1);
+                    }}
+                    className="absolute right-3 text-slate-400 dark:text-zinc-400 hover:text-slate-800 dark:hover:text-white cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
           {isLoading ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
