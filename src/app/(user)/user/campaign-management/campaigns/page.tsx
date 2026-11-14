@@ -508,8 +508,8 @@ export default function CampaignsFeedPage() {
           )}
         </div>
 
-        {/* Search tags input (Resized & Positioned directly next to filters) */}
-        <div className="relative w-full sm:w-64 md:w-72">
+        {/* Search tags input (Expanded spacious width) */}
+        <div className="relative flex-1 w-full sm:max-w-lg md:max-w-xl lg:max-w-2xl">
           <div className="relative flex items-center bg-white dark:bg-[#181818] border border-gray-300 dark:border-white/10 focus-within:border-[#FF5500] focus-within:ring-2 focus-within:ring-[#FF5500]/20 rounded-full transition-all shadow-sm">
             <Search className="w-4 h-4 absolute left-3.5 text-slate-400 dark:text-zinc-400 pointer-events-none" />
             <input
